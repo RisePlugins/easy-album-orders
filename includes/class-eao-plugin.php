@@ -87,6 +87,9 @@ class EAO_Plugin {
         // Admin classes.
         require_once EAO_PLUGIN_DIR . 'includes/admin/class-eao-admin.php';
         require_once EAO_PLUGIN_DIR . 'includes/admin/class-eao-admin-menus.php';
+        require_once EAO_PLUGIN_DIR . 'includes/admin/class-eao-client-album-meta.php';
+        require_once EAO_PLUGIN_DIR . 'includes/admin/class-eao-album-order-meta.php';
+        require_once EAO_PLUGIN_DIR . 'includes/admin/class-eao-admin-columns.php';
 
         // Public classes.
         require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-public.php';
@@ -120,6 +123,13 @@ class EAO_Plugin {
 
         $this->loader->add_action( 'init', $client_album, 'register_post_type' );
         $this->loader->add_action( 'init', $album_order, 'register_post_type' );
+
+        // Meta boxes (hooks are registered in constructors).
+        new EAO_Client_Album_Meta();
+        new EAO_Album_Order_Meta();
+
+        // Admin columns and filters.
+        new EAO_Admin_Columns();
     }
 
     /**

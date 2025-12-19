@@ -20,8 +20,11 @@
             this.bindTabs();
             this.bindRepeaters();
             this.bindImageUpload();
+            this.bindPdfUpload();
             this.bindColorTypeToggle();
             this.bindNameInputs();
+            this.bindDesignRepeater();
+            this.bindCopyLink();
         },
 
         /**
@@ -315,6 +318,115 @@
             $(document).on('input', '.eao-engraving-name-input', function() {
                 const name = $(this).val() || 'New Engraving Method';
                 $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
+            });
+
+            // Design name.
+            $(document).on('input', '.eao-design-name-input', function() {
+                const name = $(this).val() || 'New Design';
+                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
+            });
+        },
+
+        /**
+         * Bind PDF upload functionality.
+         */
+        bindPdfUpload: function() {
+            let pdfFrame;
+
+            $(document).on('click', '.eao-upload-pdf', function(e) {
+                e.preventDefault();
+
+                const $button = $(this);
+                const $container = $button.closest('.eao-pdf-upload');
+                const $input = $container.find('.eao-pdf-id');
+                const $preview = $container.find('.eao-pdf-preview');
+                const $removeBtn = $container.find('.eao-remove-pdf');
+
+                // Create media frame for PDFs.
+                pdfFrame = wp.media({
+                    title: eaoAdmin.pdfMediaTitle || 'Select PDF',
+                    button: {
+                        text: eaoAdmin.pdfMediaButton || 'Use this PDF'
+                    },
+                    library: {
+                        type: 'application/pdf'
+                    },
+                    multiple: false
+                });
+
+                // When PDF is selected.
+                pdfFrame.on('select', function() {
+                    const attachment = pdfFrame.state().get('selection').first().toJSON();
+
+                    $input.val(attachment.id);
+                    $preview.html('<span class="dashicons dashicons-pdf"></span> <a href="' + attachment.url + '" target="_blank">' + attachment.filename + '</a>');
+                    $removeBtn.show();
+                });
+
+                pdfFrame.open();
+            });
+
+            // Remove PDF.
+            $(document).on('click', '.eao-remove-pdf', function(e) {
+                e.preventDefault();
+
+                const $container = $(this).closest('.eao-pdf-upload');
+                $container.find('.eao-pdf-id').val('');
+                $container.find('.eao-pdf-preview').html('<span class="eao-no-pdf">No PDF selected</span>');
+                $(this).hide();
+            });
+        },
+
+        /**
+         * Bind design repeater functionality (Client Album edit screen).
+         */
+        bindDesignRepeater: function() {
+            const self = this;
+
+            // Add design.
+            $(document).on('click', '.eao-add-design', function() {
+                self.addDesign();
+            });
+        },
+
+        /**
+         * Add a new design item.
+         */
+        addDesign: function() {
+            const $container = $('#eao-designs-repeater .eao-repeater__items');
+            const index = $container.find('.eao-design-item').length;
+            const template = wp.template('eao-design-item');
+
+            const $newItem = $(template({
+                index: index
+            }));
+
+            $container.append($newItem);
+            $newItem.addClass('is-open');
+            $newItem.find('.eao-design-name-input').focus();
+        },
+
+        /**
+         * Bind copy link functionality.
+         */
+        bindCopyLink: function() {
+            $(document).on('click', '.eao-copy-link-btn', function(e) {
+                e.preventDefault();
+
+                const $input = $('#eao-album-link');
+                $input.select();
+
+                try {
+                    document.execCommand('copy');
+                    const $btn = $(this);
+                    const originalText = $btn.text();
+                    $btn.text('Copied!');
+                    setTimeout(function() {
+                        $btn.text(originalText);
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                }
             });
         }
     };

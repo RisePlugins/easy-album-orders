@@ -351,3 +351,136 @@
     }
 }
 
+/* ==========================================================================
+   Meta Boxes
+   ========================================================================== */
+
+.eao-meta-box {
+    padding: 5px 0;
+}
+
+.eao-meta-box .eao-field {
+    margin-bottom: 15px;
+}
+
+.eao-meta-box .eao-field:last-child {
+    margin-bottom: 0;
+}
+
+.eao-meta-box .eao-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.eao-meta-box .eao-field-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   PDF Upload
+   ========================================================================== */
+
+.eao-pdf-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.eao-pdf-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--eao-bg-light);
+    border: 1px solid var(--eao-border-light);
+    border-radius: var(--eao-radius);
+    min-height: 44px;
+}
+
+.eao-pdf-preview .dashicons-pdf {
+    color: #d63638;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.eao-pdf-preview a {
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.eao-pdf-preview .eao-no-pdf {
+    color: var(--eao-text-light);
+    font-style: italic;
+}
+
+.eao-media-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+/* ==========================================================================
+   Design Repeater (Client Album)
+   ========================================================================== */
+
+.eao-designs-repeater .eao-repeater__item {
+    background: #fff;
+}
+
+.eao-designs-repeater .eao-field--media {
+    flex: 1;
+    min-width: 200px;
+}
+
+.eao-add-design {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.eao-add-design .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* ==========================================================================
+   Loom Preview
+   ========================================================================== */
+
+.eao-loom-preview {
+    background: var(--eao-bg-light);
+    padding: 15px;
+    border-radius: var(--eao-radius);
+}
+
+/* ==========================================================================
+   Order Columns
+   ========================================================================== */
+
+.column-order_number {
+    width: 100px;
+}
+
+.column-order_status {
+    width: 100px;
+}
+
+.column-total {
+    width: 80px;
+}
+
+.column-designs,
+.column-credits,
+.column-orders {
+    width: 70px;
+    text-align: center;
+}
+
+.column-link {
+    width: 100px;
+}
+

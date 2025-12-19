@@ -33,6 +33,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public assets (CSS and JavaScript) for front-end order forms
 - Helper functions for price calculation and formatting
 
+### Added (Phase 3: Admin Interface - Client Albums & Orders)
+- Client Album meta boxes:
+  - Client Information (name, email, phone)
+  - Loom Video URL with embed preview
+  - Album Credits for client discounts
+  - Album Designs repeater (name, cover image, PDF proof, base price)
+  - Album Order Link with copy-to-clipboard functionality
+- Album Order meta boxes:
+  - Order Status with date tracking (submitted, ordered, shipped)
+  - Order Summary with price breakdown
+  - Album Configuration (design, material, color, size, engraving)
+  - Customer Information (name, email, phone, shipping address)
+  - Order Notes (client notes, internal photographer notes)
+  - Related Client Album link
+- Custom columns for Client Albums list:
+  - Client name and email
+  - Number of designs
+  - Album credits
+  - Order count with link to filtered orders
+  - View order form link
+- Custom columns for Album Orders list:
+  - Order number (EAO-000001 format)
+  - Album name
+  - Related Client Album
+  - Customer info
+  - Configuration summary
+  - Total price
+  - Status badge with color coding
+- Album Order filters:
+  - Filter by status (Submitted, Ordered, Shipped)
+  - Filter by Client Album
+- Sortable columns for both list tables
+- PDF upload support in media library
+
 ### Planning
 - Plugin architecture design
 - Custom post types (Client Albums, Album Orders)
