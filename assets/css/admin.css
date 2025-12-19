@@ -446,8 +446,8 @@
 .eao-material-card__header {
     display: flex;
     align-items: flex-start;
-    gap: var(--eao-space-lg);
-    padding: var(--eao-space-lg);
+    gap: var(--eao-space-xl);
+    padding: var(--eao-space-xl);
     background: var(--eao-gray-50);
     border-bottom: var(--eao-border);
 }
@@ -461,8 +461,8 @@
 }
 
 .eao-image-preview--large {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
     background: #fff;
     border: 2px dashed var(--eao-gray-300);
     border-radius: var(--eao-radius-lg);
@@ -486,7 +486,7 @@
 .eao-image-preview--large:empty::before {
     content: "\f128";
     font-family: dashicons;
-    font-size: 32px;
+    font-size: 40px;
     color: var(--eao-gray-300);
 }
 
@@ -536,10 +536,19 @@
 .eao-material-card__info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.eao-material-card__row {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-xl);
 }
 
 .eao-material-card__info .eao-material-name-input {
-    font-size: var(--eao-font-xl);
+    font-size: var(--eao-font-2xl);
     font-weight: 600;
     padding: var(--eao-space-sm) 0;
     border: none;
@@ -548,6 +557,8 @@
     box-shadow: none;
     background: transparent;
     transition: border-color var(--eao-transition);
+    width: 250px;
+    flex-shrink: 0;
 }
 
 .eao-material-card__info .eao-material-name-input:focus {
@@ -558,8 +569,8 @@
 .eao-material-card__meta {
     display: flex;
     align-items: center;
-    gap: var(--eao-space-lg);
-    margin-top: var(--eao-space-sm);
+    gap: var(--eao-space-xl);
+    flex: 1;
 }
 
 .eao-material-card__delete {
@@ -587,7 +598,7 @@
    ========================================================================== */
 
 .eao-material-card__colors {
-    padding: var(--eao-space-lg);
+    padding: var(--eao-space-xl);
 }
 
 .eao-colors-header {
@@ -1646,12 +1657,28 @@
     
     .eao-material-card__header {
         flex-wrap: wrap;
+        padding: var(--eao-space-lg);
+    }
+    
+    .eao-material-card__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--eao-space-md);
+    }
+    
+    .eao-material-card__info .eao-material-name-input {
+        width: 100%;
     }
     
     .eao-material-card__meta {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--eao-space-sm);
+    }
+    
+    .eao-image-preview--large {
+        width: 100px;
+        height: 100px;
     }
 
     .eao-size-card {

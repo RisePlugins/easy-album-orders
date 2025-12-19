@@ -74,7 +74,8 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="eao-material-card__info">
+                            <div class="eao-material-card__info">
+                                <div class="eao-material-card__row">
                                     <input type="text" name="eao_materials[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $material['name'] ); ?>" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
                                     <div class="eao-material-card__meta">
                                         <div class="eao-inline-field">
@@ -90,6 +91,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         </label>
                                     </div>
                                 </div>
+                            </div>
                                 <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
                                     <span class="dashicons dashicons-trash"></span>
                                 </button>
@@ -393,19 +395,21 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
             </div>
             <div class="eao-material-card__info">
-                <input type="text" name="eao_materials[{{data.index}}][name]" value="" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
-                <div class="eao-material-card__meta">
-                    <div class="eao-inline-field">
-                        <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
-                        <div class="eao-input-prefix">
-                            <span>$</span>
-                            <input type="number" name="eao_materials[{{data.index}}][upcharge]" value="0" step="0.01" min="0">
+                <div class="eao-material-card__row">
+                    <input type="text" name="eao_materials[{{data.index}}][name]" value="" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
+                    <div class="eao-material-card__meta">
+                        <div class="eao-inline-field">
+                            <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
+                            <div class="eao-input-prefix">
+                                <span>$</span>
+                                <input type="number" name="eao_materials[{{data.index}}][upcharge]" value="0" step="0.01" min="0">
+                            </div>
                         </div>
+                        <label class="eao-toggle">
+                            <input type="checkbox" name="eao_materials[{{data.index}}][allow_engraving]" value="1">
+                            <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
+                        </label>
                     </div>
-                    <label class="eao-toggle">
-                        <input type="checkbox" name="eao_materials[{{data.index}}][allow_engraving]" value="1">
-                        <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
-                    </label>
                 </div>
             </div>
             <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
