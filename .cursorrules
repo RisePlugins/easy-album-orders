@@ -1,0 +1,344 @@
+# Easy Album Orders - Cursor Rules
+
+## Git Workflow
+
+### Commit Requirements
+- **ALWAYS commit after making changes to files**
+- **NEVER leave uncommitted changes**
+- Write clear, descriptive commit messages
+- Use conventional commit format when applicable:
+  - `feat:` for new features
+  - `fix:` for bug fixes
+  - `docs:` for documentation changes
+  - `style:` for formatting changes
+  - `refactor:` for code refactoring
+  - `test:` for adding tests
+  - `chore:` for maintenance tasks
+
+### Commit Message Format
+```
+<type>: <short description>
+
+<optional detailed description>
+
+<optional reference to issues/tasks>
+```
+
+### Examples
+```
+feat: Add Client Album custom post type registration
+fix: Correct engraving price calculation in cart
+docs: Update README with installation instructions
+refactor: Reorganize admin meta box classes
+```
+
+---
+
+## WordPress Plugin Development Standards
+
+### File Organization
+- Follow the folder structure defined in PLUGIN-OVERVIEW.md
+- Place admin files in `/includes/admin/`
+- Place public/front-end files in `/includes/public/`
+- Place core utilities in `/includes/core/`
+- Place post type definitions in `/includes/post-types/`
+- Place templates in appropriate `/views/` or `/templates/` folders
+
+### Naming Conventions
+
+#### Files
+- Use lowercase with hyphens: `class-eao-plugin.php`
+- Class files: `class-[name].php`
+- Template files: `[name].php`
+- Admin view files: `[purpose]-[context].php`
+
+#### Classes
+- Prefix all classes with `EAO_`: `EAO_Plugin`, `EAO_Client_Album`
+- Use PascalCase: `EAO_Material_Manager`
+
+#### Functions
+- Prefix all functions with `eao_`: `eao_get_materials()`, `eao_format_price()`
+- Use snake_case: `eao_render_order_form()`
+
+#### Hooks (Actions & Filters)
+- Prefix with `eao_`: `eao_before_checkout`, `eao_material_price`
+- Use snake_case and be descriptive
+
+#### Database
+- Custom tables prefix: `eao_`
+- Meta keys prefix: `_eao_`
+- Options prefix: `eao_`
+
+#### CSS & JS
+- Use BEM naming: `.eao-component__element--modifier`
+- Prefix all global classes with `eao-`
+
+---
+
+## Code Standards
+
+### PHP
+- Follow WordPress Coding Standards
+- PHP 7.4+ features are acceptable
+- Use type hints where appropriate
+- Always escape output: `esc_html()`, `esc_attr()`, `esc_url()`
+- Always sanitize input: `sanitize_text_field()`, `sanitize_email()`, etc.
+- Always validate data before processing
+- Use WordPress functions over native PHP when available
+
+### Security
+- **ALWAYS use nonces** for form submissions
+- **ALWAYS check capabilities** before allowing actions
+- **NEVER trust user input** - sanitize and validate everything
+- Use `wp_verify_nonce()` for all AJAX and form submissions
+- Use `current_user_can()` to check permissions
+- Prepare SQL queries with `$wpdb->prepare()`
+- Escape all output based on context
+
+### JavaScript
+- Prefix all functions with `eao`
+- Use modern ES6+ syntax
+- Comment complex logic
+- Use WordPress localization for text strings
+
+### CSS
+- Mobile-first responsive design
+- Use CSS custom properties for theming
+- Prefix all custom properties with `--eao-`
+- Comment complex selectors
+
+---
+
+## Documentation Requirements
+
+### Code Comments
+- Add PHPDoc blocks for all classes, methods, and functions
+- Include `@since` version tags
+- Include `@param` and `@return` tags
+- Explain complex logic with inline comments
+
+### PHPDoc Example
+```php
+/**
+ * Calculate the total price for an album order.
+ *
+ * @since 1.0.0
+ *
+ * @param int   $design_id   Album design ID.
+ * @param int   $material_id Material ID.
+ * @param int   $size_id     Size ID.
+ * @param array $engraving   Engraving details (optional).
+ * @param float $credits     Album credits to apply.
+ * @return float Calculated total price.
+ */
+function eao_calculate_album_price( $design_id, $material_id, $size_id, $engraving = array(), $credits = 0 ) {
+    // Implementation
+}
+```
+
+### File Headers
+All PHP files should include:
+```php
+<?php
+/**
+ * [Brief description of file purpose]
+ *
+ * @package Easy_Album_Orders
+ * @since 1.0.0
+ */
+
+// If not WordPress, exit.
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+```
+
+---
+
+## Plugin-Specific Rules
+
+### Custom Post Types
+- Use prefix: `client_album`, `album_order`
+- Register in `/includes/post-types/` folder
+- Use proper capabilities and capability_type
+- Add appropriate rewrite rules
+
+### Meta Data
+- Prefix all meta keys with `_eao_`
+- Use arrays for repeater fields (serialize/unserialize)
+- Validate and sanitize before saving
+- Use `update_post_meta()` with proper escaping
+
+### Pricing Calculation
+Always follow this formula:
+```
+Total = (Base Price + Material Upcharge + Size Upcharge + Engraving Upcharge) - Credits
+```
+
+### Order Status Workflow
+Respect the status progression:
+1. `submitted` - Album added to cart
+2. `ordered` - Checkout completed
+3. `shipped` - Order fulfilled
+
+### Front-End Templates
+- Keep business logic separate from templates
+- Pass all data to templates as variables
+- Use WordPress template hierarchy conventions
+- Always escape output in templates
+
+---
+
+## Development Workflow
+
+### Before Starting Work
+1. Pull latest changes: `git pull origin main`
+2. Review PLUGIN-OVERVIEW.md for architecture guidance
+3. Check CHANGELOG.md for recent changes
+
+### While Working
+1. Make logical, focused changes
+2. Test changes in WordPress environment
+3. Follow coding standards
+4. Add/update comments and documentation
+
+### After Making Changes
+1. **Commit changes immediately**
+2. Write descriptive commit message
+3. Update CHANGELOG.md if adding features
+4. Push to GitHub: `git push origin main`
+
+### Testing Checklist
+- [ ] Test in WordPress 5.8+ environment
+- [ ] Test with PHP 7.4+
+- [ ] Test on mobile devices (responsive)
+- [ ] Check for JavaScript console errors
+- [ ] Verify security (nonces, capabilities, sanitization)
+- [ ] Check for PHP errors/warnings
+
+---
+
+## Don't Do This
+
+### ❌ Never
+- Leave uncommitted changes
+- Commit without testing
+- Skip security checks (nonces, sanitization)
+- Use `$_GET`, `$_POST` directly (use WordPress functions)
+- Output unescaped user data
+- Use inline styles or scripts (enqueue properly)
+- Hard-code text strings (use i18n functions)
+- Use `extract()`
+- Use deprecated WordPress functions
+- Commit sensitive data (API keys, passwords)
+- Commit IDE-specific files (covered in .gitignore)
+
+### ❌ Avoid
+- Complex nested ternary operators
+- Functions longer than 50 lines (refactor)
+- Deep nesting (max 3-4 levels)
+- Global variables (use class properties)
+- Direct database queries (use WordPress APIs)
+
+---
+
+## WordPress Best Practices
+
+### Database Operations
+```php
+// Good
+$results = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}eao_table WHERE user_id = %d",
+        $user_id
+    )
+);
+
+// Bad
+$results = $wpdb->get_results( "SELECT * FROM wp_eao_table WHERE user_id = " . $user_id );
+```
+
+### Enqueuing Assets
+```php
+// Good
+wp_enqueue_style( 'eao-public', EAO_PLUGIN_URL . 'assets/css/public.css', array(), EAO_VERSION );
+wp_enqueue_script( 'eao-public', EAO_PLUGIN_URL . 'assets/js/public.js', array( 'jquery' ), EAO_VERSION, true );
+
+// Bad - inline styles/scripts
+echo '<style>...</style>';
+```
+
+### AJAX Handling
+```php
+// Always check nonce
+check_ajax_referer( 'eao_ajax_nonce', 'nonce' );
+
+// Always check capabilities
+if ( ! current_user_can( 'manage_options' ) ) {
+    wp_send_json_error( 'Insufficient permissions' );
+}
+
+// Always sanitize input
+$album_id = isset( $_POST['album_id'] ) ? absint( $_POST['album_id'] ) : 0;
+```
+
+---
+
+## Internationalization (i18n)
+
+### Text Domain
+Always use: `easy-album-orders`
+
+### Examples
+```php
+// Simple string
+__( 'Add to Cart', 'easy-album-orders' );
+_e( 'Order Total:', 'easy-album-orders' );
+
+// With variables
+sprintf( __( 'Total: %s', 'easy-album-orders' ), $formatted_price );
+
+// Pluralization
+_n( '%s item', '%s items', $count, 'easy-album-orders' );
+```
+
+---
+
+## Performance Considerations
+
+- Use WordPress transients for caching expensive operations
+- Minimize database queries (use WP_Query efficiently)
+- Load assets only where needed (conditional enqueuing)
+- Optimize images before committing
+- Use lazy loading for front-end images
+- Minify CSS/JS for production
+
+---
+
+## Questions Before Proceeding
+
+When implementing a feature, ask:
+1. Does this follow WordPress coding standards?
+2. Is all user input sanitized?
+3. Is all output escaped?
+4. Are nonces verified?
+5. Are capabilities checked?
+6. Is this accessible?
+7. Is this mobile-responsive?
+8. Is this internationalized?
+9. Have I documented this code?
+10. Should this be committed now?
+
+---
+
+## Reference Documentation
+
+- WordPress Coding Standards: https://developer.wordpress.org/coding-standards/
+- WordPress Plugin Handbook: https://developer.wordpress.org/plugins/
+- Security Best Practices: https://developer.wordpress.org/apis/security/
+- Project Architecture: See PLUGIN-OVERVIEW.md
+
+---
+
+**Remember: Commit early, commit often, commit with clear messages!**
+
