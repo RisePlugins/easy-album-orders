@@ -67,6 +67,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sortable columns for both list tables
 - PDF upload support in media library
 
+### Added (Phase 4: Front-End Order Form)
+- Single-page client order form template (`/album/client-name/`)
+- Loom video embed at top of order form
+- Album design selector with:
+  - Cover image display
+  - Base price display
+  - PDF proof link
+- Material selector with:
+  - Material images
+  - Upcharge display
+  - Dynamic color swatches based on material
+- Color/texture selector with visual swatches and tooltips
+- Size selector with:
+  - Dimensions display
+  - Upcharge display
+  - Material-based availability filtering
+- Conditional engraving section:
+  - Only shows when material allows engraving
+  - Method selection with upcharge display
+  - Dynamic character limit per method
+  - Font selection based on method
+- Real-time price calculator showing:
+  - Base price
+  - Material upcharge
+  - Size upcharge
+  - Engraving upcharge
+  - Album credits applied
+  - Running total
+- Cart sidebar widget:
+  - Display all submitted (in-cart) albums
+  - Edit submitted albums
+  - Remove albums from cart
+  - Running cart total
+- Add to Cart functionality via AJAX
+- Edit existing cart items
+- Checkout process that locks orders
+- Order confirmation message
+- Template loader with theme override support
+- AJAX handlers for all cart operations
+
 ### Planning
 - Plugin architecture design
 - Custom post types (Client Albums, Album Orders)

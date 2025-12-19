@@ -601,3 +601,158 @@
     }
 }
 
+/* ==========================================================================
+   Additional Elements
+   ========================================================================== */
+
+/* Required field asterisk */
+.eao-field__label .required {
+    color: var(--eao-error);
+}
+
+/* Optional badge */
+.eao-form__section-title .optional {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: var(--eao-text-light);
+}
+
+/* Disabled selection cards */
+.eao-selection-card.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.eao-selection-card.is-disabled::after {
+    content: "Not available";
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--eao-text-light);
+    text-transform: uppercase;
+}
+
+/* Placeholder images */
+.eao-selection-card__image--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--eao-bg);
+    color: var(--eao-border);
+}
+
+.eao-selection-card__image--placeholder .dashicons {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+}
+
+/* Card dimensions */
+.eao-selection-card__dimensions {
+    font-size: 0.8rem;
+    color: var(--eao-text-light);
+    margin-bottom: 5px;
+}
+
+/* Card link */
+.eao-selection-card__link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--eao-accent);
+    text-decoration: none;
+}
+
+.eao-selection-card__link:hover {
+    text-decoration: underline;
+}
+
+/* Price included badge */
+.eao-selection-card__price--included {
+    color: var(--eao-success);
+    font-size: 0.8rem;
+}
+
+/* Engraving fields */
+.eao-engraving-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--eao-border-light);
+}
+
+/* Character count */
+.eao-field__help {
+    font-size: 0.85rem;
+    color: var(--eao-text-light);
+    margin-top: 5px;
+}
+
+/* Cart empty hint */
+.eao-cart__empty-hint {
+    font-size: 0.9rem;
+    color: var(--eao-text-light);
+    margin-top: 10px;
+}
+
+/* Cart notice */
+.eao-cart__notice {
+    font-size: 0.8rem;
+    color: var(--eao-text-light);
+    margin: 15px 0 0;
+    text-align: center;
+}
+
+/* Form wrapper */
+.eao-form-wrapper {
+    flex: 1;
+}
+
+/* Messages container */
+.eao-messages {
+    margin-bottom: 20px;
+}
+
+/* Submit section */
+.eao-form__submit {
+    margin-top: 30px;
+}
+
+/* Price section */
+.eao-price-section {
+    background: var(--eao-bg);
+    margin: 0 -30px -30px;
+    padding: 30px;
+    border-radius: 0 0 var(--eao-radius) var(--eao-radius);
+}
+
+.eao-price-section .eao-form__section-title {
+    margin-top: 0;
+}
+
+/* Color section */
+.eao-color-section {
+    padding-top: 0;
+}
+
+/* Size cards - smaller for sizes */
+.eao-sizes-grid .eao-selection-card {
+    padding: 20px 15px;
+}
+
+.eao-sizes-grid .eao-selection-card__name {
+    font-size: 1.1rem;
+}
+
+/* Design cards - larger images */
+.eao-designs-grid .eao-selection-card__image {
+    height: 150px;
+}
+
+/* Engraving select styling */
+#eao-engraving-method {
+    max-width: 400px;
+}
+

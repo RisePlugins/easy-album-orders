@@ -93,6 +93,8 @@ class EAO_Plugin {
 
         // Public classes.
         require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-public.php';
+        require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-template-loader.php';
+        require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-ajax-handler.php';
 
         // Core utilities.
         require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-helpers.php';
@@ -144,6 +146,12 @@ class EAO_Plugin {
         // Public assets.
         $this->loader->add_action( 'wp_enqueue_scripts', $public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $public, 'enqueue_scripts' );
+
+        // Template loader (hooks registered in constructor).
+        new EAO_Template_Loader();
+
+        // AJAX handlers (hooks registered in constructor).
+        new EAO_Ajax_Handler();
     }
 
     /**
