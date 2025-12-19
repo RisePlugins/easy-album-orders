@@ -344,8 +344,8 @@ class EAO_Album_Order_Meta {
 
         // Structured shipping address fields (matches front-end field names).
         $shipping_name      = get_post_meta( $post->ID, '_eao_shipping_name', true );
-        $shipping_address_1 = get_post_meta( $post->ID, '_eao_shipping_address1', true );
-        $shipping_address_2 = get_post_meta( $post->ID, '_eao_shipping_address2', true );
+        $shipping_address1  = get_post_meta( $post->ID, '_eao_shipping_address1', true );
+        $shipping_address2  = get_post_meta( $post->ID, '_eao_shipping_address2', true );
         $shipping_city      = get_post_meta( $post->ID, '_eao_shipping_city', true );
         $shipping_state     = get_post_meta( $post->ID, '_eao_shipping_state', true );
         $shipping_zip       = get_post_meta( $post->ID, '_eao_shipping_zip', true );
@@ -378,12 +378,12 @@ class EAO_Album_Order_Meta {
 
             <div class="eao-field">
                 <label for="eao_shipping_address1"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao_shipping_address1" name="eao_shipping_address1" value="<?php echo esc_attr( $shipping_address_1 ); ?>" class="regular-text" style="width: 100%;">
+                <input type="text" id="eao_shipping_address1" name="eao_shipping_address1" value="<?php echo esc_attr( $shipping_address1 ); ?>" class="regular-text" style="width: 100%;">
             </div>
 
             <div class="eao-field">
                 <label for="eao_shipping_address2"><?php esc_html_e( 'Apartment, Suite, etc.', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao_shipping_address2" name="eao_shipping_address2" value="<?php echo esc_attr( $shipping_address_2 ); ?>" class="regular-text" style="width: 100%;">
+                <input type="text" id="eao_shipping_address2" name="eao_shipping_address2" value="<?php echo esc_attr( $shipping_address2 ); ?>" class="regular-text" style="width: 100%;">
             </div>
 
             <div class="eao-field-row">
