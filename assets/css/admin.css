@@ -446,7 +446,7 @@
 /* Material Card - 2 Column Layout */
 .eao-material-card__body {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 220px 1fr;
     gap: var(--eao-space-xl);
     padding: var(--eao-space-xl);
 }
@@ -467,8 +467,8 @@
 }
 
 .eao-image-preview--large {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 240px;
     background: var(--eao-gray-100);
     border: 2px dashed var(--eao-gray-300);
     border-radius: var(--eao-radius-lg);
@@ -521,43 +521,69 @@
     gap: var(--eao-space-lg);
 }
 
-/* Header: Name row with delete, then meta row below */
+/* Header: Fields with stacked labels */
 .eao-material-card__header {
     display: flex;
-    flex-direction: column;
-    gap: var(--eao-space-md);
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--eao-space-lg);
     padding-bottom: var(--eao-space-lg);
     border-bottom: var(--eao-border);
 }
 
-.eao-material-card__name-row {
+/* Stacked field: label on top of input */
+.eao-material-card__field {
     display: flex;
-    align-items: center;
-    gap: var(--eao-space-md);
+    flex-direction: column;
+    gap: var(--eao-space-xs);
+}
+
+.eao-material-card__field--name {
+    flex: 1;
+    min-width: 180px;
+}
+
+.eao-material-card__field label {
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    color: var(--eao-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .eao-material-card__header .eao-material-name-input {
-    font-size: var(--eao-font-xl);
+    font-size: var(--eao-font-lg);
     font-weight: 600;
-    padding: var(--eao-space-sm) 0;
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-    transition: border-color var(--eao-transition);
-    flex: 1;
+    padding: var(--eao-space-sm) var(--eao-space-sm);
+    border: 1px solid var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+    box-shadow: var(--eao-shadow-sm);
+    background: #fff;
+    transition: border-color var(--eao-transition), box-shadow var(--eao-transition);
 }
 
 .eao-material-card__header .eao-material-name-input:focus {
-    border-bottom-color: var(--eao-primary);
-    box-shadow: none;
+    border-color: var(--eao-primary);
+    box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.1);
 }
 
-.eao-material-card__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--eao-space-lg);
+.eao-material-card__field--toggle {
+    padding-bottom: var(--eao-space-sm);
+}
+
+.eao-material-card__field--toggle .eao-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--eao-space-xs);
+}
+
+.eao-material-card__field--toggle .eao-toggle__label {
+    order: -1;
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    color: var(--eao-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .eao-material-card__delete {
