@@ -12,6 +12,7 @@ Thumbs.db
 # IDE files
 .idea/
 .vscode/
+.cursorrules
 *.sublime-project
 *.sublime-workspace
 .project
