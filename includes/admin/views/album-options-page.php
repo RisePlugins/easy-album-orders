@@ -78,9 +78,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                                 <!-- Column 2: Content -->
                                 <div class="eao-material-card__content">
-                                    <!-- Header: Name, Upcharge, Engraving, Delete -->
+                                    <!-- Header: Name row, then meta row -->
                                     <div class="eao-material-card__header">
-                                        <input type="text" name="eao_materials[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $material['name'] ); ?>" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
+                                        <div class="eao-material-card__name-row">
+                                            <input type="text" name="eao_materials[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $material['name'] ); ?>" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
+                                            <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
+                                                <span class="dashicons dashicons-trash"></span>
+                                            </button>
+                                        </div>
                                         <div class="eao-material-card__meta">
                                             <div class="eao-inline-field">
                                                 <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
@@ -94,9 +99,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                                                 <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
                                             </label>
                                         </div>
-                                        <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
-                                            <span class="dashicons dashicons-trash"></span>
-                                        </button>
                                     </div>
 
                                     <!-- Colors Section -->
@@ -398,9 +400,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
             <!-- Column 2: Content -->
             <div class="eao-material-card__content">
-                <!-- Header: Name, Upcharge, Engraving, Delete -->
+                <!-- Header: Name row, then meta row -->
                 <div class="eao-material-card__header">
-                    <input type="text" name="eao_materials[{{data.index}}][name]" value="" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
+                    <div class="eao-material-card__name-row">
+                        <input type="text" name="eao_materials[{{data.index}}][name]" value="" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
+                        <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
+                            <span class="dashicons dashicons-trash"></span>
+                        </button>
+                    </div>
                     <div class="eao-material-card__meta">
                         <div class="eao-inline-field">
                             <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
@@ -414,9 +421,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
                         </label>
                     </div>
-                    <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
-                        <span class="dashicons dashicons-trash"></span>
-                    </button>
                 </div>
 
                 <!-- Colors Section -->

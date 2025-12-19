@@ -521,14 +521,19 @@
     gap: var(--eao-space-lg);
 }
 
-/* Header row: Name, Cost, Engraving, Delete */
+/* Header: Name row with delete, then meta row below */
 .eao-material-card__header {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--eao-space-md) var(--eao-space-lg);
+    flex-direction: column;
+    gap: var(--eao-space-md);
     padding-bottom: var(--eao-space-lg);
     border-bottom: var(--eao-border);
+}
+
+.eao-material-card__name-row {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-md);
 }
 
 .eao-material-card__header .eao-material-name-input {
@@ -541,7 +546,6 @@
     box-shadow: none;
     background: transparent;
     transition: border-color var(--eao-transition);
-    min-width: 150px;
     flex: 1;
 }
 
@@ -563,7 +567,6 @@
     width: 32px;
     height: 32px;
     padding: 0;
-    margin-left: auto;
     background: transparent;
     border: none;
     border-radius: var(--eao-radius-md);
@@ -1656,29 +1659,10 @@
         height: 100px;
     }
     
-    .eao-material-card__header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .eao-material-card__header .eao-material-name-input {
-        width: 100%;
-    }
-    
     .eao-material-card__meta {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--eao-space-sm);
-    }
-    
-    .eao-material-card__delete {
-        position: absolute;
-        top: var(--eao-space-md);
-        right: var(--eao-space-md);
-    }
-    
-    .eao-material-card {
-        position: relative;
     }
 
     .eao-size-card {
