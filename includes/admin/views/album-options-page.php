@@ -179,15 +179,34 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php foreach ( $sizes as $index => $size ) : ?>
                         <div class="eao-size-card" data-index="<?php echo esc_attr( $index ); ?>">
                             <input type="hidden" name="eao_sizes[<?php echo esc_attr( $index ); ?>][id]" value="<?php echo esc_attr( $size['id'] ); ?>">
-                            <div class="eao-size-card__main">
-                                <input type="text" name="eao_sizes[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $size['name'] ); ?>" placeholder="<?php esc_attr_e( 'Size Name', 'easy-album-orders' ); ?>" class="eao-size-name-input" required>
-                                <input type="text" name="eao_sizes[<?php echo esc_attr( $index ); ?>][dimensions]" value="<?php echo esc_attr( $size['dimensions'] ); ?>" placeholder="<?php esc_attr_e( 'e.g., 10" × 10"', 'easy-album-orders' ); ?>">
+                            <div class="eao-size-card__image">
+                                <div class="eao-image-upload">
+                                    <input type="hidden" name="eao_sizes[<?php echo esc_attr( $index ); ?>][image_id]" value="<?php echo esc_attr( isset( $size['image_id'] ) ? $size['image_id'] : '' ); ?>" class="eao-image-id">
+                                    <div class="eao-image-preview eao-image-preview--small">
+                                        <?php if ( ! empty( $size['image_id'] ) ) : ?>
+                                            <?php echo wp_get_attachment_image( $size['image_id'], 'thumbnail' ); ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <button type="button" class="eao-upload-image eao-size-card__upload" title="<?php esc_attr_e( 'Upload Image', 'easy-album-orders' ); ?>">
+                                        <span class="dashicons dashicons-camera"></span>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="eao-size-card__upcharge">
-                                <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
-                                <div class="eao-input-prefix">
-                                    <span>$</span>
-                                    <input type="number" name="eao_sizes[<?php echo esc_attr( $index ); ?>][upcharge]" value="<?php echo esc_attr( $size['upcharge'] ); ?>" step="0.01" min="0">
+                            <div class="eao-size-card__main">
+                                <div class="eao-size-card__field">
+                                    <label><?php esc_html_e( 'Size Name', 'easy-album-orders' ); ?></label>
+                                    <input type="text" name="eao_sizes[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $size['name'] ); ?>" class="eao-size-name-input" required>
+                                </div>
+                                <div class="eao-size-card__field">
+                                    <label><?php esc_html_e( 'Dimensions', 'easy-album-orders' ); ?></label>
+                                    <input type="text" name="eao_sizes[<?php echo esc_attr( $index ); ?>][dimensions]" value="<?php echo esc_attr( $size['dimensions'] ); ?>" placeholder="<?php esc_attr_e( 'e.g., 10" × 10"', 'easy-album-orders' ); ?>">
+                                </div>
+                                <div class="eao-size-card__field">
+                                    <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
+                                    <div class="eao-input-prefix">
+                                        <span>$</span>
+                                        <input type="number" name="eao_sizes[<?php echo esc_attr( $index ); ?>][upcharge]" value="<?php echo esc_attr( $size['upcharge'] ); ?>" step="0.01" min="0">
+                                    </div>
                                 </div>
                             </div>
                             <button type="button" class="eao-size-card__delete" title="<?php esc_attr_e( 'Delete Size', 'easy-album-orders' ); ?>">
@@ -465,15 +484,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script type="text/html" id="tmpl-eao-size-card">
     <div class="eao-size-card" data-index="{{data.index}}">
         <input type="hidden" name="eao_sizes[{{data.index}}][id]" value="{{data.id}}">
-        <div class="eao-size-card__main">
-            <input type="text" name="eao_sizes[{{data.index}}][name]" value="" placeholder="<?php esc_attr_e( 'Size Name', 'easy-album-orders' ); ?>" class="eao-size-name-input" required>
-            <input type="text" name="eao_sizes[{{data.index}}][dimensions]" value="" placeholder="<?php esc_attr_e( 'e.g., 10" × 10"', 'easy-album-orders' ); ?>">
+        <div class="eao-size-card__image">
+            <div class="eao-image-upload">
+                <input type="hidden" name="eao_sizes[{{data.index}}][image_id]" value="" class="eao-image-id">
+                <div class="eao-image-preview eao-image-preview--small"></div>
+                <button type="button" class="eao-upload-image eao-size-card__upload" title="<?php esc_attr_e( 'Upload Image', 'easy-album-orders' ); ?>">
+                    <span class="dashicons dashicons-camera"></span>
+                </button>
+            </div>
         </div>
-        <div class="eao-size-card__upcharge">
-            <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
-            <div class="eao-input-prefix">
-                <span>$</span>
-                <input type="number" name="eao_sizes[{{data.index}}][upcharge]" value="0" step="0.01" min="0">
+        <div class="eao-size-card__main">
+            <div class="eao-size-card__field">
+                <label><?php esc_html_e( 'Size Name', 'easy-album-orders' ); ?></label>
+                <input type="text" name="eao_sizes[{{data.index}}][name]" value="" class="eao-size-name-input" required>
+            </div>
+            <div class="eao-size-card__field">
+                <label><?php esc_html_e( 'Dimensions', 'easy-album-orders' ); ?></label>
+                <input type="text" name="eao_sizes[{{data.index}}][dimensions]" value="" placeholder="<?php esc_attr_e( 'e.g., 10" × 10"', 'easy-album-orders' ); ?>">
+            </div>
+            <div class="eao-size-card__field">
+                <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
+                <div class="eao-input-prefix">
+                    <span>$</span>
+                    <input type="number" name="eao_sizes[{{data.index}}][upcharge]" value="0" step="0.01" min="0">
+                </div>
             </div>
         </div>
         <button type="button" class="eao-size-card__delete" title="<?php esc_attr_e( 'Delete Size', 'easy-album-orders' ); ?>">
