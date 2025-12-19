@@ -251,6 +251,33 @@
     font-weight: 500;
 }
 
+/* Credit badge on design cards */
+.eao-selection-card__badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, var(--eao-success), #2ecc71);
+    color: var(--eao-white);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+    z-index: 2;
+}
+
+.eao-selection-card.has-credit {
+    position: relative;
+    border-color: var(--eao-success);
+}
+
+.eao-selection-card.has-credit.is-selected {
+    border-color: var(--eao-success);
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+}
+
 /* ==========================================================================
    Color Swatches
    ========================================================================== */
@@ -473,6 +500,15 @@
 .eao-cart__item-details {
     font-size: 0.875rem;
     color: var(--eao-text-light);
+}
+
+.eao-cart__item-credit {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--eao-border-light);
+    color: var(--eao-success);
+    font-weight: 500;
+    font-size: 0.8rem;
 }
 
 .eao-cart__item-actions {

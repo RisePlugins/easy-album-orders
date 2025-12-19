@@ -21,9 +21,15 @@ $album_id    = get_the_ID();
 $album_title = get_the_title();
 $client_name = get_post_meta( $album_id, '_eao_client_name', true );
 $loom_url    = get_post_meta( $album_id, '_eao_loom_url', true );
-$credits     = floatval( get_post_meta( $album_id, '_eao_album_credits', true ) );
 $designs     = get_post_meta( $album_id, '_eao_designs', true );
 $designs     = is_array( $designs ) ? $designs : array();
+
+// Add available credits info to each design.
+foreach ( $designs as $index => &$design ) {
+    $design['available_free_credits'] = EAO_Album_Order::get_available_free_credits( $album_id, $index );
+    $design['dollar_credit']          = isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
+}
+unset( $design ); // Break reference.
 
 // Get global options.
 $materials         = get_option( 'eao_materials', array() );
@@ -80,11 +86,26 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                         <div class="eao-selection-grid eao-designs-grid">
                             <?php foreach ( $designs as $index => $design ) : ?>
                                 <?php
-                                $cover_url = ! empty( $design['cover_id'] ) ? wp_get_attachment_image_url( $design['cover_id'], 'medium' ) : '';
-                                $pdf_url   = ! empty( $design['pdf_id'] ) ? wp_get_attachment_url( $design['pdf_id'] ) : '';
+                                $cover_url    = ! empty( $design['cover_id'] ) ? wp_get_attachment_image_url( $design['cover_id'], 'medium' ) : '';
+                                $pdf_url      = ! empty( $design['pdf_id'] ) ? wp_get_attachment_url( $design['pdf_id'] ) : '';
+                                $free_credits = isset( $design['available_free_credits'] ) ? intval( $design['available_free_credits'] ) : 0;
+                                $dollar_credit = isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
+                                $has_credits  = $free_credits > 0 || $dollar_credit > 0;
                                 ?>
-                                <label class="eao-selection-card eao-design-card" data-base-price="<?php echo esc_attr( $design['base_price'] ); ?>">
+                                <label class="eao-selection-card eao-design-card<?php echo $has_credits ? ' has-credit' : ''; ?>" 
+                                       data-base-price="<?php echo esc_attr( $design['base_price'] ); ?>"
+                                       data-free-credits="<?php echo esc_attr( $free_credits ); ?>"
+                                       data-dollar-credit="<?php echo esc_attr( $dollar_credit ); ?>">
                                     <input type="radio" name="design_index" value="<?php echo esc_attr( $index ); ?>" required>
+                                    <?php if ( $has_credits ) : ?>
+                                        <div class="eao-selection-card__badge">
+                                            <?php if ( $free_credits > 0 ) : ?>
+                                                <?php echo esc_html( sprintf( _n( '%d Free Album', '%d Free Albums', $free_credits, 'easy-album-orders' ), $free_credits ) ); ?>
+                                            <?php else : ?>
+                                                <?php echo esc_html( eao_format_price( $dollar_credit ) . ' ' . __( 'Off', 'easy-album-orders' ) ); ?>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
                                     <?php if ( $cover_url ) : ?>
                                         <img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $design['name'] ); ?>" class="eao-selection-card__image">
                                     <?php else : ?>
@@ -241,12 +262,10 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                             <span class="eao-price-line__label"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></span>
                             <span class="eao-price-line__value" data-value="0">+ <?php echo esc_html( eao_format_price( 0 ) ); ?></span>
                         </div>
-                        <?php if ( $credits > 0 ) : ?>
-                            <div class="eao-price-line eao-price-line--credit" id="eao-price-credit">
-                                <span class="eao-price-line__label"><?php esc_html_e( 'Album Credit', 'easy-album-orders' ); ?></span>
-                                <span class="eao-price-line__value" data-value="<?php echo esc_attr( $credits ); ?>">- <?php echo esc_html( eao_format_price( $credits ) ); ?></span>
-                            </div>
-                        <?php endif; ?>
+                        <div class="eao-price-line eao-price-line--credit" id="eao-price-credit" style="display: none;">
+                            <span class="eao-price-line__label"><?php esc_html_e( 'Album Credit', 'easy-album-orders' ); ?></span>
+                            <span class="eao-price-line__value" data-value="0">- <?php echo esc_html( eao_format_price( 0 ) ); ?></span>
+                        </div>
                         <div class="eao-price-line eao-price-line--total" id="eao-price-total">
                             <span class="eao-price-line__label"><?php esc_html_e( 'Total', 'easy-album-orders' ); ?></span>
                             <span class="eao-price-line__value" data-value="0"><?php echo esc_html( eao_format_price( 0 ) ); ?></span>
@@ -312,15 +331,14 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
 </div>
 
 <?php
-// Store data for JavaScript.
+// Store data for JavaScript (designs now include available_free_credits and dollar_credit).
 $js_data = array(
-    'albumId'    => $album_id,
-    'credits'    => $credits,
-    'designs'    => $designs,
-    'materials'  => $materials,
-    'sizes'      => $sizes,
-    'engraving'  => $engraving_options,
-    'currency'   => array(
+    'albumId'   => $album_id,
+    'designs'   => $designs,
+    'materials' => $materials,
+    'sizes'     => $sizes,
+    'engraving' => $engraving_options,
+    'currency'  => array(
         'symbol'   => isset( $general_settings['currency_symbol'] ) ? $general_settings['currency_symbol'] : '$',
         'position' => isset( $general_settings['currency_position'] ) ? $general_settings['currency_position'] : 'before',
     ),

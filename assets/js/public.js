@@ -78,10 +78,12 @@
                 $card.addClass('is-selected');
                 $input.prop('checked', true);
 
-                // Store selection.
+                // Store selection with credit info.
                 self.selections.design = {
                     index: $input.val(),
-                    basePrice: parseFloat($card.data('base-price')) || 0
+                    basePrice: parseFloat($card.data('base-price')) || 0,
+                    freeCredits: parseInt($card.data('free-credits')) || 0,
+                    dollarCredit: parseFloat($card.data('dollar-credit')) || 0
                 };
 
                 self.updatePriceCalculation();
@@ -321,11 +323,25 @@
             const materialUpcharge = self.selections.material ? self.selections.material.upcharge : 0;
             const sizeUpcharge = self.selections.size ? self.selections.size.upcharge : 0;
             const engravingUpcharge = self.selections.engraving ? self.selections.engraving.upcharge : 0;
-            const credits = typeof eaoOrderData !== 'undefined' ? parseFloat(eaoOrderData.credits) || 0 : 0;
+
+            // Determine design-specific credits.
+            let creditAmount = 0;
+            let creditLabel = '';
+
+            if (self.selections.design) {
+                // Free album credits take priority - they cover the base price.
+                if (self.selections.design.freeCredits > 0) {
+                    creditAmount = basePrice;
+                    creditLabel = eaoPublic.i18n?.freeAlbumCredit || 'Free Album Credit';
+                } else if (self.selections.design.dollarCredit > 0) {
+                    creditAmount = self.selections.design.dollarCredit;
+                    creditLabel = eaoPublic.i18n?.albumCredit || 'Album Credit';
+                }
+            }
 
             // Calculate total.
             const subtotal = basePrice + materialUpcharge + sizeUpcharge + engravingUpcharge;
-            const total = Math.max(0, subtotal - credits);
+            const total = Math.max(0, subtotal - creditAmount);
 
             // Update display.
             $('#eao-price-base .eao-price-line__value').text(self.formatPrice(basePrice)).attr('data-value', basePrice);
@@ -346,6 +362,15 @@
                 $('#eao-price-engraving').show().find('.eao-price-line__value').text('+ ' + self.formatPrice(engravingUpcharge)).attr('data-value', engravingUpcharge);
             } else {
                 $('#eao-price-engraving').hide();
+            }
+
+            // Show/hide credit line based on design selection.
+            if (creditAmount > 0) {
+                $('#eao-price-credit').show()
+                    .find('.eao-price-line__label').text(creditLabel).end()
+                    .find('.eao-price-line__value').text('- ' + self.formatPrice(creditAmount)).attr('data-value', creditAmount);
+            } else {
+                $('#eao-price-credit').hide();
             }
 
             $('#eao-price-total .eao-price-line__value').text(self.formatPrice(total)).attr('data-value', total);

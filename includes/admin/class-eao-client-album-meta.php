@@ -58,16 +58,6 @@ class EAO_Client_Album_Meta {
             'high'
         );
 
-        // Album Credits meta box.
-        add_meta_box(
-            'eao_album_credits',
-            __( 'Album Credits', 'easy-album-orders' ),
-            array( $this, 'render_credits_meta_box' ),
-            'client_album',
-            'side',
-            'default'
-        );
-
         // Album Designs meta box.
         add_meta_box(
             'eao_album_designs',
@@ -208,27 +198,6 @@ class EAO_Client_Album_Meta {
     }
 
     /**
-     * Render Album Credits meta box.
-     *
-     * @since 1.0.0
-     *
-     * @param WP_Post $post The current post object.
-     */
-    public function render_credits_meta_box( $post ) {
-        $credits = get_post_meta( $post->ID, '_eao_album_credits', true );
-        $credits = '' !== $credits ? floatval( $credits ) : '';
-        ?>
-        <div class="eao-meta-box">
-            <div class="eao-field">
-                <label for="eao_album_credits"><?php esc_html_e( 'Credit Amount ($)', 'easy-album-orders' ); ?></label>
-                <input type="number" id="eao_album_credits" name="eao_album_credits" value="<?php echo esc_attr( $credits ); ?>" step="0.01" min="0" class="small-text" style="width: 100%;">
-                <p class="description"><?php esc_html_e( 'Amount to deduct from the client\'s total. Applied per album ordered.', 'easy-album-orders' ); ?></p>
-            </div>
-        </div>
-        <?php
-    }
-
-    /**
      * Render Album Link meta box.
      *
      * @since 1.0.0
@@ -273,7 +242,7 @@ class EAO_Client_Album_Meta {
         ?>
         <div class="eao-meta-box">
             <p class="description" style="margin-bottom: 15px;">
-                <?php esc_html_e( 'Add album designs for this client. Each design includes a name, PDF proof, cover image, and base price.', 'easy-album-orders' ); ?>
+                <?php esc_html_e( 'Add album designs for this client. Each design includes a name, PDF proof, cover image, base price, and optional credits.', 'easy-album-orders' ); ?>
             </p>
 
             <div class="eao-repeater eao-designs-repeater" id="eao-designs-repeater">
@@ -309,10 +278,12 @@ class EAO_Client_Album_Meta {
      */
     private function render_design_item( $index, $design = array(), $is_template = false ) {
         $defaults = array(
-            'name'       => '',
-            'pdf_id'     => '',
-            'cover_id'   => '',
-            'base_price' => '',
+            'name'              => '',
+            'pdf_id'            => '',
+            'cover_id'          => '',
+            'base_price'        => '',
+            'free_album_credits'=> '',
+            'dollar_credit'     => '',
         );
 
         $design = wp_parse_args( $design, $defaults );
@@ -384,6 +355,23 @@ class EAO_Client_Album_Meta {
                         </div>
                     </div>
                 </div>
+
+                <!-- Credits Section -->
+                <div class="eao-design-credits" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e4e7;">
+                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #1d2327;"><?php esc_html_e( 'Album Credits for This Design', 'easy-album-orders' ); ?></h4>
+                    <div class="eao-field-row">
+                        <div class="eao-field" style="flex: 1;">
+                            <label><?php esc_html_e( 'Free Album Credits', 'easy-album-orders' ); ?></label>
+                            <input type="number" name="<?php echo esc_attr( $name_field ); ?>[free_album_credits]" value="<?php echo esc_attr( $design['free_album_credits'] ); ?>" min="0" step="1" class="small-text" style="width: 100%;">
+                            <p class="description"><?php esc_html_e( 'Number of free albums (base price covered). Client pays only for upgrades.', 'easy-album-orders' ); ?></p>
+                        </div>
+                        <div class="eao-field" style="flex: 1;">
+                            <label><?php esc_html_e( 'Dollar Credit ($)', 'easy-album-orders' ); ?></label>
+                            <input type="number" name="<?php echo esc_attr( $name_field ); ?>[dollar_credit]" value="<?php echo esc_attr( $design['dollar_credit'] ); ?>" min="0" step="0.01" class="small-text" style="width: 100%;">
+                            <p class="description"><?php esc_html_e( 'Dollar amount off each album of this design.', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <?php
@@ -431,12 +419,6 @@ class EAO_Client_Album_Meta {
             update_post_meta( $post_id, '_eao_loom_url', esc_url_raw( $_POST['eao_loom_url'] ) );
         }
 
-        // Save album credits.
-        if ( isset( $_POST['eao_album_credits'] ) ) {
-            $credits = '' !== $_POST['eao_album_credits'] ? floatval( $_POST['eao_album_credits'] ) : '';
-            update_post_meta( $post_id, '_eao_album_credits', $credits );
-        }
-
         // Save designs.
         if ( isset( $_POST['eao_designs'] ) && is_array( $_POST['eao_designs'] ) ) {
             $designs = $this->sanitize_designs( $_POST['eao_designs'] );
@@ -464,10 +446,12 @@ class EAO_Client_Album_Meta {
             }
 
             $sanitized[] = array(
-                'name'       => sanitize_text_field( $design['name'] ),
-                'pdf_id'     => absint( $design['pdf_id'] ),
-                'cover_id'   => absint( $design['cover_id'] ),
-                'base_price' => floatval( $design['base_price'] ),
+                'name'               => sanitize_text_field( $design['name'] ),
+                'pdf_id'             => absint( $design['pdf_id'] ),
+                'cover_id'           => absint( $design['cover_id'] ),
+                'base_price'         => floatval( $design['base_price'] ),
+                'free_album_credits' => ! empty( $design['free_album_credits'] ) ? absint( $design['free_album_credits'] ) : 0,
+                'dollar_credit'      => ! empty( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0,
             );
         }
 

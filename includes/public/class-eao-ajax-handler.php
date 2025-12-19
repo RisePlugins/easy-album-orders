@@ -109,11 +109,29 @@ class EAO_Ajax_Handler {
         $engraving_option = $engraving_method ? EAO_Helpers::get_engraving_option( $engraving_method ) : null;
 
         // Calculate pricing.
-        $base_price        = floatval( $design['base_price'] );
-        $material_upcharge = $material ? floatval( $material['upcharge'] ) : 0;
-        $size_upcharge     = $size ? floatval( $size['upcharge'] ) : 0;
+        $base_price         = floatval( $design['base_price'] );
+        $material_upcharge  = $material ? floatval( $material['upcharge'] ) : 0;
+        $size_upcharge      = $size ? floatval( $size['upcharge'] ) : 0;
         $engraving_upcharge = $engraving_option ? floatval( $engraving_option['upcharge'] ) : 0;
-        $credits           = floatval( get_post_meta( $client_album_id, '_eao_album_credits', true ) );
+
+        // Determine credits to apply based on design-specific settings.
+        $credit_type     = 'none';
+        $applied_credits = 0;
+
+        // Check for free album credits first.
+        $available_free_credits = EAO_Album_Order::get_available_free_credits( $client_album_id, $design_index );
+        if ( $available_free_credits > 0 ) {
+            // Free album credit covers the base price.
+            $credit_type     = 'free_album';
+            $applied_credits = $base_price;
+        } else {
+            // Check for dollar credit.
+            $dollar_credit = EAO_Album_Order::get_design_dollar_credit( $client_album_id, $design_index );
+            if ( $dollar_credit > 0 ) {
+                $credit_type     = 'dollar';
+                $applied_credits = $dollar_credit;
+            }
+        }
 
         // Create order post.
         $order_data = array(
@@ -163,8 +181,9 @@ class EAO_Ajax_Handler {
             update_post_meta( $order_id, '_eao_engraving_upcharge', 0 );
         }
 
-        // Credits.
-        update_post_meta( $order_id, '_eao_applied_credits', $credits );
+        // Credits (design-specific).
+        update_post_meta( $order_id, '_eao_credit_type', $credit_type );
+        update_post_meta( $order_id, '_eao_applied_credits', $applied_credits );
 
         // Get updated cart.
         $cart_html  = $this->get_cart_html( $client_album_id );
@@ -232,10 +251,28 @@ class EAO_Ajax_Handler {
         $engraving_option = $engraving_method ? EAO_Helpers::get_engraving_option( $engraving_method ) : null;
 
         // Calculate pricing.
-        $base_price        = $design ? floatval( $design['base_price'] ) : 0;
-        $material_upcharge = $material ? floatval( $material['upcharge'] ) : 0;
-        $size_upcharge     = $size ? floatval( $size['upcharge'] ) : 0;
+        $base_price         = $design ? floatval( $design['base_price'] ) : 0;
+        $material_upcharge  = $material ? floatval( $material['upcharge'] ) : 0;
+        $size_upcharge      = $size ? floatval( $size['upcharge'] ) : 0;
         $engraving_upcharge = $engraving_option ? floatval( $engraving_option['upcharge'] ) : 0;
+
+        // Determine credits to apply (exclude current order from count).
+        $credit_type     = 'none';
+        $applied_credits = 0;
+
+        // Check for free album credits first (exclude this order from the count).
+        $available_free_credits = EAO_Album_Order::get_available_free_credits( $client_album_id, $design_index, $order_id );
+        if ( $available_free_credits > 0 ) {
+            $credit_type     = 'free_album';
+            $applied_credits = $base_price;
+        } else {
+            // Check for dollar credit.
+            $dollar_credit = EAO_Album_Order::get_design_dollar_credit( $client_album_id, $design_index );
+            if ( $dollar_credit > 0 ) {
+                $credit_type     = 'dollar';
+                $applied_credits = $dollar_credit;
+            }
+        }
 
         // Update meta.
         update_post_meta( $order_id, '_eao_album_name', $album_name );
@@ -265,6 +302,10 @@ class EAO_Ajax_Handler {
             update_post_meta( $order_id, '_eao_engraving_font', '' );
             update_post_meta( $order_id, '_eao_engraving_upcharge', 0 );
         }
+
+        // Credits (design-specific).
+        update_post_meta( $order_id, '_eao_credit_type', $credit_type );
+        update_post_meta( $order_id, '_eao_applied_credits', $applied_credits );
 
         // Get updated cart.
         $cart_html  = $this->get_cart_html( $client_album_id );

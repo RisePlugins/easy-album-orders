@@ -67,6 +67,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sortable columns for both list tables
 - PDF upload support in media library
 
+### Changed (Credits System Redesign)
+- Album credits are now per-design instead of per-client-album
+- Each design can have:
+  - Free Album Credits: Number of free albums (base price covered, upgrades still apply)
+  - Dollar Credit: Fixed dollar amount off each album of that design
+- Free album credits are automatically tracked and decremented when used
+- Credits badge displayed on design cards showing available credits
+- Price calculator dynamically updates based on selected design's credits
+- Cart items show which credit type was applied
+- Admin order view shows credit type (Free Album Credit vs Album Credit)
+
 ### Added (Phase 4: Front-End Order Form)
 - Single-page client order form template (`/album/client-name/`)
 - Loom video embed at top of order form

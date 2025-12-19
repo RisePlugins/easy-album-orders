@@ -336,15 +336,108 @@ class EAO_Album_Order {
      * @return float The calculated total price.
      */
     public static function calculate_total( $order_id ) {
-        $base_price        = floatval( self::get_meta( $order_id, 'base_price' ) );
-        $material_upcharge = floatval( self::get_meta( $order_id, 'material_upcharge' ) );
-        $size_upcharge     = floatval( self::get_meta( $order_id, 'size_upcharge' ) );
+        $base_price         = floatval( self::get_meta( $order_id, 'base_price' ) );
+        $material_upcharge  = floatval( self::get_meta( $order_id, 'material_upcharge' ) );
+        $size_upcharge      = floatval( self::get_meta( $order_id, 'size_upcharge' ) );
         $engraving_upcharge = floatval( self::get_meta( $order_id, 'engraving_upcharge' ) );
-        $credits           = floatval( self::get_meta( $order_id, 'applied_credits' ) );
+        $credit_type        = self::get_meta( $order_id, 'credit_type' );
+        $applied_credits    = floatval( self::get_meta( $order_id, 'applied_credits' ) );
 
-        $total = ( $base_price + $material_upcharge + $size_upcharge + $engraving_upcharge ) - $credits;
+        // For free album credits, the base price is covered (client pays only upgrades).
+        // For dollar credits, subtract the dollar amount from the total.
+        // The 'applied_credits' field now stores the actual dollar amount to subtract.
+        $total = ( $base_price + $material_upcharge + $size_upcharge + $engraving_upcharge ) - $applied_credits;
 
         return max( 0, $total );
+    }
+
+    /**
+     * Count how many free album credits have been used for a specific design.
+     *
+     * @since 1.0.0
+     *
+     * @param int $client_album_id The client album ID.
+     * @param int $design_index    The design index.
+     * @param int $exclude_order   Optional. Order ID to exclude from count (for edits).
+     * @return int Number of free credits used.
+     */
+    public static function count_used_free_credits( $client_album_id, $design_index, $exclude_order = 0 ) {
+        $args = array(
+            'post_type'      => self::POST_TYPE,
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                'relation' => 'AND',
+                array(
+                    'key'   => '_eao_client_album_id',
+                    'value' => $client_album_id,
+                ),
+                array(
+                    'key'   => '_eao_design_index',
+                    'value' => $design_index,
+                ),
+                array(
+                    'key'   => '_eao_credit_type',
+                    'value' => 'free_album',
+                ),
+            ),
+        );
+
+        // Exclude a specific order (useful when editing).
+        if ( $exclude_order > 0 ) {
+            $args['post__not_in'] = array( $exclude_order );
+        }
+
+        $orders = get_posts( $args );
+
+        return count( $orders );
+    }
+
+    /**
+     * Get available free credits for a design.
+     *
+     * @since 1.0.0
+     *
+     * @param int $client_album_id The client album ID.
+     * @param int $design_index    The design index.
+     * @param int $exclude_order   Optional. Order ID to exclude from count (for edits).
+     * @return int Number of free credits available.
+     */
+    public static function get_available_free_credits( $client_album_id, $design_index, $exclude_order = 0 ) {
+        $designs = get_post_meta( $client_album_id, '_eao_designs', true );
+        $designs = is_array( $designs ) ? $designs : array();
+
+        if ( ! isset( $designs[ $design_index ] ) ) {
+            return 0;
+        }
+
+        $design = $designs[ $design_index ];
+        $total  = isset( $design['free_album_credits'] ) ? absint( $design['free_album_credits'] ) : 0;
+        $used   = self::count_used_free_credits( $client_album_id, $design_index, $exclude_order );
+
+        return max( 0, $total - $used );
+    }
+
+    /**
+     * Get the dollar credit amount for a design.
+     *
+     * @since 1.0.0
+     *
+     * @param int $client_album_id The client album ID.
+     * @param int $design_index    The design index.
+     * @return float Dollar credit amount.
+     */
+    public static function get_design_dollar_credit( $client_album_id, $design_index ) {
+        $designs = get_post_meta( $client_album_id, '_eao_designs', true );
+        $designs = is_array( $designs ) ? $designs : array();
+
+        if ( ! isset( $designs[ $design_index ] ) ) {
+            return 0;
+        }
+
+        $design = $designs[ $design_index ];
+        return isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
     }
 
     /**

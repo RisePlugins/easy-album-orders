@@ -160,12 +160,13 @@ class EAO_Album_Order_Meta {
         $order_number = EAO_Helpers::generate_order_number( $post->ID );
 
         // Pricing.
-        $base_price        = floatval( get_post_meta( $post->ID, '_eao_base_price', true ) );
-        $material_upcharge = floatval( get_post_meta( $post->ID, '_eao_material_upcharge', true ) );
-        $size_upcharge     = floatval( get_post_meta( $post->ID, '_eao_size_upcharge', true ) );
+        $base_price         = floatval( get_post_meta( $post->ID, '_eao_base_price', true ) );
+        $material_upcharge  = floatval( get_post_meta( $post->ID, '_eao_material_upcharge', true ) );
+        $size_upcharge      = floatval( get_post_meta( $post->ID, '_eao_size_upcharge', true ) );
         $engraving_upcharge = floatval( get_post_meta( $post->ID, '_eao_engraving_upcharge', true ) );
-        $applied_credits   = floatval( get_post_meta( $post->ID, '_eao_applied_credits', true ) );
-        $total             = EAO_Album_Order::calculate_total( $post->ID );
+        $credit_type        = get_post_meta( $post->ID, '_eao_credit_type', true );
+        $applied_credits    = floatval( get_post_meta( $post->ID, '_eao_applied_credits', true ) );
+        $total              = EAO_Album_Order::calculate_total( $post->ID );
         ?>
         <div class="eao-meta-box">
             <div class="eao-order-header" style="background: #f6f7f7; padding: 15px; margin: -12px -12px 20px; border-bottom: 1px solid #ddd;">
@@ -207,7 +208,15 @@ class EAO_Album_Order_Meta {
                 <?php endif; ?>
                 <?php if ( $applied_credits > 0 ) : ?>
                 <tr style="color: #00a32a;">
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><?php esc_html_e( 'Album Credit', 'easy-album-orders' ); ?></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <?php 
+                        if ( 'free_album' === $credit_type ) {
+                            esc_html_e( 'Free Album Credit', 'easy-album-orders' );
+                        } else {
+                            esc_html_e( 'Album Credit', 'easy-album-orders' );
+                        }
+                        ?>
+                    </td>
                     <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">- <?php echo esc_html( eao_format_price( $applied_credits ) ); ?></td>
                 </tr>
                 <?php endif; ?>
