@@ -28,6 +28,9 @@
         // Edit mode.
         editingOrderId: null,
 
+        // Selected address.
+        selectedAddressId: 'new',
+
         /**
          * Initialize public functionality.
          */
@@ -41,6 +44,7 @@
             this.bindMaterialSelection();
             this.bindSizeSelection();
             this.bindEngravingOptions();
+            this.bindAddressSelection();
             this.bindFormSubmit();
             this.bindCartActions();
             this.bindCheckout();
@@ -313,6 +317,186 @@
         },
 
         /**
+         * Bind address selection.
+         */
+        bindAddressSelection: function() {
+            const self = this;
+
+            // Address card selection.
+            $(document).on('click', '.eao-address-card', function(e) {
+                // Don't select if clicking delete button.
+                if ($(e.target).closest('.eao-address-card__delete').length) {
+                    return;
+                }
+
+                const $card = $(this);
+                const addressId = $card.data('address-id');
+
+                // Update selection.
+                $('.eao-address-card').removeClass('is-selected');
+                $card.addClass('is-selected');
+
+                self.selectedAddressId = addressId;
+                $('#eao-selected-address-id').val(addressId);
+
+                // Handle form display.
+                const $form = $('#eao-address-form');
+
+                if (addressId === 'new') {
+                    // Show form for new address.
+                    $form.removeClass('is-hidden using-saved');
+                    self.clearAddressForm();
+                } else {
+                    // Fill form with saved address data.
+                    const addressData = $card.data('address');
+                    if (addressData) {
+                        self.fillAddressForm(addressData);
+                        $form.removeClass('is-hidden').addClass('using-saved');
+                    }
+                }
+            });
+
+            // Delete saved address.
+            $(document).on('click', '.eao-address-card__delete', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $card = $(this).closest('.eao-address-card');
+                const addressId = $card.data('address-id');
+
+                if (confirm(eaoPublic.i18n?.confirmDeleteAddress || 'Are you sure you want to delete this address?')) {
+                    self.deleteAddress(addressId, $card);
+                }
+            });
+        },
+
+        /**
+         * Fill address form with saved address data.
+         *
+         * @param {Object} address Address data.
+         */
+        fillAddressForm: function(address) {
+            $('#eao-shipping-name').val(address.name || '');
+            $('#eao-shipping-address1').val(address.address1 || '');
+            $('#eao-shipping-address2').val(address.address2 || '');
+            $('#eao-shipping-city').val(address.city || '');
+            $('#eao-shipping-state').val(address.state || '');
+            $('#eao-shipping-zip').val(address.zip || '');
+        },
+
+        /**
+         * Clear address form fields.
+         */
+        clearAddressForm: function() {
+            $('#eao-shipping-name').val('');
+            $('#eao-shipping-address1').val('');
+            $('#eao-shipping-address2').val('');
+            $('#eao-shipping-city').val('');
+            $('#eao-shipping-state').val('');
+            $('#eao-shipping-zip').val('');
+            $('#eao-save-address').prop('checked', false);
+        },
+
+        /**
+         * Delete a saved address.
+         *
+         * @param {string} addressId The address ID to delete.
+         * @param {jQuery} $card     The card element.
+         */
+        deleteAddress: function(addressId, $card) {
+            const self = this;
+
+            $.ajax({
+                url: eaoPublic.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'eao_delete_address',
+                    nonce: eaoPublic.nonce,
+                    client_album_id: eaoPublic.clientAlbumId,
+                    address_id: addressId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Remove the card.
+                        $card.fadeOut(200, function() {
+                            $(this).remove();
+
+                            // If the deleted card was selected, select "New Address".
+                            if (self.selectedAddressId === addressId) {
+                                $('.eao-address-card--new').trigger('click');
+                            }
+                        });
+                    }
+                }
+            });
+        },
+
+        /**
+         * Save a new address.
+         *
+         * @param {Function} callback Callback after save.
+         */
+        saveAddress: function(callback) {
+            const self = this;
+
+            $.ajax({
+                url: eaoPublic.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'eao_save_address',
+                    nonce: eaoPublic.nonce,
+                    client_album_id: eaoPublic.clientAlbumId,
+                    shipping_name: $('#eao-shipping-name').val(),
+                    shipping_address1: $('#eao-shipping-address1').val(),
+                    shipping_address2: $('#eao-shipping-address2').val(),
+                    shipping_city: $('#eao-shipping-city').val(),
+                    shipping_state: $('#eao-shipping-state').val(),
+                    shipping_zip: $('#eao-shipping-zip').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Add the new address card.
+                        self.addAddressCard(response.data.address);
+
+                        if (callback) {
+                            callback();
+                        }
+                    }
+                }
+            });
+        },
+
+        /**
+         * Add a new address card to the grid.
+         *
+         * @param {Object} address Address data.
+         */
+        addAddressCard: function(address) {
+            const $grid = $('#eao-address-grid');
+            const addressJson = JSON.stringify(address).replace(/"/g, '&quot;');
+
+            let addressHtml = address.address1;
+            if (address.address2) {
+                addressHtml += '<br>' + address.address2;
+            }
+            addressHtml += '<br>' + address.city + ', ' + address.state + ' ' + address.zip;
+
+            const $card = $(`
+                <div class="eao-address-card" 
+                     data-address-id="${address.id}"
+                     data-address='${addressJson}'>
+                    <button type="button" class="eao-address-card__delete" title="${eaoPublic.i18n?.deleteAddress || 'Delete address'}">
+                        <span class="dashicons dashicons-no-alt"></span>
+                    </button>
+                    <div class="eao-address-card__name">${address.name}</div>
+                    <div class="eao-address-card__address">${addressHtml}</div>
+                </div>
+            `);
+
+            $grid.append($card);
+        },
+
+        /**
          * Update price calculation display.
          */
         updatePriceCalculation: function() {
@@ -498,30 +682,41 @@
                     data.order_id = self.editingOrderId;
                 }
 
-                // Submit via AJAX.
-                $.ajax({
-                    url: eaoPublic.ajaxUrl,
-                    type: 'POST',
-                    data: data,
-                    success: function(response) {
-                        if (response.success) {
-                            self.updateCart(response.data);
-                            self.resetForm();
-                            self.showMessage('success', response.data.message);
-                        } else {
-                            self.showMessage('error', response.data.message);
+                // Function to submit the order.
+                const submitOrder = function() {
+                    $.ajax({
+                        url: eaoPublic.ajaxUrl,
+                        type: 'POST',
+                        data: data,
+                        success: function(response) {
+                            if (response.success) {
+                                self.updateCart(response.data);
+                                self.resetForm();
+                                self.showMessage('success', response.data.message);
+                            } else {
+                                self.showMessage('error', response.data.message);
+                            }
+                        },
+                        error: function() {
+                            self.showMessage('error', eaoPublic.i18n?.errorOccurred || 'An error occurred. Please try again.');
+                        },
+                        complete: function() {
+                            $submitBtn.prop('disabled', false);
+                            $btnText.text(eaoPublic.i18n?.addToCart || 'Add to Cart');
+                            $spinner.hide();
+                            self.editingOrderId = null;
                         }
-                    },
-                    error: function() {
-                        self.showMessage('error', eaoPublic.i18n?.errorOccurred || 'An error occurred. Please try again.');
-                    },
-                    complete: function() {
-                        $submitBtn.prop('disabled', false);
-                        $btnText.text(eaoPublic.i18n?.addToCart || 'Add to Cart');
-                        $spinner.hide();
-                        self.editingOrderId = null;
-                    }
-                });
+                    });
+                };
+
+                // Check if we need to save the address first.
+                const shouldSaveAddress = $('#eao-save-address').is(':checked') && self.selectedAddressId === 'new';
+
+                if (shouldSaveAddress) {
+                    self.saveAddress(submitOrder);
+                } else {
+                    submitOrder();
+                }
             });
         },
 
@@ -549,6 +744,14 @@
             $('#eao-color-section').hide();
             $('#eao-engraving-section').hide();
             $('#eao-engraving-fields').hide();
+
+            // Reset address selector to "New Address".
+            $('.eao-address-card').removeClass('is-selected');
+            $('.eao-address-card--new').addClass('is-selected');
+            self.selectedAddressId = 'new';
+            $('#eao-selected-address-id').val('new');
+            $('#eao-address-form').removeClass('is-hidden using-saved');
+            self.clearAddressForm();
 
             // Reset price display.
             self.updatePriceCalculation();
@@ -698,23 +901,48 @@
             }
 
             // Populate shipping address fields.
-            if (data.shipping_name) {
-                $('#eao-shipping-name').val(data.shipping_name);
-            }
-            if (data.shipping_address1) {
-                $('#eao-shipping-address1').val(data.shipping_address1);
-            }
-            if (data.shipping_address2) {
-                $('#eao-shipping-address2').val(data.shipping_address2);
-            }
-            if (data.shipping_city) {
-                $('#eao-shipping-city').val(data.shipping_city);
-            }
-            if (data.shipping_state) {
-                $('#eao-shipping-state').val(data.shipping_state);
-            }
-            if (data.shipping_zip) {
-                $('#eao-shipping-zip').val(data.shipping_zip);
+            // Try to find a matching saved address, otherwise use "new" with filled data.
+            let matchingAddressId = null;
+            
+            $('.eao-address-card:not(.eao-address-card--new)').each(function() {
+                const addressData = $(this).data('address');
+                if (addressData && 
+                    addressData.name === data.shipping_name &&
+                    addressData.address1 === data.shipping_address1 &&
+                    addressData.city === data.shipping_city &&
+                    addressData.state === data.shipping_state &&
+                    addressData.zip === data.shipping_zip) {
+                    matchingAddressId = addressData.id;
+                    return false; // Break the loop.
+                }
+            });
+
+            if (matchingAddressId) {
+                // Select the matching saved address.
+                const $matchingCard = $('.eao-address-card[data-address-id="' + matchingAddressId + '"]');
+                $matchingCard.trigger('click');
+            } else {
+                // Select "New Address" and fill the form.
+                $('.eao-address-card--new').trigger('click');
+                
+                if (data.shipping_name) {
+                    $('#eao-shipping-name').val(data.shipping_name);
+                }
+                if (data.shipping_address1) {
+                    $('#eao-shipping-address1').val(data.shipping_address1);
+                }
+                if (data.shipping_address2) {
+                    $('#eao-shipping-address2').val(data.shipping_address2);
+                }
+                if (data.shipping_city) {
+                    $('#eao-shipping-city').val(data.shipping_city);
+                }
+                if (data.shipping_state) {
+                    $('#eao-shipping-state').val(data.shipping_state);
+                }
+                if (data.shipping_zip) {
+                    $('#eao-shipping-zip').val(data.shipping_zip);
+                }
             }
 
             // Update button text.

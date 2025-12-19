@@ -817,3 +817,186 @@
     max-width: 400px;
 }
 
+/* ==========================================================================
+   Address Selector (Saved Addresses)
+   ========================================================================== */
+
+.eao-address-selector {
+    margin-bottom: 25px;
+}
+
+.eao-address-selector__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.eao-address-card {
+    position: relative;
+    padding: 15px;
+    border: 2px solid var(--eao-border);
+    border-radius: var(--eao-radius);
+    background: var(--eao-white);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    min-height: 100px;
+}
+
+.eao-address-card:hover {
+    border-color: var(--eao-primary-light);
+    transform: translateY(-2px);
+}
+
+.eao-address-card.is-selected {
+    border-color: var(--eao-accent);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.15);
+    background: #fffaf5;
+}
+
+/* New address card */
+.eao-address-card--new {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-style: dashed;
+}
+
+.eao-address-card--new .eao-address-card__icon {
+    margin-bottom: 8px;
+    color: var(--eao-text-light);
+    transition: color 0.2s;
+}
+
+.eao-address-card--new .eao-address-card__icon .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.eao-address-card--new:hover .eao-address-card__icon {
+    color: var(--eao-accent);
+}
+
+.eao-address-card--new.is-selected {
+    border-style: solid;
+}
+
+.eao-address-card--new.is-selected .eao-address-card__icon {
+    color: var(--eao-accent);
+}
+
+.eao-address-card__label {
+    font-weight: 600;
+    color: var(--eao-text-light);
+    font-size: 0.9rem;
+}
+
+.eao-address-card--new.is-selected .eao-address-card__label {
+    color: var(--eao-accent);
+}
+
+/* Saved address card */
+.eao-address-card__name {
+    font-weight: 600;
+    color: var(--eao-text);
+    margin-bottom: 5px;
+    padding-right: 25px; /* Space for delete button */
+}
+
+.eao-address-card__address {
+    font-size: 0.85rem;
+    color: var(--eao-text-light);
+    line-height: 1.4;
+}
+
+/* Delete button */
+.eao-address-card__delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--eao-text-light);
+    opacity: 0;
+    transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eao-address-card:hover .eao-address-card__delete {
+    opacity: 1;
+}
+
+.eao-address-card__delete:hover {
+    background: var(--eao-error);
+    color: var(--eao-white);
+}
+
+.eao-address-card__delete .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Address form container */
+.eao-address-form {
+    background: var(--eao-bg);
+    padding: 20px;
+    border-radius: var(--eao-radius);
+    margin-top: 15px;
+}
+
+/* When using saved address, hide the form */
+.eao-address-form.is-hidden {
+    display: none;
+}
+
+/* Checkbox field */
+.eao-field--checkbox {
+    margin-top: 15px;
+}
+
+.eao-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.eao-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--eao-accent);
+}
+
+.eao-checkbox__label {
+    font-size: 0.9rem;
+    color: var(--eao-text);
+}
+
+/* Hide save checkbox when editing saved address */
+.eao-address-form.using-saved #eao-save-address-field {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .eao-address-selector__grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .eao-address-card {
+        min-height: 80px;
+    }
+}
+

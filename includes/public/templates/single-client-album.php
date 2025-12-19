@@ -247,35 +247,85 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                     <h2 class="eao-form__section-title"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></h2>
                     <p class="eao-field__help" style="margin-bottom: 20px;"><?php esc_html_e( 'Each album can be shipped to a different address. For example, ship a parents album directly to them!', 'easy-album-orders' ); ?></p>
                     
-                    <div class="eao-field">
-                        <label for="eao-shipping-name" class="eao-field__label"><?php esc_html_e( 'Full Name', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                        <input type="text" id="eao-shipping-name" name="shipping_name" class="eao-field__input" placeholder="<?php esc_attr_e( 'John Smith', 'easy-album-orders' ); ?>" required>
+                    <?php
+                    // Get saved addresses for this client album.
+                    $saved_addresses = get_post_meta( $album_id, '_eao_saved_addresses', true );
+                    $saved_addresses = is_array( $saved_addresses ) ? $saved_addresses : array();
+                    ?>
+
+                    <!-- Saved Address Selector -->
+                    <div class="eao-address-selector" id="eao-address-selector">
+                        <div class="eao-address-selector__grid" id="eao-address-grid">
+                            <!-- Add New Address Card -->
+                            <div class="eao-address-card eao-address-card--new is-selected" data-address-id="new">
+                                <div class="eao-address-card__icon">
+                                    <span class="dashicons dashicons-plus-alt2"></span>
+                                </div>
+                                <div class="eao-address-card__label"><?php esc_html_e( 'New Address', 'easy-album-orders' ); ?></div>
+                            </div>
+
+                            <?php foreach ( $saved_addresses as $address ) : ?>
+                                <div class="eao-address-card" 
+                                     data-address-id="<?php echo esc_attr( $address['id'] ); ?>"
+                                     data-address='<?php echo esc_attr( wp_json_encode( $address ) ); ?>'>
+                                    <button type="button" class="eao-address-card__delete" title="<?php esc_attr_e( 'Delete address', 'easy-album-orders' ); ?>">
+                                        <span class="dashicons dashicons-no-alt"></span>
+                                    </button>
+                                    <div class="eao-address-card__name"><?php echo esc_html( $address['name'] ); ?></div>
+                                    <div class="eao-address-card__address">
+                                        <?php echo esc_html( $address['address1'] ); ?>
+                                        <?php if ( ! empty( $address['address2'] ) ) : ?>
+                                            <br><?php echo esc_html( $address['address2'] ); ?>
+                                        <?php endif; ?>
+                                        <br><?php echo esc_html( $address['city'] . ', ' . $address['state'] . ' ' . $address['zip'] ); ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
 
-                    <div class="eao-field">
-                        <label for="eao-shipping-address1" class="eao-field__label"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                        <input type="text" id="eao-shipping-address1" name="shipping_address1" class="eao-field__input" placeholder="<?php esc_attr_e( '123 Main Street', 'easy-album-orders' ); ?>" required>
+                    <!-- Address Form Fields -->
+                    <div class="eao-address-form" id="eao-address-form">
+                        <div class="eao-field">
+                            <label for="eao-shipping-name" class="eao-field__label"><?php esc_html_e( 'Full Name', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="text" id="eao-shipping-name" name="shipping_name" class="eao-field__input" placeholder="<?php esc_attr_e( 'John Smith', 'easy-album-orders' ); ?>" required>
+                        </div>
+
+                        <div class="eao-field">
+                            <label for="eao-shipping-address1" class="eao-field__label"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="text" id="eao-shipping-address1" name="shipping_address1" class="eao-field__input" placeholder="<?php esc_attr_e( '123 Main Street', 'easy-album-orders' ); ?>" required>
+                        </div>
+
+                        <div class="eao-field">
+                            <label for="eao-shipping-address2" class="eao-field__label"><?php esc_html_e( 'Apartment, Suite, etc.', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
+                            <input type="text" id="eao-shipping-address2" name="shipping_address2" class="eao-field__input" placeholder="<?php esc_attr_e( 'Apt 4B', 'easy-album-orders' ); ?>">
+                        </div>
+
+                        <div class="eao-field-row eao-field-row--shipping">
+                            <div class="eao-field eao-field--city">
+                                <label for="eao-shipping-city" class="eao-field__label"><?php esc_html_e( 'City', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                                <input type="text" id="eao-shipping-city" name="shipping_city" class="eao-field__input" placeholder="<?php esc_attr_e( 'New York', 'easy-album-orders' ); ?>" required>
+                            </div>
+                            <div class="eao-field eao-field--state">
+                                <label for="eao-shipping-state" class="eao-field__label"><?php esc_html_e( 'State', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                                <input type="text" id="eao-shipping-state" name="shipping_state" class="eao-field__input" placeholder="<?php esc_attr_e( 'NY', 'easy-album-orders' ); ?>" required>
+                            </div>
+                            <div class="eao-field eao-field--zip">
+                                <label for="eao-shipping-zip" class="eao-field__label"><?php esc_html_e( 'ZIP Code', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                                <input type="text" id="eao-shipping-zip" name="shipping_zip" class="eao-field__input" placeholder="<?php esc_attr_e( '10001', 'easy-album-orders' ); ?>" required>
+                            </div>
+                        </div>
+
+                        <!-- Save Address Checkbox -->
+                        <div class="eao-field eao-field--checkbox" id="eao-save-address-field">
+                            <label class="eao-checkbox">
+                                <input type="checkbox" id="eao-save-address" name="save_address" value="1">
+                                <span class="eao-checkbox__label"><?php esc_html_e( 'Save this address for future orders', 'easy-album-orders' ); ?></span>
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="eao-field">
-                        <label for="eao-shipping-address2" class="eao-field__label"><?php esc_html_e( 'Apartment, Suite, etc.', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
-                        <input type="text" id="eao-shipping-address2" name="shipping_address2" class="eao-field__input" placeholder="<?php esc_attr_e( 'Apt 4B', 'easy-album-orders' ); ?>">
-                    </div>
-
-                    <div class="eao-field-row eao-field-row--shipping">
-                        <div class="eao-field eao-field--city">
-                            <label for="eao-shipping-city" class="eao-field__label"><?php esc_html_e( 'City', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                            <input type="text" id="eao-shipping-city" name="shipping_city" class="eao-field__input" placeholder="<?php esc_attr_e( 'New York', 'easy-album-orders' ); ?>" required>
-                        </div>
-                        <div class="eao-field eao-field--state">
-                            <label for="eao-shipping-state" class="eao-field__label"><?php esc_html_e( 'State', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                            <input type="text" id="eao-shipping-state" name="shipping_state" class="eao-field__input" placeholder="<?php esc_attr_e( 'NY', 'easy-album-orders' ); ?>" required>
-                        </div>
-                        <div class="eao-field eao-field--zip">
-                            <label for="eao-shipping-zip" class="eao-field__label"><?php esc_html_e( 'ZIP Code', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                            <input type="text" id="eao-shipping-zip" name="shipping_zip" class="eao-field__input" placeholder="<?php esc_attr_e( '10001', 'easy-album-orders' ); ?>" required>
-                        </div>
-                    </div>
+                    <input type="hidden" id="eao-selected-address-id" name="selected_address_id" value="new">
                 </section>
 
                 <!-- Price Summary -->

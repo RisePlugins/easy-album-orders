@@ -44,6 +44,16 @@ class EAO_Ajax_Handler {
 
         add_action( 'wp_ajax_eao_get_order_for_edit', array( $this, 'get_order_for_edit' ) );
         add_action( 'wp_ajax_nopriv_eao_get_order_for_edit', array( $this, 'get_order_for_edit' ) );
+
+        // Saved addresses.
+        add_action( 'wp_ajax_eao_save_address', array( $this, 'save_address' ) );
+        add_action( 'wp_ajax_nopriv_eao_save_address', array( $this, 'save_address' ) );
+
+        add_action( 'wp_ajax_eao_delete_address', array( $this, 'delete_address' ) );
+        add_action( 'wp_ajax_nopriv_eao_delete_address', array( $this, 'delete_address' ) );
+
+        add_action( 'wp_ajax_eao_get_saved_addresses', array( $this, 'get_saved_addresses' ) );
+        add_action( 'wp_ajax_nopriv_eao_get_saved_addresses', array( $this, 'get_saved_addresses' ) );
     }
 
     /**
@@ -597,6 +607,115 @@ class EAO_Ajax_Handler {
         }
 
         return $total;
+    }
+
+    /**
+     * Save a new address.
+     *
+     * @since 1.0.0
+     */
+    public function save_address() {
+        // Verify nonce.
+        if ( ! check_ajax_referer( 'eao_public_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
+        }
+
+        $client_album_id = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+
+        if ( ! $client_album_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid album.', 'easy-album-orders' ) ) );
+        }
+
+        // Collect address data.
+        $address = array(
+            'id'        => 'addr_' . uniqid(),
+            'name'      => isset( $_POST['shipping_name'] ) ? sanitize_text_field( $_POST['shipping_name'] ) : '',
+            'address1'  => isset( $_POST['shipping_address1'] ) ? sanitize_text_field( $_POST['shipping_address1'] ) : '',
+            'address2'  => isset( $_POST['shipping_address2'] ) ? sanitize_text_field( $_POST['shipping_address2'] ) : '',
+            'city'      => isset( $_POST['shipping_city'] ) ? sanitize_text_field( $_POST['shipping_city'] ) : '',
+            'state'     => isset( $_POST['shipping_state'] ) ? sanitize_text_field( $_POST['shipping_state'] ) : '',
+            'zip'       => isset( $_POST['shipping_zip'] ) ? sanitize_text_field( $_POST['shipping_zip'] ) : '',
+        );
+
+        // Validate required fields.
+        if ( empty( $address['name'] ) || empty( $address['address1'] ) || empty( $address['city'] ) || empty( $address['state'] ) || empty( $address['zip'] ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please fill in all required address fields.', 'easy-album-orders' ) ) );
+        }
+
+        // Get existing addresses.
+        $saved_addresses = get_post_meta( $client_album_id, '_eao_saved_addresses', true );
+        $saved_addresses = is_array( $saved_addresses ) ? $saved_addresses : array();
+
+        // Add new address.
+        $saved_addresses[] = $address;
+
+        // Save.
+        update_post_meta( $client_album_id, '_eao_saved_addresses', $saved_addresses );
+
+        wp_send_json_success( array(
+            'message'   => __( 'Address saved!', 'easy-album-orders' ),
+            'address'   => $address,
+            'addresses' => $saved_addresses,
+        ) );
+    }
+
+    /**
+     * Delete a saved address.
+     *
+     * @since 1.0.0
+     */
+    public function delete_address() {
+        // Verify nonce.
+        if ( ! check_ajax_referer( 'eao_public_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
+        }
+
+        $client_album_id = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+        $address_id      = isset( $_POST['address_id'] ) ? sanitize_key( $_POST['address_id'] ) : '';
+
+        if ( ! $client_album_id || ! $address_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid request.', 'easy-album-orders' ) ) );
+        }
+
+        // Get existing addresses.
+        $saved_addresses = get_post_meta( $client_album_id, '_eao_saved_addresses', true );
+        $saved_addresses = is_array( $saved_addresses ) ? $saved_addresses : array();
+
+        // Remove the address.
+        $saved_addresses = array_filter( $saved_addresses, function( $addr ) use ( $address_id ) {
+            return $addr['id'] !== $address_id;
+        } );
+
+        // Re-index array.
+        $saved_addresses = array_values( $saved_addresses );
+
+        // Save.
+        update_post_meta( $client_album_id, '_eao_saved_addresses', $saved_addresses );
+
+        wp_send_json_success( array(
+            'message'   => __( 'Address deleted.', 'easy-album-orders' ),
+            'addresses' => $saved_addresses,
+        ) );
+    }
+
+    /**
+     * Get saved addresses for a client album.
+     *
+     * @since 1.0.0
+     */
+    public function get_saved_addresses() {
+        $client_album_id = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+
+        if ( ! $client_album_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid album.', 'easy-album-orders' ) ) );
+        }
+
+        $saved_addresses = get_post_meta( $client_album_id, '_eao_saved_addresses', true );
+        $saved_addresses = is_array( $saved_addresses ) ? $saved_addresses : array();
+
+        wp_send_json_success( array(
+            'addresses' => $saved_addresses,
+        ) );
     }
 }
 
