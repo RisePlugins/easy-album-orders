@@ -240,6 +240,7 @@ class EAO_Admin_Menus {
                 'name'       => sanitize_text_field( $size['name'] ),
                 'dimensions' => isset( $size['dimensions'] ) ? sanitize_text_field( $size['dimensions'] ) : '',
                 'upcharge'   => isset( $size['upcharge'] ) ? floatval( $size['upcharge'] ) : 0,
+                'image_id'   => isset( $size['image_id'] ) ? absint( $size['image_id'] ) : 0,
             );
         }
 
