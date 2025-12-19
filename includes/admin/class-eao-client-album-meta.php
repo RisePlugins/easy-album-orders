@@ -77,6 +77,19 @@ class EAO_Client_Album_Meta {
             'side',
             'high'
         );
+
+        // Orders meta box (only show on existing posts).
+        global $post;
+        if ( $post && $post->ID ) {
+            add_meta_box(
+                'eao_client_orders',
+                __( 'Orders', 'easy-album-orders' ),
+                array( $this, 'render_orders_meta_box' ),
+                'client_album',
+                'normal',
+                'low'
+            );
+        }
     }
 
     /**
@@ -227,6 +240,188 @@ class EAO_Client_Album_Meta {
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    /**
+     * Render Orders meta box.
+     *
+     * Shows all orders associated with this client album.
+     *
+     * @since 1.0.0
+     *
+     * @param WP_Post $post The current post object.
+     */
+    public function render_orders_meta_box( $post ) {
+        // Get all orders for this client album.
+        $orders = EAO_Album_Order::get_by_client_album( $post->ID );
+
+        // Get designs for reference.
+        $designs = get_post_meta( $post->ID, '_eao_designs', true );
+        $designs = is_array( $designs ) ? $designs : array();
+
+        // Calculate credit usage summary.
+        $credit_summary = $this->get_credit_usage_summary( $post->ID, $designs );
+        ?>
+        <div class="eao-meta-box eao-orders-meta-box">
+            <?php if ( ! empty( $credit_summary ) ) : ?>
+                <!-- Credit Usage Summary -->
+                <div class="eao-credit-summary" style="background: #f0f6fc; border: 1px solid #c3c4c7; border-radius: 4px; padding: 12px 15px; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #1d2327;">
+                        <span class="dashicons dashicons-awards" style="color: #2271b1;"></span>
+                        <?php esc_html_e( 'Credit Usage Summary', 'easy-album-orders' ); ?>
+                    </h4>
+                    <div class="eao-credit-summary__items" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                        <?php foreach ( $credit_summary as $summary ) : ?>
+                            <div class="eao-credit-summary__item" style="background: #fff; border-radius: 4px; padding: 10px 15px; flex: 1; min-width: 200px;">
+                                <div style="font-weight: 600; margin-bottom: 5px;"><?php echo esc_html( $summary['design_name'] ); ?></div>
+                                <?php if ( $summary['total_free'] > 0 ) : ?>
+                                    <div style="font-size: 12px; color: <?php echo $summary['used_free'] > 0 ? '#00a32a' : '#646970'; ?>;">
+                                        <?php
+                                        printf(
+                                            /* translators: %1$d: used free credits, %2$d: total free credits */
+                                            esc_html__( 'Free Albums: %1$d / %2$d used', 'easy-album-orders' ),
+                                            $summary['used_free'],
+                                            $summary['total_free']
+                                        );
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ( $summary['total_dollar'] > 0 ) : ?>
+                                    <div style="font-size: 12px; color: <?php echo $summary['used_dollar'] > 0 ? '#00a32a' : '#646970'; ?>;">
+                                        <?php
+                                        printf(
+                                            /* translators: %1$s: used dollar credit, %2$s: total dollar credit */
+                                            esc_html__( 'Credit Budget: %1$s / %2$s used', 'easy-album-orders' ),
+                                            eao_format_price( $summary['used_dollar'] ),
+                                            eao_format_price( $summary['total_dollar'] )
+                                        );
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ( empty( $orders ) ) : ?>
+                <p class="description" style="margin: 0;">
+                    <?php esc_html_e( 'No orders have been placed yet.', 'easy-album-orders' ); ?>
+                </p>
+            <?php else : ?>
+                <table class="widefat striped" style="margin: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;"><?php esc_html_e( 'Order', 'easy-album-orders' ); ?></th>
+                            <th><?php esc_html_e( 'Album Name', 'easy-album-orders' ); ?></th>
+                            <th><?php esc_html_e( 'Design', 'easy-album-orders' ); ?></th>
+                            <th style="width: 100px;"><?php esc_html_e( 'Total', 'easy-album-orders' ); ?></th>
+                            <th style="width: 140px;"><?php esc_html_e( 'Credit Applied', 'easy-album-orders' ); ?></th>
+                            <th style="width: 90px;"><?php esc_html_e( 'Status', 'easy-album-orders' ); ?></th>
+                            <th style="width: 100px;"><?php esc_html_e( 'Date', 'easy-album-orders' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $orders as $order ) : ?>
+                            <?php
+                            $order_id        = $order->ID;
+                            $order_number    = EAO_Helpers::generate_order_number( $order_id );
+                            $album_name      = get_post_meta( $order_id, '_eao_album_name', true );
+                            $design_name     = get_post_meta( $order_id, '_eao_design_name', true );
+                            $credit_type     = get_post_meta( $order_id, '_eao_credit_type', true );
+                            $applied_credits = floatval( get_post_meta( $order_id, '_eao_applied_credits', true ) );
+                            $status          = EAO_Album_Order::get_order_status( $order_id );
+                            $status_label    = EAO_Album_Order::get_status_label( $status );
+                            $total           = EAO_Album_Order::calculate_total( $order_id );
+                            $order_date      = get_the_date( 'M j, Y', $order_id );
+                            $edit_link       = get_edit_post_link( $order_id );
+
+                            // Status colors.
+                            $status_colors = array(
+                                'submitted' => '#dba617',
+                                'ordered'   => '#2271b1',
+                                'shipped'   => '#00a32a',
+                            );
+                            $status_color = isset( $status_colors[ $status ] ) ? $status_colors[ $status ] : '#646970';
+                            ?>
+                            <tr>
+                                <td>
+                                    <a href="<?php echo esc_url( $edit_link ); ?>" style="font-weight: 600;">
+                                        <?php echo esc_html( $order_number ); ?>
+                                    </a>
+                                </td>
+                                <td><?php echo esc_html( $album_name ?: '—' ); ?></td>
+                                <td><?php echo esc_html( $design_name ?: '—' ); ?></td>
+                                <td><strong><?php echo esc_html( eao_format_price( $total ) ); ?></strong></td>
+                                <td>
+                                    <?php if ( $applied_credits > 0 ) : ?>
+                                        <span style="color: #00a32a;">
+                                            <?php
+                                            if ( 'free_album' === $credit_type ) {
+                                                echo '✓ ' . esc_html__( 'Free Album', 'easy-album-orders' );
+                                            } else {
+                                                echo '✓ ' . esc_html( eao_format_price( $applied_credits ) );
+                                            }
+                                            ?>
+                                        </span>
+                                    <?php else : ?>
+                                        <span style="color: #646970;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span class="eao-status-badge" style="display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; background: <?php echo esc_attr( $status_color ); ?>; color: #fff;">
+                                        <?php echo esc_html( $status_label ); ?>
+                                    </span>
+                                </td>
+                                <td style="color: #646970; font-size: 12px;"><?php echo esc_html( $order_date ); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <p style="margin: 15px 0 0; text-align: right;">
+                    <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=album_order&client_album=' . $post->ID ) ); ?>" class="button">
+                        <?php esc_html_e( 'View All Orders', 'easy-album-orders' ); ?> →
+                    </a>
+                </p>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Get credit usage summary for all designs.
+     *
+     * @since 1.0.0
+     *
+     * @param int   $client_album_id The client album ID.
+     * @param array $designs         The designs array.
+     * @return array Credit usage summary per design.
+     */
+    private function get_credit_usage_summary( $client_album_id, $designs ) {
+        $summary = array();
+
+        foreach ( $designs as $index => $design ) {
+            $total_free   = isset( $design['free_album_credits'] ) ? absint( $design['free_album_credits'] ) : 0;
+            $total_dollar = isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
+
+            // Skip designs with no credits.
+            if ( $total_free <= 0 && $total_dollar <= 0 ) {
+                continue;
+            }
+
+            $used_free   = EAO_Album_Order::count_used_free_credits( $client_album_id, $index );
+            $used_dollar = EAO_Album_Order::get_used_dollar_credits( $client_album_id, $index );
+
+            $summary[] = array(
+                'design_name'  => ! empty( $design['name'] ) ? $design['name'] : sprintf( __( 'Design %d', 'easy-album-orders' ), $index + 1 ),
+                'total_free'   => $total_free,
+                'used_free'    => $used_free,
+                'total_dollar' => $total_dollar,
+                'used_dollar'  => $used_dollar,
+            );
+        }
+
+        return $summary;
     }
 
     /**
