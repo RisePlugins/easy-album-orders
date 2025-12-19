@@ -344,14 +344,14 @@
 
                 if (addressId === 'new') {
                     // Show form for new address.
-                    $form.removeClass('is-hidden using-saved');
+                    $form.removeClass('is-hidden using-saved').show();
                     self.clearAddressForm();
                 } else {
-                    // Fill form with saved address data.
+                    // Hide form and store address data for submission.
                     const addressData = $card.data('address');
                     if (addressData) {
                         self.fillAddressForm(addressData);
-                        $form.removeClass('is-hidden').addClass('using-saved');
+                        $form.addClass('is-hidden using-saved').hide();
                     }
                 }
             });
@@ -750,7 +750,7 @@
             $('.eao-address-card--new').addClass('is-selected');
             self.selectedAddressId = 'new';
             $('#eao-selected-address-id').val('new');
-            $('#eao-address-form').removeClass('is-hidden using-saved');
+            $('#eao-address-form').removeClass('is-hidden using-saved').show();
             self.clearAddressForm();
 
             // Reset price display.
@@ -918,12 +918,26 @@
             });
 
             if (matchingAddressId) {
-                // Select the matching saved address.
+                // Select the matching saved address (form will be hidden).
                 const $matchingCard = $('.eao-address-card[data-address-id="' + matchingAddressId + '"]');
-                $matchingCard.trigger('click');
+                $('.eao-address-card').removeClass('is-selected');
+                $matchingCard.addClass('is-selected');
+                self.selectedAddressId = matchingAddressId;
+                $('#eao-selected-address-id').val(matchingAddressId);
+                
+                // Fill and hide the form.
+                const addressData = $matchingCard.data('address');
+                if (addressData) {
+                    self.fillAddressForm(addressData);
+                }
+                $('#eao-address-form').addClass('is-hidden using-saved').hide();
             } else {
-                // Select "New Address" and fill the form.
-                $('.eao-address-card--new').trigger('click');
+                // Select "New Address" and fill the form (form visible).
+                $('.eao-address-card').removeClass('is-selected');
+                $('.eao-address-card--new').addClass('is-selected');
+                self.selectedAddressId = 'new';
+                $('#eao-selected-address-id').val('new');
+                $('#eao-address-form').removeClass('is-hidden using-saved').show();
                 
                 if (data.shipping_name) {
                     $('#eao-shipping-name').val(data.shipping_name);
