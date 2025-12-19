@@ -191,22 +191,23 @@ Respect the status progression:
 
 ## Development Workflow
 
-### Before Starting Work
-1. Pull latest changes: `git pull origin main`
-2. Review PLUGIN-OVERVIEW.md for architecture guidance
-3. Check CHANGELOG.md for recent changes
+### With Cursor AI
+1. Make changes based on user prompts
+2. **Commit changes immediately after each file change**
+3. Write descriptive commit message following conventional format
+4. Update CHANGELOG.md if adding significant features
+5. Push to GitHub after commits
 
-### While Working
-1. Make logical, focused changes
-2. Test changes in WordPress environment
-3. Follow coding standards
-4. Add/update comments and documentation
+**Note**: No need to pull before every change when working solo with Cursor. Only pull if:
+- Working across multiple machines
+- Collaborating with other developers
+- Returning after extended time away
 
-### After Making Changes
-1. **Commit changes immediately**
-2. Write descriptive commit message
-3. Update CHANGELOG.md if adding features
-4. Push to GitHub: `git push origin main`
+### Manual Development (if needed)
+- Review PLUGIN-OVERVIEW.md for architecture guidance
+- Follow coding standards
+- Test changes in WordPress environment
+- Add/update comments and documentation
 
 ### Testing Checklist
 - [ ] Test in WordPress 5.8+ environment
