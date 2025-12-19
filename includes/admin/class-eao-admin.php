@@ -123,6 +123,8 @@ class EAO_Admin {
                 'mediaButton'    => __( 'Use this media', 'easy-album-orders' ),
                 'pdfMediaTitle'  => __( 'Select or Upload PDF', 'easy-album-orders' ),
                 'pdfMediaButton' => __( 'Use this PDF', 'easy-album-orders' ),
+                'addColor'       => __( 'Add Color', 'easy-album-orders' ),
+                'editColor'      => __( 'Edit Color', 'easy-album-orders' ),
             )
         );
     }

@@ -67,6 +67,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sortable columns for both list tables
 - PDF upload support in media library
 
+### Changed (Admin UI/UX Redesign)
+- Complete redesign of Album Options page with modular card layout
+- Materials now display as full-width cards (no accordion)
+- Colors now display as circular swatches with visual preview
+- Added color edit modal for adding/editing colors
+- Size cards with inline editing
+- Engraving cards with card-based layout
+- General settings organized into settings cards
+- Improved responsive design for all admin components
+- New design tokens and CSS custom properties
+- Toggle switches for boolean settings
+- Consistent form styling across all admin pages
+
 ### Changed (Credits System Redesign)
 - Album credits are now per-design instead of per-client-album
 - Each design can have:

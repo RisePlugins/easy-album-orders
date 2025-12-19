@@ -14,17 +14,25 @@
     const EAOAdmin = {
 
         /**
+         * Current color being edited.
+         */
+        currentColorSwatch: null,
+        currentMaterialCard: null,
+
+        /**
          * Initialize admin functionality.
          */
         init: function() {
             this.bindTabs();
-            this.bindRepeaters();
+            this.bindMaterialCards();
+            this.bindSizeCards();
+            this.bindEngravingCards();
+            this.bindColorModal();
             this.bindImageUpload();
             this.bindPdfUpload();
-            this.bindColorTypeToggle();
-            this.bindNameInputs();
             this.bindDesignRepeater();
             this.bindCopyLink();
+            this.bindLegacyRepeaters();
         },
 
         /**
@@ -70,168 +78,378 @@
         },
 
         /**
-         * Bind repeater functionality.
+         * Bind material card functionality.
          */
-        bindRepeaters: function() {
+        bindMaterialCards: function() {
             const self = this;
 
-            // Toggle item content.
-            $(document).on('click', '.eao-repeater__toggle', function(e) {
-                e.stopPropagation();
-                const $item = $(this).closest('.eao-repeater__item');
-                $item.toggleClass('is-open');
+            // Add material.
+            $(document).on('click', '.eao-add-material', function() {
+                self.addMaterial();
             });
 
-            // Click on header to toggle.
-            $(document).on('click', '.eao-repeater__item-header', function(e) {
-                if (!$(e.target).closest('.eao-repeater__toggle, .eao-repeater__remove').length) {
-                    $(this).find('.eao-repeater__toggle').trigger('click');
-                }
-            });
-
-            // Remove item.
-            $(document).on('click', '.eao-repeater__remove', function(e) {
-                e.stopPropagation();
-                if (confirm(eaoAdmin.confirmDelete)) {
-                    $(this).closest('.eao-repeater__item').slideUp(200, function() {
+            // Delete material.
+            $(document).on('click', '.eao-material-card__delete', function() {
+                if (confirm(eaoAdmin.confirmDelete || 'Are you sure you want to delete this item?')) {
+                    $(this).closest('.eao-material-card').slideUp(200, function() {
                         $(this).remove();
-                        self.reindexItems();
+                        self.reindexMaterials();
+                        self.hideEmptyStateIfNeeded('#materials');
                     });
                 }
             });
 
-            // Add material.
-            $('.eao-add-material').on('click', function() {
-                self.addMaterial();
-            });
-
-            // Add size.
-            $('.eao-add-size').on('click', function() {
-                self.addSize();
-            });
-
-            // Add engraving.
-            $('.eao-add-engraving').on('click', function() {
-                self.addEngraving();
-            });
-
-            // Add color.
+            // Add color - opens modal.
             $(document).on('click', '.eao-add-color', function() {
-                self.addColor($(this).closest('.eao-material-item'));
+                self.currentMaterialCard = $(this).closest('.eao-material-card');
+                self.currentColorSwatch = null;
+                self.openColorModal();
             });
 
-            // Remove color.
-            $(document).on('click', '.eao-sub-repeater__remove', function() {
-                $(this).closest('.eao-sub-repeater__item').fadeOut(200, function() {
+            // Edit color - opens modal with existing data.
+            $(document).on('click', '.eao-color-swatch__edit', function(e) {
+                e.stopPropagation();
+                const $swatch = $(this).closest('.eao-color-swatch');
+                self.currentMaterialCard = $swatch.closest('.eao-material-card');
+                self.currentColorSwatch = $swatch;
+                self.openColorModal($swatch);
+            });
+
+            // Delete color.
+            $(document).on('click', '.eao-color-swatch__delete', function(e) {
+                e.stopPropagation();
+                $(this).closest('.eao-color-swatch').fadeOut(200, function() {
                     $(this).remove();
                 });
             });
         },
 
         /**
-         * Add a new material item.
+         * Add a new material card.
          */
         addMaterial: function() {
-            const $container = $('#materials-repeater .eao-repeater__items');
-            const index = $container.find('.eao-material-item').length;
-            const template = wp.template('eao-material-item');
+            const $container = $('#materials-repeater');
+            const index = $container.find('.eao-material-card').length;
+            const template = wp.template('eao-material-card');
 
-            const $newItem = $(template({
+            const $newCard = $(template({
                 index: index,
                 id: this.generateId()
             }));
 
-            $container.append($newItem);
-            $newItem.addClass('is-open');
-            $newItem.find('.eao-material-name-input').focus();
+            // Hide empty state.
+            $('#materials .eao-empty-state').hide();
+
+            $container.append($newCard);
+            $newCard.hide().slideDown(200, function() {
+                $newCard.find('.eao-material-name-input').focus();
+            });
         },
 
         /**
-         * Add a new size item.
+         * Reindex all material cards.
          */
-        addSize: function() {
-            const $container = $('#sizes-repeater .eao-repeater__items');
-            const index = $container.find('.eao-size-item').length;
-            const template = wp.template('eao-size-item');
-
-            const $newItem = $(template({
-                index: index,
-                id: this.generateId()
-            }));
-
-            $container.append($newItem);
-            $newItem.find('.eao-size-name-input').focus();
-        },
-
-        /**
-         * Add a new engraving item.
-         */
-        addEngraving: function() {
-            const $container = $('#engraving-repeater .eao-repeater__items');
-            const index = $container.find('.eao-engraving-item').length;
-            const template = wp.template('eao-engraving-item');
-
-            const $newItem = $(template({
-                index: index,
-                id: this.generateId()
-            }));
-
-            $container.append($newItem);
-            $newItem.addClass('is-open');
-            $newItem.find('.eao-engraving-name-input').focus();
-        },
-
-        /**
-         * Add a new color to a material.
-         *
-         * @param {jQuery} $materialItem The material item element.
-         */
-        addColor: function($materialItem) {
-            const $container = $materialItem.find('.eao-sub-repeater__items');
-            const materialIndex = $materialItem.data('index');
-            const colorIndex = $container.find('.eao-color-item').length;
-            const template = wp.template('eao-color-item');
-
-            const $newItem = $(template({
-                materialIndex: materialIndex,
-                colorIndex: colorIndex,
-                id: this.generateId()
-            }));
-
-            $container.append($newItem);
-            $newItem.find('input[type="text"]').first().focus();
-        },
-
-        /**
-         * Reindex all items after removal.
-         */
-        reindexItems: function() {
-            // Reindex materials.
-            $('.eao-material-item').each(function(index) {
+        reindexMaterials: function() {
+            $('.eao-material-card').each(function(index) {
                 $(this).attr('data-index', index);
                 $(this).find('[name^="eao_materials"]').each(function() {
                     const name = $(this).attr('name');
                     $(this).attr('name', name.replace(/eao_materials\[\d+\]/, 'eao_materials[' + index + ']'));
                 });
             });
+        },
 
-            // Reindex sizes.
-            $('.eao-size-item').each(function(index) {
+        /**
+         * Bind size card functionality.
+         */
+        bindSizeCards: function() {
+            const self = this;
+
+            // Add size.
+            $(document).on('click', '.eao-add-size', function() {
+                self.addSize();
+            });
+
+            // Delete size.
+            $(document).on('click', '.eao-size-card__delete', function() {
+                if (confirm(eaoAdmin.confirmDelete || 'Are you sure you want to delete this item?')) {
+                    $(this).closest('.eao-size-card').slideUp(200, function() {
+                        $(this).remove();
+                        self.reindexSizes();
+                        self.hideEmptyStateIfNeeded('#sizes');
+                    });
+                }
+            });
+        },
+
+        /**
+         * Add a new size card.
+         */
+        addSize: function() {
+            const $container = $('#sizes-repeater');
+            const index = $container.find('.eao-size-card').length;
+            const template = wp.template('eao-size-card');
+
+            const $newCard = $(template({
+                index: index,
+                id: this.generateId()
+            }));
+
+            // Hide empty state.
+            $('#sizes .eao-empty-state').hide();
+
+            $container.append($newCard);
+            $newCard.hide().slideDown(200, function() {
+                $newCard.find('.eao-size-name-input').focus();
+            });
+        },
+
+        /**
+         * Reindex all size cards.
+         */
+        reindexSizes: function() {
+            $('.eao-size-card').each(function(index) {
                 $(this).attr('data-index', index);
                 $(this).find('[name^="eao_sizes"]').each(function() {
                     const name = $(this).attr('name');
                     $(this).attr('name', name.replace(/eao_sizes\[\d+\]/, 'eao_sizes[' + index + ']'));
                 });
             });
+        },
 
-            // Reindex engraving options.
-            $('.eao-engraving-item').each(function(index) {
+        /**
+         * Bind engraving card functionality.
+         */
+        bindEngravingCards: function() {
+            const self = this;
+
+            // Add engraving.
+            $(document).on('click', '.eao-add-engraving', function() {
+                self.addEngraving();
+            });
+
+            // Delete engraving.
+            $(document).on('click', '.eao-engraving-card__delete', function() {
+                if (confirm(eaoAdmin.confirmDelete || 'Are you sure you want to delete this item?')) {
+                    $(this).closest('.eao-engraving-card').slideUp(200, function() {
+                        $(this).remove();
+                        self.reindexEngraving();
+                        self.hideEmptyStateIfNeeded('#engraving');
+                    });
+                }
+            });
+        },
+
+        /**
+         * Add a new engraving card.
+         */
+        addEngraving: function() {
+            const $container = $('#engraving-repeater');
+            const index = $container.find('.eao-engraving-card').length;
+            const template = wp.template('eao-engraving-card');
+
+            const $newCard = $(template({
+                index: index,
+                id: this.generateId()
+            }));
+
+            // Hide empty state.
+            $('#engraving .eao-empty-state').hide();
+
+            $container.append($newCard);
+            $newCard.hide().slideDown(200, function() {
+                $newCard.find('.eao-engraving-name-input').focus();
+            });
+        },
+
+        /**
+         * Reindex all engraving cards.
+         */
+        reindexEngraving: function() {
+            $('.eao-engraving-card').each(function(index) {
                 $(this).attr('data-index', index);
                 $(this).find('[name^="eao_engraving_options"]').each(function() {
                     const name = $(this).attr('name');
                     $(this).attr('name', name.replace(/eao_engraving_options\[\d+\]/, 'eao_engraving_options[' + index + ']'));
                 });
             });
+        },
+
+        /**
+         * Hide empty state if there are items, show if there are none.
+         */
+        hideEmptyStateIfNeeded: function(tabId) {
+            const $tab = $(tabId);
+            const $emptyState = $tab.find('.eao-empty-state');
+            const hasItems = $tab.find('.eao-material-card, .eao-size-card, .eao-engraving-card').length > 0;
+
+            if (hasItems) {
+                $emptyState.hide();
+            } else {
+                $emptyState.show();
+            }
+        },
+
+        /**
+         * Bind color modal functionality.
+         */
+        bindColorModal: function() {
+            const self = this;
+            const $modal = $('#eao-color-modal');
+
+            // Close modal on backdrop click.
+            $modal.on('click', '.eao-modal__backdrop, .eao-modal__close, .eao-modal__cancel', function() {
+                self.closeColorModal();
+            });
+
+            // Update hex display when color changes.
+            $('#eao-modal-color-value').on('input', function() {
+                $('#eao-modal-color-hex').text($(this).val().toUpperCase());
+            });
+
+            // Toggle color picker visibility based on type.
+            $('input[name="eao_modal_color_type"]').on('change', function() {
+                if ($(this).val() === 'solid') {
+                    $('.eao-color-picker-field').show();
+                } else {
+                    $('.eao-color-picker-field').hide();
+                }
+            });
+
+            // Save color.
+            $modal.on('click', '.eao-modal__save', function() {
+                self.saveColor();
+            });
+
+            // Handle Enter key in modal.
+            $modal.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    self.saveColor();
+                }
+                if (e.key === 'Escape') {
+                    self.closeColorModal();
+                }
+            });
+        },
+
+        /**
+         * Open the color modal.
+         *
+         * @param {jQuery} $swatch Optional existing swatch to edit.
+         */
+        openColorModal: function($swatch) {
+            const $modal = $('#eao-color-modal');
+
+            if ($swatch) {
+                // Editing existing color.
+                const name = $swatch.find('.eao-color-name-input').val();
+                const type = $swatch.find('.eao-color-type-input').val();
+                const colorValue = $swatch.find('.eao-color-value-input').val();
+
+                $('#eao-modal-color-name').val(name);
+                $('input[name="eao_modal_color_type"][value="' + type + '"]').prop('checked', true).trigger('change');
+                $('#eao-modal-color-value').val(colorValue || '#000000');
+                $('#eao-modal-color-hex').text((colorValue || '#000000').toUpperCase());
+                $modal.find('.eao-modal__header h3').text(eaoAdmin.editColor || 'Edit Color');
+            } else {
+                // Adding new color.
+                $('#eao-modal-color-name').val('');
+                $('input[name="eao_modal_color_type"][value="solid"]').prop('checked', true).trigger('change');
+                $('#eao-modal-color-value').val('#000000');
+                $('#eao-modal-color-hex').text('#000000');
+                $modal.find('.eao-modal__header h3').text(eaoAdmin.addColor || 'Add Color');
+            }
+
+            $modal.fadeIn(150);
+            $('#eao-modal-color-name').focus();
+        },
+
+        /**
+         * Close the color modal.
+         */
+        closeColorModal: function() {
+            $('#eao-color-modal').fadeOut(150);
+            this.currentColorSwatch = null;
+            this.currentMaterialCard = null;
+        },
+
+        /**
+         * Save the color from the modal.
+         */
+        saveColor: function() {
+            const name = $('#eao-modal-color-name').val().trim();
+            const type = $('input[name="eao_modal_color_type"]:checked').val();
+            const colorValue = $('#eao-modal-color-value').val();
+
+            if (!name) {
+                $('#eao-modal-color-name').focus();
+                return;
+            }
+
+            if (this.currentColorSwatch) {
+                // Update existing swatch.
+                this.updateColorSwatch(this.currentColorSwatch, name, type, colorValue);
+            } else {
+                // Add new swatch.
+                this.addColorSwatch(name, type, colorValue);
+            }
+
+            this.closeColorModal();
+        },
+
+        /**
+         * Update an existing color swatch.
+         */
+        updateColorSwatch: function($swatch, name, type, colorValue) {
+            $swatch.find('.eao-color-name-input').val(name);
+            $swatch.find('.eao-color-type-input').val(type);
+            $swatch.find('.eao-color-value-input').val(colorValue);
+            $swatch.find('.eao-color-swatch__name').text(name);
+
+            const $circle = $swatch.find('.eao-color-swatch__circle');
+            $circle.attr('title', name);
+
+            if (type === 'solid') {
+                $circle.css('background', colorValue);
+                $circle.html('');
+            } else {
+                $circle.css('background', 'linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%)');
+                $circle.html('<span class="eao-color-swatch__texture-icon"><span class="dashicons dashicons-format-image"></span></span>');
+            }
+        },
+
+        /**
+         * Add a new color swatch.
+         */
+        addColorSwatch: function(name, type, colorValue) {
+            const $materialCard = this.currentMaterialCard;
+            const materialIndex = $materialCard.data('index');
+            const $colorsGrid = $materialCard.find('.eao-colors-grid');
+            const colorIndex = $colorsGrid.find('.eao-color-swatch:not(.eao-color-swatch--add)').length;
+
+            const template = wp.template('eao-color-swatch');
+            const $newSwatch = $(template({
+                materialIndex: materialIndex,
+                colorIndex: colorIndex,
+                id: this.generateId(),
+                name: name,
+                type: type,
+                colorValue: colorValue
+            }));
+
+            // Update the circle style based on type.
+            const $circle = $newSwatch.find('.eao-color-swatch__circle');
+            if (type === 'solid') {
+                $circle.css('background-color', colorValue);
+            } else {
+                $circle.css('background', 'linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%)');
+                $circle.html('<span class="eao-color-swatch__texture-icon"><span class="dashicons dashicons-format-image"></span></span>');
+            }
+
+            // Insert before the add button.
+            $colorsGrid.find('.eao-color-swatch--add').before($newSwatch);
+            $newSwatch.hide().fadeIn(200);
         },
 
         /**
@@ -251,9 +469,9 @@
 
                 // Create media frame if it doesn't exist.
                 mediaFrame = wp.media({
-                    title: eaoAdmin.mediaTitle,
+                    title: eaoAdmin.mediaTitle || 'Select Image',
                     button: {
-                        text: eaoAdmin.mediaButton
+                        text: eaoAdmin.mediaButton || 'Use this image'
                     },
                     multiple: false
                 });
@@ -261,9 +479,11 @@
                 // When image is selected.
                 mediaFrame.on('select', function() {
                     const attachment = mediaFrame.state().get('selection').first().toJSON();
-                    const thumbUrl = attachment.sizes && attachment.sizes.thumbnail
-                        ? attachment.sizes.thumbnail.url
-                        : attachment.url;
+                    const thumbUrl = attachment.sizes && attachment.sizes.medium
+                        ? attachment.sizes.medium.url
+                        : (attachment.sizes && attachment.sizes.thumbnail
+                            ? attachment.sizes.thumbnail.url
+                            : attachment.url);
 
                     $input.val(attachment.id);
                     $preview.html('<img src="' + thumbUrl + '" alt="">');
@@ -281,49 +501,6 @@
                 $container.find('.eao-image-id').val('');
                 $container.find('.eao-image-preview').empty();
                 $(this).hide();
-            });
-        },
-
-        /**
-         * Bind color type toggle (solid/texture).
-         */
-        bindColorTypeToggle: function() {
-            $(document).on('change', '.eao-color-type-select', function() {
-                const $colorPicker = $(this).siblings('.eao-color-picker');
-                if ($(this).val() === 'texture') {
-                    $colorPicker.hide();
-                } else {
-                    $colorPicker.show();
-                }
-            });
-        },
-
-        /**
-         * Bind name input changes to update header titles.
-         */
-        bindNameInputs: function() {
-            // Material name.
-            $(document).on('input', '.eao-material-name-input', function() {
-                const name = $(this).val() || 'New Material';
-                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
-            });
-
-            // Size name.
-            $(document).on('input', '.eao-size-name-input', function() {
-                const name = $(this).val() || 'New Size';
-                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
-            });
-
-            // Engraving name.
-            $(document).on('input', '.eao-engraving-name-input', function() {
-                const name = $(this).val() || 'New Engraving Method';
-                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
-            });
-
-            // Design name.
-            $(document).on('input', '.eao-design-name-input', function() {
-                const name = $(this).val() || 'New Design';
-                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
             });
         },
 
@@ -387,6 +564,12 @@
             $(document).on('click', '.eao-add-design', function() {
                 self.addDesign();
             });
+
+            // Design name update.
+            $(document).on('input', '.eao-design-name-input', function() {
+                const name = $(this).val() || 'New Design';
+                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
+            });
         },
 
         /**
@@ -428,6 +611,52 @@
                     console.error('Failed to copy:', err);
                 }
             });
+        },
+
+        /**
+         * Bind legacy repeater functionality (for meta boxes).
+         */
+        bindLegacyRepeaters: function() {
+            const self = this;
+
+            // Toggle item content.
+            $(document).on('click', '.eao-repeater__toggle', function(e) {
+                e.stopPropagation();
+                const $item = $(this).closest('.eao-repeater__item');
+                $item.toggleClass('is-open');
+            });
+
+            // Click on header to toggle.
+            $(document).on('click', '.eao-repeater__item-header', function(e) {
+                if (!$(e.target).closest('.eao-repeater__toggle, .eao-repeater__remove').length) {
+                    $(this).find('.eao-repeater__toggle').trigger('click');
+                }
+            });
+
+            // Remove item.
+            $(document).on('click', '.eao-repeater__remove', function(e) {
+                e.stopPropagation();
+                if (confirm(eaoAdmin.confirmDelete || 'Are you sure you want to delete this item?')) {
+                    $(this).closest('.eao-repeater__item').slideUp(200, function() {
+                        $(this).remove();
+                        self.reindexLegacyItems();
+                    });
+                }
+            });
+        },
+
+        /**
+         * Reindex legacy repeater items.
+         */
+        reindexLegacyItems: function() {
+            // Reindex designs.
+            $('.eao-design-item').each(function(index) {
+                $(this).attr('data-index', index);
+                $(this).find('[name^="eao_designs"]').each(function() {
+                    const name = $(this).attr('name');
+                    $(this).attr('name', name.replace(/eao_designs\[\d+\]/, 'eao_designs[' + index + ']'));
+                });
+            });
         }
     };
 
@@ -437,4 +666,3 @@
     });
 
 })(jQuery);
-
