@@ -379,7 +379,7 @@ class EAO_Client_Album_Meta {
                     </tbody>
                 </table>
                 <p style="margin: 15px 0 0; text-align: right;">
-                    <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=album_order&client_album=' . $post->ID ) ); ?>" class="button">
+                    <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=album_order&client_album_id=' . $post->ID ) ); ?>" class="button">
                         <?php esc_html_e( 'View All Orders', 'easy-album-orders' ); ?> →
                     </a>
                 </p>
