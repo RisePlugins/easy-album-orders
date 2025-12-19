@@ -193,6 +193,31 @@
     margin-top: 5px;
 }
 
+/* Field rows for multi-column layouts */
+.eao-field-row--shipping {
+    display: flex;
+    gap: 15px;
+}
+
+.eao-field-row--shipping .eao-field--city {
+    flex: 2;
+}
+
+.eao-field-row--shipping .eao-field--state {
+    flex: 1;
+}
+
+.eao-field-row--shipping .eao-field--zip {
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+    .eao-field-row--shipping {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
 /* ==========================================================================
    Selection Cards (Materials, Designs)
    ========================================================================== */

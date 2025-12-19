@@ -245,10 +245,36 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                 <!-- Shipping Address -->
                 <section class="eao-form__section">
                     <h2 class="eao-form__section-title"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></h2>
+                    <p class="eao-field__help" style="margin-bottom: 20px;"><?php esc_html_e( 'Each album can be shipped to a different address. For example, ship a parents album directly to them!', 'easy-album-orders' ); ?></p>
+                    
                     <div class="eao-field">
-                        <label for="eao-shipping-address" class="eao-field__label"><?php esc_html_e( 'Ship This Album To', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                        <textarea id="eao-shipping-address" name="shipping_address" class="eao-field__textarea" rows="3" placeholder="<?php esc_attr_e( "Full name\nStreet address\nCity, State ZIP", 'easy-album-orders' ); ?>" required></textarea>
-                        <p class="eao-field__help"><?php esc_html_e( 'Each album can be shipped to a different address. For example, ship a parents album directly to them!', 'easy-album-orders' ); ?></p>
+                        <label for="eao-shipping-name" class="eao-field__label"><?php esc_html_e( 'Full Name', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                        <input type="text" id="eao-shipping-name" name="shipping_name" class="eao-field__input" placeholder="<?php esc_attr_e( 'John Smith', 'easy-album-orders' ); ?>" required>
+                    </div>
+
+                    <div class="eao-field">
+                        <label for="eao-shipping-address1" class="eao-field__label"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                        <input type="text" id="eao-shipping-address1" name="shipping_address1" class="eao-field__input" placeholder="<?php esc_attr_e( '123 Main Street', 'easy-album-orders' ); ?>" required>
+                    </div>
+
+                    <div class="eao-field">
+                        <label for="eao-shipping-address2" class="eao-field__label"><?php esc_html_e( 'Apartment, Suite, etc.', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
+                        <input type="text" id="eao-shipping-address2" name="shipping_address2" class="eao-field__input" placeholder="<?php esc_attr_e( 'Apt 4B', 'easy-album-orders' ); ?>">
+                    </div>
+
+                    <div class="eao-field-row eao-field-row--shipping">
+                        <div class="eao-field eao-field--city">
+                            <label for="eao-shipping-city" class="eao-field__label"><?php esc_html_e( 'City', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="text" id="eao-shipping-city" name="shipping_city" class="eao-field__input" placeholder="<?php esc_attr_e( 'New York', 'easy-album-orders' ); ?>" required>
+                        </div>
+                        <div class="eao-field eao-field--state">
+                            <label for="eao-shipping-state" class="eao-field__label"><?php esc_html_e( 'State', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="text" id="eao-shipping-state" name="shipping_state" class="eao-field__input" placeholder="<?php esc_attr_e( 'NY', 'easy-album-orders' ); ?>" required>
+                        </div>
+                        <div class="eao-field eao-field--zip">
+                            <label for="eao-shipping-zip" class="eao-field__label"><?php esc_html_e( 'ZIP Code', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="text" id="eao-shipping-zip" name="shipping_zip" class="eao-field__input" placeholder="<?php esc_attr_e( '10001', 'easy-album-orders' ); ?>" required>
+                        </div>
                     </div>
                 </section>
 

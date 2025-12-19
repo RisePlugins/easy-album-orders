@@ -414,11 +414,34 @@
                 return false;
             }
 
-            // Check shipping address.
-            const shippingAddress = $('#eao-shipping-address').val().trim();
-            if (!shippingAddress) {
-                self.showMessage('error', eaoPublic.i18n?.enterShippingAddress || 'Please enter a shipping address.');
-                $('#eao-shipping-address').focus();
+            // Check shipping address fields.
+            if (!$('#eao-shipping-name').val().trim()) {
+                self.showMessage('error', eaoPublic.i18n?.enterShippingName || 'Please enter the recipient name.');
+                $('#eao-shipping-name').focus();
+                return false;
+            }
+
+            if (!$('#eao-shipping-address1').val().trim()) {
+                self.showMessage('error', eaoPublic.i18n?.enterShippingAddress || 'Please enter a street address.');
+                $('#eao-shipping-address1').focus();
+                return false;
+            }
+
+            if (!$('#eao-shipping-city').val().trim()) {
+                self.showMessage('error', eaoPublic.i18n?.enterShippingCity || 'Please enter a city.');
+                $('#eao-shipping-city').focus();
+                return false;
+            }
+
+            if (!$('#eao-shipping-state').val().trim()) {
+                self.showMessage('error', eaoPublic.i18n?.enterShippingState || 'Please enter a state.');
+                $('#eao-shipping-state').focus();
+                return false;
+            }
+
+            if (!$('#eao-shipping-zip').val().trim()) {
+                self.showMessage('error', eaoPublic.i18n?.enterShippingZip || 'Please enter a ZIP code.');
+                $('#eao-shipping-zip').focus();
                 return false;
             }
 
@@ -463,7 +486,12 @@
                     engraving_method: self.selections.engraving ? self.selections.engraving.id : '',
                     engraving_text: $('#eao-engraving-text').val(),
                     engraving_font: $('#eao-engraving-font').val(),
-                    shipping_address: $('#eao-shipping-address').val()
+                    shipping_name: $('#eao-shipping-name').val(),
+                    shipping_address1: $('#eao-shipping-address1').val(),
+                    shipping_address2: $('#eao-shipping-address2').val(),
+                    shipping_city: $('#eao-shipping-city').val(),
+                    shipping_state: $('#eao-shipping-state').val(),
+                    shipping_zip: $('#eao-shipping-zip').val()
                 };
 
                 if (self.editingOrderId) {
@@ -669,9 +697,24 @@
                 $('#eao-char-count').text(data.engraving_text.length);
             }
 
-            // Populate shipping address.
-            if (data.shipping_address) {
-                $('#eao-shipping-address').val(data.shipping_address);
+            // Populate shipping address fields.
+            if (data.shipping_name) {
+                $('#eao-shipping-name').val(data.shipping_name);
+            }
+            if (data.shipping_address1) {
+                $('#eao-shipping-address1').val(data.shipping_address1);
+            }
+            if (data.shipping_address2) {
+                $('#eao-shipping-address2').val(data.shipping_address2);
+            }
+            if (data.shipping_city) {
+                $('#eao-shipping-city').val(data.shipping_city);
+            }
+            if (data.shipping_state) {
+                $('#eao-shipping-state').val(data.shipping_state);
+            }
+            if (data.shipping_zip) {
+                $('#eao-shipping-zip').val(data.shipping_zip);
             }
 
             // Update button text.

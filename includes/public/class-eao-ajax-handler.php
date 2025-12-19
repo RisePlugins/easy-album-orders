@@ -80,7 +80,14 @@ class EAO_Ajax_Handler {
         $engraving_method = isset( $_POST['engraving_method'] ) ? sanitize_key( $_POST['engraving_method'] ) : '';
         $engraving_text   = isset( $_POST['engraving_text'] ) ? sanitize_text_field( $_POST['engraving_text'] ) : '';
         $engraving_font   = isset( $_POST['engraving_font'] ) ? sanitize_text_field( $_POST['engraving_font'] ) : '';
-        $shipping_address = isset( $_POST['shipping_address'] ) ? sanitize_textarea_field( $_POST['shipping_address'] ) : '';
+
+        // Shipping address fields.
+        $shipping_name     = isset( $_POST['shipping_name'] ) ? sanitize_text_field( $_POST['shipping_name'] ) : '';
+        $shipping_address1 = isset( $_POST['shipping_address1'] ) ? sanitize_text_field( $_POST['shipping_address1'] ) : '';
+        $shipping_address2 = isset( $_POST['shipping_address2'] ) ? sanitize_text_field( $_POST['shipping_address2'] ) : '';
+        $shipping_city     = isset( $_POST['shipping_city'] ) ? sanitize_text_field( $_POST['shipping_city'] ) : '';
+        $shipping_state    = isset( $_POST['shipping_state'] ) ? sanitize_text_field( $_POST['shipping_state'] ) : '';
+        $shipping_zip      = isset( $_POST['shipping_zip'] ) ? sanitize_text_field( $_POST['shipping_zip'] ) : '';
 
         // Validate required fields.
         if ( empty( $album_name ) ) {
@@ -95,8 +102,25 @@ class EAO_Ajax_Handler {
             wp_send_json_error( array( 'message' => __( 'Please select a size.', 'easy-album-orders' ) ) );
         }
 
-        if ( empty( $shipping_address ) ) {
-            wp_send_json_error( array( 'message' => __( 'Please enter a shipping address.', 'easy-album-orders' ) ) );
+        // Validate shipping address fields.
+        if ( empty( $shipping_name ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter the recipient name.', 'easy-album-orders' ) ) );
+        }
+
+        if ( empty( $shipping_address1 ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a street address.', 'easy-album-orders' ) ) );
+        }
+
+        if ( empty( $shipping_city ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a city.', 'easy-album-orders' ) ) );
+        }
+
+        if ( empty( $shipping_state ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a state.', 'easy-album-orders' ) ) );
+        }
+
+        if ( empty( $shipping_zip ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a ZIP code.', 'easy-album-orders' ) ) );
         }
 
         // Get design data.
@@ -195,7 +219,12 @@ class EAO_Ajax_Handler {
         update_post_meta( $order_id, '_eao_applied_credits', $applied_credits );
 
         // Shipping address (per album).
-        update_post_meta( $order_id, '_eao_shipping_address', $shipping_address );
+        update_post_meta( $order_id, '_eao_shipping_name', $shipping_name );
+        update_post_meta( $order_id, '_eao_shipping_address1', $shipping_address1 );
+        update_post_meta( $order_id, '_eao_shipping_address2', $shipping_address2 );
+        update_post_meta( $order_id, '_eao_shipping_city', $shipping_city );
+        update_post_meta( $order_id, '_eao_shipping_state', $shipping_state );
+        update_post_meta( $order_id, '_eao_shipping_zip', $shipping_zip );
 
         // Get updated cart.
         $cart_html  = $this->get_cart_html( $client_album_id );
@@ -251,7 +280,14 @@ class EAO_Ajax_Handler {
         $engraving_method = isset( $_POST['engraving_method'] ) ? sanitize_key( $_POST['engraving_method'] ) : '';
         $engraving_text   = isset( $_POST['engraving_text'] ) ? sanitize_text_field( $_POST['engraving_text'] ) : '';
         $engraving_font   = isset( $_POST['engraving_font'] ) ? sanitize_text_field( $_POST['engraving_font'] ) : '';
-        $shipping_address = isset( $_POST['shipping_address'] ) ? sanitize_textarea_field( $_POST['shipping_address'] ) : '';
+
+        // Shipping address fields.
+        $shipping_name     = isset( $_POST['shipping_name'] ) ? sanitize_text_field( $_POST['shipping_name'] ) : '';
+        $shipping_address1 = isset( $_POST['shipping_address1'] ) ? sanitize_text_field( $_POST['shipping_address1'] ) : '';
+        $shipping_address2 = isset( $_POST['shipping_address2'] ) ? sanitize_text_field( $_POST['shipping_address2'] ) : '';
+        $shipping_city     = isset( $_POST['shipping_city'] ) ? sanitize_text_field( $_POST['shipping_city'] ) : '';
+        $shipping_state    = isset( $_POST['shipping_state'] ) ? sanitize_text_field( $_POST['shipping_state'] ) : '';
+        $shipping_zip      = isset( $_POST['shipping_zip'] ) ? sanitize_text_field( $_POST['shipping_zip'] ) : '';
 
         // Get design data.
         $designs = get_post_meta( $client_album_id, '_eao_designs', true );
@@ -325,7 +361,12 @@ class EAO_Ajax_Handler {
         update_post_meta( $order_id, '_eao_applied_credits', $applied_credits );
 
         // Shipping address (per album).
-        update_post_meta( $order_id, '_eao_shipping_address', $shipping_address );
+        update_post_meta( $order_id, '_eao_shipping_name', $shipping_name );
+        update_post_meta( $order_id, '_eao_shipping_address1', $shipping_address1 );
+        update_post_meta( $order_id, '_eao_shipping_address2', $shipping_address2 );
+        update_post_meta( $order_id, '_eao_shipping_city', $shipping_city );
+        update_post_meta( $order_id, '_eao_shipping_state', $shipping_state );
+        update_post_meta( $order_id, '_eao_shipping_zip', $shipping_zip );
 
         // Get updated cart.
         $cart_html  = $this->get_cart_html( $client_album_id );
@@ -493,17 +534,22 @@ class EAO_Ajax_Handler {
 
         // Get order data.
         $data = array(
-            'order_id'         => $order_id,
-            'album_name'       => get_post_meta( $order_id, '_eao_album_name', true ),
-            'design_index'     => get_post_meta( $order_id, '_eao_design_index', true ),
-            'material_id'      => get_post_meta( $order_id, '_eao_material_id', true ),
-            'color_id'         => get_post_meta( $order_id, '_eao_material_color_id', true ),
-            'color_name'       => get_post_meta( $order_id, '_eao_material_color', true ),
-            'size_id'          => get_post_meta( $order_id, '_eao_size_id', true ),
-            'engraving_method' => get_post_meta( $order_id, '_eao_engraving_method_id', true ),
-            'engraving_text'   => get_post_meta( $order_id, '_eao_engraving_text', true ),
-            'engraving_font'   => get_post_meta( $order_id, '_eao_engraving_font', true ),
-            'shipping_address' => get_post_meta( $order_id, '_eao_shipping_address', true ),
+            'order_id'          => $order_id,
+            'album_name'        => get_post_meta( $order_id, '_eao_album_name', true ),
+            'design_index'      => get_post_meta( $order_id, '_eao_design_index', true ),
+            'material_id'       => get_post_meta( $order_id, '_eao_material_id', true ),
+            'color_id'          => get_post_meta( $order_id, '_eao_material_color_id', true ),
+            'color_name'        => get_post_meta( $order_id, '_eao_material_color', true ),
+            'size_id'           => get_post_meta( $order_id, '_eao_size_id', true ),
+            'engraving_method'  => get_post_meta( $order_id, '_eao_engraving_method_id', true ),
+            'engraving_text'    => get_post_meta( $order_id, '_eao_engraving_text', true ),
+            'engraving_font'    => get_post_meta( $order_id, '_eao_engraving_font', true ),
+            'shipping_name'     => get_post_meta( $order_id, '_eao_shipping_name', true ),
+            'shipping_address1' => get_post_meta( $order_id, '_eao_shipping_address1', true ),
+            'shipping_address2' => get_post_meta( $order_id, '_eao_shipping_address2', true ),
+            'shipping_city'     => get_post_meta( $order_id, '_eao_shipping_city', true ),
+            'shipping_state'    => get_post_meta( $order_id, '_eao_shipping_state', true ),
+            'shipping_zip'      => get_post_meta( $order_id, '_eao_shipping_zip', true ),
         );
 
         wp_send_json_success( $data );
