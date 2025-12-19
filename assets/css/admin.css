@@ -524,11 +524,25 @@
 /* Header: Fields with stacked labels */
 .eao-material-card__header {
     display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-md);
+    padding-bottom: var(--eao-space-lg);
+    border-bottom: var(--eao-border);
+}
+
+/* Name row: name field + delete button */
+.eao-material-card__name-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--eao-space-md);
+}
+
+/* Meta row: upcharge + engraving */
+.eao-material-card__meta-row {
+    display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     gap: var(--eao-space-lg);
-    padding-bottom: var(--eao-space-lg);
-    border-bottom: var(--eao-border);
 }
 
 /* Stacked field: label on top of input */
@@ -540,7 +554,6 @@
 
 .eao-material-card__field--name {
     flex: 1;
-    min-width: 180px;
 }
 
 .eao-material-card__field label {
