@@ -349,58 +349,230 @@ class EAO_Album_Order_Meta {
         $shipping_city      = get_post_meta( $post->ID, '_eao_shipping_city', true );
         $shipping_state     = get_post_meta( $post->ID, '_eao_shipping_state', true );
         $shipping_zip       = get_post_meta( $post->ID, '_eao_shipping_zip', true );
+
+        $has_shipping = ! empty( $shipping_name ) || ! empty( $shipping_address1 );
         ?>
+        <style>
+            .eao-info-cards {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            .eao-info-card {
+                background: #f9f9f9;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 16px;
+                position: relative;
+            }
+            .eao-info-card--full {
+                grid-column: 1 / -1;
+            }
+            .eao-info-card__header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .eao-info-card__title {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #666;
+                margin: 0;
+            }
+            .eao-info-card__edit {
+                font-size: 12px;
+                color: #2271b1;
+                text-decoration: none;
+                cursor: pointer;
+            }
+            .eao-info-card__edit:hover {
+                color: #135e96;
+            }
+            .eao-info-card__content {
+                line-height: 1.6;
+            }
+            .eao-info-card__name {
+                font-weight: 600;
+                font-size: 14px;
+                color: #1d2327;
+                margin-bottom: 4px;
+            }
+            .eao-info-card__detail {
+                font-size: 13px;
+                color: #50575e;
+            }
+            .eao-info-card__detail a {
+                color: #2271b1;
+                text-decoration: none;
+            }
+            .eao-info-card__detail a:hover {
+                text-decoration: underline;
+            }
+            .eao-info-card__address {
+                font-size: 13px;
+                color: #1d2327;
+            }
+            .eao-info-card__empty {
+                color: #999;
+                font-style: italic;
+                font-size: 13px;
+            }
+            .eao-edit-form {
+                display: none;
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px dashed #ddd;
+            }
+            .eao-edit-form.is-visible {
+                display: block;
+            }
+            .eao-edit-form .eao-field {
+                margin-bottom: 12px;
+            }
+            .eao-edit-form .eao-field:last-child {
+                margin-bottom: 0;
+            }
+            .eao-edit-form label {
+                display: block;
+                font-size: 12px;
+                font-weight: 500;
+                color: #666;
+                margin-bottom: 4px;
+            }
+            .eao-edit-form input {
+                width: 100%;
+            }
+            .eao-edit-form .eao-field-row {
+                display: flex;
+                gap: 10px;
+            }
+            .eao-edit-form .eao-field-row .eao-field {
+                flex: 1;
+            }
+            @media (max-width: 782px) {
+                .eao-info-cards {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+
         <div class="eao-meta-box">
-            <h4 style="margin: 0 0 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;"><?php esc_html_e( 'Customer Contact', 'easy-album-orders' ); ?></h4>
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_customer_name"><?php esc_html_e( 'Name', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_customer_name" name="eao_customer_name" value="<?php echo esc_attr( $customer_name ); ?>" class="regular-text" style="width: 100%;">
+            <div class="eao-info-cards">
+                <!-- Customer Contact Card -->
+                <div class="eao-info-card" id="eao-customer-card">
+                    <div class="eao-info-card__header">
+                        <h4 class="eao-info-card__title"><?php esc_html_e( 'Customer', 'easy-album-orders' ); ?></h4>
+                        <a class="eao-info-card__edit" onclick="eaoToggleEdit('customer')"><?php esc_html_e( 'Edit', 'easy-album-orders' ); ?></a>
+                    </div>
+                    <div class="eao-info-card__content" id="eao-customer-display">
+                        <?php if ( $customer_name ) : ?>
+                            <div class="eao-info-card__name"><?php echo esc_html( $customer_name ); ?></div>
+                        <?php endif; ?>
+                        <?php if ( $customer_email ) : ?>
+                            <div class="eao-info-card__detail">
+                                <a href="mailto:<?php echo esc_attr( $customer_email ); ?>"><?php echo esc_html( $customer_email ); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ( $customer_phone ) : ?>
+                            <div class="eao-info-card__detail">
+                                <a href="tel:<?php echo esc_attr( $customer_phone ); ?>"><?php echo esc_html( $customer_phone ); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ( ! $customer_name && ! $customer_email && ! $customer_phone ) : ?>
+                            <div class="eao-info-card__empty"><?php esc_html_e( 'No customer info', 'easy-album-orders' ); ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="eao-edit-form" id="eao-customer-form">
+                        <div class="eao-field">
+                            <label for="eao_customer_name"><?php esc_html_e( 'Name', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_customer_name" name="eao_customer_name" value="<?php echo esc_attr( $customer_name ); ?>" class="regular-text">
+                        </div>
+                        <div class="eao-field">
+                            <label for="eao_customer_email"><?php esc_html_e( 'Email', 'easy-album-orders' ); ?></label>
+                            <input type="email" id="eao_customer_email" name="eao_customer_email" value="<?php echo esc_attr( $customer_email ); ?>" class="regular-text">
+                        </div>
+                        <div class="eao-field">
+                            <label for="eao_customer_phone"><?php esc_html_e( 'Phone', 'easy-album-orders' ); ?></label>
+                            <input type="tel" id="eao_customer_phone" name="eao_customer_phone" value="<?php echo esc_attr( $customer_phone ); ?>" class="regular-text">
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_customer_email"><?php esc_html_e( 'Email', 'easy-album-orders' ); ?></label>
-                    <input type="email" id="eao_customer_email" name="eao_customer_email" value="<?php echo esc_attr( $customer_email ); ?>" class="regular-text" style="width: 100%;">
-                </div>
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_customer_phone"><?php esc_html_e( 'Phone', 'easy-album-orders' ); ?></label>
-                    <input type="tel" id="eao_customer_phone" name="eao_customer_phone" value="<?php echo esc_attr( $customer_phone ); ?>" class="regular-text" style="width: 100%;">
-                </div>
-            </div>
 
-            <h4 style="margin: 20px 0 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></h4>
-            
-            <div class="eao-field">
-                <label for="eao_shipping_name"><?php esc_html_e( 'Recipient Name', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao_shipping_name" name="eao_shipping_name" value="<?php echo esc_attr( $shipping_name ); ?>" class="regular-text" style="width: 100%;">
-            </div>
-
-            <div class="eao-field">
-                <label for="eao_shipping_address1"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao_shipping_address1" name="eao_shipping_address1" value="<?php echo esc_attr( $shipping_address1 ); ?>" class="regular-text" style="width: 100%;">
-            </div>
-
-            <div class="eao-field">
-                <label for="eao_shipping_address2"><?php esc_html_e( 'Apartment, Suite, etc.', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao_shipping_address2" name="eao_shipping_address2" value="<?php echo esc_attr( $shipping_address2 ); ?>" class="regular-text" style="width: 100%;">
-            </div>
-
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 2;">
-                    <label for="eao_shipping_city"><?php esc_html_e( 'City', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_shipping_city" name="eao_shipping_city" value="<?php echo esc_attr( $shipping_city ); ?>" class="regular-text" style="width: 100%;">
-                </div>
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_shipping_state"><?php esc_html_e( 'State', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_shipping_state" name="eao_shipping_state" value="<?php echo esc_attr( $shipping_state ); ?>" class="regular-text" style="width: 100%;">
-                </div>
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_shipping_zip"><?php esc_html_e( 'ZIP Code', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_shipping_zip" name="eao_shipping_zip" value="<?php echo esc_attr( $shipping_zip ); ?>" class="regular-text" style="width: 100%;">
+                <!-- Shipping Address Card -->
+                <div class="eao-info-card" id="eao-shipping-card">
+                    <div class="eao-info-card__header">
+                        <h4 class="eao-info-card__title"><?php esc_html_e( 'Ship To', 'easy-album-orders' ); ?></h4>
+                        <a class="eao-info-card__edit" onclick="eaoToggleEdit('shipping')"><?php esc_html_e( 'Edit', 'easy-album-orders' ); ?></a>
+                    </div>
+                    <div class="eao-info-card__content" id="eao-shipping-display">
+                        <?php if ( $has_shipping ) : ?>
+                            <?php if ( $shipping_name ) : ?>
+                                <div class="eao-info-card__name"><?php echo esc_html( $shipping_name ); ?></div>
+                            <?php endif; ?>
+                            <div class="eao-info-card__address">
+                                <?php echo esc_html( $shipping_address1 ); ?>
+                                <?php if ( $shipping_address2 ) : ?>
+                                    <br><?php echo esc_html( $shipping_address2 ); ?>
+                                <?php endif; ?>
+                                <?php if ( $shipping_city || $shipping_state || $shipping_zip ) : ?>
+                                    <br><?php echo esc_html( trim( $shipping_city . ', ' . $shipping_state . ' ' . $shipping_zip, ', ' ) ); ?>
+                                <?php endif; ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="eao-info-card__empty"><?php esc_html_e( 'No shipping address', 'easy-album-orders' ); ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="eao-edit-form" id="eao-shipping-form">
+                        <div class="eao-field">
+                            <label for="eao_shipping_name"><?php esc_html_e( 'Recipient Name', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_shipping_name" name="eao_shipping_name" value="<?php echo esc_attr( $shipping_name ); ?>" class="regular-text">
+                        </div>
+                        <div class="eao-field">
+                            <label for="eao_shipping_address1"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_shipping_address1" name="eao_shipping_address1" value="<?php echo esc_attr( $shipping_address1 ); ?>" class="regular-text">
+                        </div>
+                        <div class="eao-field">
+                            <label for="eao_shipping_address2"><?php esc_html_e( 'Apt, Suite, etc.', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_shipping_address2" name="eao_shipping_address2" value="<?php echo esc_attr( $shipping_address2 ); ?>" class="regular-text">
+                        </div>
+                        <div class="eao-field-row">
+                            <div class="eao-field" style="flex: 2;">
+                                <label for="eao_shipping_city"><?php esc_html_e( 'City', 'easy-album-orders' ); ?></label>
+                                <input type="text" id="eao_shipping_city" name="eao_shipping_city" value="<?php echo esc_attr( $shipping_city ); ?>" class="regular-text">
+                            </div>
+                            <div class="eao-field">
+                                <label for="eao_shipping_state"><?php esc_html_e( 'State', 'easy-album-orders' ); ?></label>
+                                <input type="text" id="eao_shipping_state" name="eao_shipping_state" value="<?php echo esc_attr( $shipping_state ); ?>" class="regular-text">
+                            </div>
+                            <div class="eao-field">
+                                <label for="eao_shipping_zip"><?php esc_html_e( 'ZIP', 'easy-album-orders' ); ?></label>
+                                <input type="text" id="eao_shipping_zip" name="eao_shipping_zip" value="<?php echo esc_attr( $shipping_zip ); ?>" class="regular-text">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <script>
+        function eaoToggleEdit(type) {
+            var form = document.getElementById('eao-' + type + '-form');
+            var link = form.previousElementSibling.previousElementSibling.querySelector('.eao-info-card__edit');
+            
+            if (form.classList.contains('is-visible')) {
+                form.classList.remove('is-visible');
+                link.textContent = '<?php echo esc_js( __( 'Edit', 'easy-album-orders' ) ); ?>';
+            } else {
+                form.classList.add('is-visible');
+                link.textContent = '<?php echo esc_js( __( 'Close', 'easy-album-orders' ) ); ?>';
+            }
+        }
+        </script>
         <?php
     }
 
