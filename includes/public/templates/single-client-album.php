@@ -242,6 +242,16 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                     </section>
                 <?php endif; ?>
 
+                <!-- Shipping Address -->
+                <section class="eao-form__section">
+                    <h2 class="eao-form__section-title"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></h2>
+                    <div class="eao-field">
+                        <label for="eao-shipping-address" class="eao-field__label"><?php esc_html_e( 'Ship This Album To', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                        <textarea id="eao-shipping-address" name="shipping_address" class="eao-field__textarea" rows="3" placeholder="<?php esc_attr_e( "Full name\nStreet address\nCity, State ZIP", 'easy-album-orders' ); ?>" required></textarea>
+                        <p class="eao-field__help"><?php esc_html_e( 'Each album can be shipped to a different address. For example, ship a parents album directly to them!', 'easy-album-orders' ); ?></p>
+                    </div>
+                </section>
+
                 <!-- Price Summary -->
                 <section class="eao-form__section eao-price-section">
                     <h2 class="eao-form__section-title"><?php esc_html_e( 'Price Summary', 'easy-album-orders' ); ?></h2>

@@ -19,16 +19,17 @@ if ( ! isset( $order ) || ! $order ) {
     return;
 }
 
-$order_id        = $order->ID;
-$album_name      = get_post_meta( $order_id, '_eao_album_name', true );
-$design_name     = get_post_meta( $order_id, '_eao_design_name', true );
-$material_name   = get_post_meta( $order_id, '_eao_material_name', true );
-$color_name      = get_post_meta( $order_id, '_eao_material_color', true );
-$size_name       = get_post_meta( $order_id, '_eao_size_name', true );
-$engraving       = get_post_meta( $order_id, '_eao_engraving_method', true );
-$credit_type     = get_post_meta( $order_id, '_eao_credit_type', true );
-$applied_credits = floatval( get_post_meta( $order_id, '_eao_applied_credits', true ) );
-$total           = EAO_Album_Order::calculate_total( $order_id );
+$order_id         = $order->ID;
+$album_name       = get_post_meta( $order_id, '_eao_album_name', true );
+$design_name      = get_post_meta( $order_id, '_eao_design_name', true );
+$material_name    = get_post_meta( $order_id, '_eao_material_name', true );
+$color_name       = get_post_meta( $order_id, '_eao_material_color', true );
+$size_name        = get_post_meta( $order_id, '_eao_size_name', true );
+$engraving        = get_post_meta( $order_id, '_eao_engraving_method', true );
+$shipping_address = get_post_meta( $order_id, '_eao_shipping_address', true );
+$credit_type      = get_post_meta( $order_id, '_eao_credit_type', true );
+$applied_credits  = floatval( get_post_meta( $order_id, '_eao_applied_credits', true ) );
+$total            = EAO_Album_Order::calculate_total( $order_id );
 ?>
 
 <div class="eao-cart__item" data-order-id="<?php echo esc_attr( $order_id ); ?>">
@@ -55,6 +56,12 @@ $total           = EAO_Album_Order::calculate_total( $order_id );
         <?php endif; ?>
         <?php if ( $engraving ) : ?>
             <div><?php echo esc_html( sprintf( __( 'Engraving: %s', 'easy-album-orders' ), $engraving ) ); ?></div>
+        <?php endif; ?>
+        <?php if ( $shipping_address ) : ?>
+            <div class="eao-cart__item-shipping" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e4e7;">
+                <strong style="font-size: 11px; text-transform: uppercase; color: #999;"><?php esc_html_e( 'Ship to:', 'easy-album-orders' ); ?></strong>
+                <div style="font-size: 12px; white-space: pre-line;"><?php echo esc_html( $shipping_address ); ?></div>
+            </div>
         <?php endif; ?>
         <?php if ( $applied_credits > 0 ) : ?>
             <div class="eao-cart__item-credit">

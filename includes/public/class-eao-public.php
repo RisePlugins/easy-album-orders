@@ -127,10 +127,11 @@ class EAO_Public {
                     'selectDesign'     => __( 'Please select an album design.', 'easy-album-orders' ),
                     'selectMaterial'   => __( 'Please select a material.', 'easy-album-orders' ),
                     'selectSize'       => __( 'Please select a size.', 'easy-album-orders' ),
-                    'enterAlbumName'   => __( 'Please enter an album name.', 'easy-album-orders' ),
-                    'errorOccurred'    => __( 'An error occurred. Please try again.', 'easy-album-orders' ),
-                    'freeAlbumCredit'  => __( 'Free Album Credit', 'easy-album-orders' ),
-                    'albumCredit'      => __( 'Album Credit', 'easy-album-orders' ),
+                    'enterAlbumName'      => __( 'Please enter an album name.', 'easy-album-orders' ),
+                    'enterShippingAddress' => __( 'Please enter a shipping address.', 'easy-album-orders' ),
+                    'errorOccurred'       => __( 'An error occurred. Please try again.', 'easy-album-orders' ),
+                    'freeAlbumCredit'     => __( 'Free Album Credit', 'easy-album-orders' ),
+                    'albumCredit'         => __( 'Album Credit', 'easy-album-orders' ),
                 ),
             )
         );

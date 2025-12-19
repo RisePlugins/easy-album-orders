@@ -414,6 +414,14 @@
                 return false;
             }
 
+            // Check shipping address.
+            const shippingAddress = $('#eao-shipping-address').val().trim();
+            if (!shippingAddress) {
+                self.showMessage('error', eaoPublic.i18n?.enterShippingAddress || 'Please enter a shipping address.');
+                $('#eao-shipping-address').focus();
+                return false;
+            }
+
             return true;
         },
 
@@ -454,7 +462,8 @@
                     size_id: self.selections.size.id,
                     engraving_method: self.selections.engraving ? self.selections.engraving.id : '',
                     engraving_text: $('#eao-engraving-text').val(),
-                    engraving_font: $('#eao-engraving-font').val()
+                    engraving_font: $('#eao-engraving-font').val(),
+                    shipping_address: $('#eao-shipping-address').val()
                 };
 
                 if (self.editingOrderId) {
@@ -658,6 +667,11 @@
                 $('#eao-engraving-text').val(data.engraving_text);
                 $('#eao-engraving-font').val(data.engraving_font);
                 $('#eao-char-count').text(data.engraving_text.length);
+            }
+
+            // Populate shipping address.
+            if (data.shipping_address) {
+                $('#eao-shipping-address').val(data.shipping_address);
             }
 
             // Update button text.

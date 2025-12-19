@@ -71,15 +71,16 @@ class EAO_Ajax_Handler {
         }
 
         // Collect form data.
-        $album_name      = isset( $_POST['album_name'] ) ? sanitize_text_field( $_POST['album_name'] ) : '';
-        $design_index    = isset( $_POST['design_index'] ) ? absint( $_POST['design_index'] ) : 0;
-        $material_id     = isset( $_POST['material_id'] ) ? sanitize_key( $_POST['material_id'] ) : '';
-        $color_id        = isset( $_POST['color_id'] ) ? sanitize_key( $_POST['color_id'] ) : '';
-        $color_name      = isset( $_POST['color_name'] ) ? sanitize_text_field( $_POST['color_name'] ) : '';
-        $size_id         = isset( $_POST['size_id'] ) ? sanitize_key( $_POST['size_id'] ) : '';
+        $album_name       = isset( $_POST['album_name'] ) ? sanitize_text_field( $_POST['album_name'] ) : '';
+        $design_index     = isset( $_POST['design_index'] ) ? absint( $_POST['design_index'] ) : 0;
+        $material_id      = isset( $_POST['material_id'] ) ? sanitize_key( $_POST['material_id'] ) : '';
+        $color_id         = isset( $_POST['color_id'] ) ? sanitize_key( $_POST['color_id'] ) : '';
+        $color_name       = isset( $_POST['color_name'] ) ? sanitize_text_field( $_POST['color_name'] ) : '';
+        $size_id          = isset( $_POST['size_id'] ) ? sanitize_key( $_POST['size_id'] ) : '';
         $engraving_method = isset( $_POST['engraving_method'] ) ? sanitize_key( $_POST['engraving_method'] ) : '';
-        $engraving_text  = isset( $_POST['engraving_text'] ) ? sanitize_text_field( $_POST['engraving_text'] ) : '';
-        $engraving_font  = isset( $_POST['engraving_font'] ) ? sanitize_text_field( $_POST['engraving_font'] ) : '';
+        $engraving_text   = isset( $_POST['engraving_text'] ) ? sanitize_text_field( $_POST['engraving_text'] ) : '';
+        $engraving_font   = isset( $_POST['engraving_font'] ) ? sanitize_text_field( $_POST['engraving_font'] ) : '';
+        $shipping_address = isset( $_POST['shipping_address'] ) ? sanitize_textarea_field( $_POST['shipping_address'] ) : '';
 
         // Validate required fields.
         if ( empty( $album_name ) ) {
@@ -92,6 +93,10 @@ class EAO_Ajax_Handler {
 
         if ( empty( $size_id ) ) {
             wp_send_json_error( array( 'message' => __( 'Please select a size.', 'easy-album-orders' ) ) );
+        }
+
+        if ( empty( $shipping_address ) ) {
+            wp_send_json_error( array( 'message' => __( 'Please enter a shipping address.', 'easy-album-orders' ) ) );
         }
 
         // Get design data.
@@ -189,6 +194,9 @@ class EAO_Ajax_Handler {
         update_post_meta( $order_id, '_eao_credit_type', $credit_type );
         update_post_meta( $order_id, '_eao_applied_credits', $applied_credits );
 
+        // Shipping address (per album).
+        update_post_meta( $order_id, '_eao_shipping_address', $shipping_address );
+
         // Get updated cart.
         $cart_html  = $this->get_cart_html( $client_album_id );
         $cart_total = $this->get_cart_total( $client_album_id );
@@ -235,14 +243,15 @@ class EAO_Ajax_Handler {
         $client_album_id = get_post_meta( $order_id, '_eao_client_album_id', true );
 
         // Update fields (similar to add_to_cart but updating existing).
-        $album_name      = isset( $_POST['album_name'] ) ? sanitize_text_field( $_POST['album_name'] ) : '';
-        $design_index    = isset( $_POST['design_index'] ) ? absint( $_POST['design_index'] ) : 0;
-        $material_id     = isset( $_POST['material_id'] ) ? sanitize_key( $_POST['material_id'] ) : '';
-        $color_name      = isset( $_POST['color_name'] ) ? sanitize_text_field( $_POST['color_name'] ) : '';
-        $size_id         = isset( $_POST['size_id'] ) ? sanitize_key( $_POST['size_id'] ) : '';
+        $album_name       = isset( $_POST['album_name'] ) ? sanitize_text_field( $_POST['album_name'] ) : '';
+        $design_index     = isset( $_POST['design_index'] ) ? absint( $_POST['design_index'] ) : 0;
+        $material_id      = isset( $_POST['material_id'] ) ? sanitize_key( $_POST['material_id'] ) : '';
+        $color_name       = isset( $_POST['color_name'] ) ? sanitize_text_field( $_POST['color_name'] ) : '';
+        $size_id          = isset( $_POST['size_id'] ) ? sanitize_key( $_POST['size_id'] ) : '';
         $engraving_method = isset( $_POST['engraving_method'] ) ? sanitize_key( $_POST['engraving_method'] ) : '';
-        $engraving_text  = isset( $_POST['engraving_text'] ) ? sanitize_text_field( $_POST['engraving_text'] ) : '';
-        $engraving_font  = isset( $_POST['engraving_font'] ) ? sanitize_text_field( $_POST['engraving_font'] ) : '';
+        $engraving_text   = isset( $_POST['engraving_text'] ) ? sanitize_text_field( $_POST['engraving_text'] ) : '';
+        $engraving_font   = isset( $_POST['engraving_font'] ) ? sanitize_text_field( $_POST['engraving_font'] ) : '';
+        $shipping_address = isset( $_POST['shipping_address'] ) ? sanitize_textarea_field( $_POST['shipping_address'] ) : '';
 
         // Get design data.
         $designs = get_post_meta( $client_album_id, '_eao_designs', true );
@@ -314,6 +323,9 @@ class EAO_Ajax_Handler {
         // Credits (design-specific).
         update_post_meta( $order_id, '_eao_credit_type', $credit_type );
         update_post_meta( $order_id, '_eao_applied_credits', $applied_credits );
+
+        // Shipping address (per album).
+        update_post_meta( $order_id, '_eao_shipping_address', $shipping_address );
 
         // Get updated cart.
         $cart_html  = $this->get_cart_html( $client_album_id );
@@ -491,6 +503,7 @@ class EAO_Ajax_Handler {
             'engraving_method' => get_post_meta( $order_id, '_eao_engraving_method_id', true ),
             'engraving_text'   => get_post_meta( $order_id, '_eao_engraving_text', true ),
             'engraving_font'   => get_post_meta( $order_id, '_eao_engraving_font', true ),
+            'shipping_address' => get_post_meta( $order_id, '_eao_shipping_address', true ),
         );
 
         wp_send_json_success( $data );
