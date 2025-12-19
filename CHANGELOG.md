@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Phase 1: Foundation)
+- Main plugin file (`easy-album-orders.php`) with plugin headers and version checks
+- Activation hooks with default options setup
+- Deactivation hooks with cleanup routines
+- Core class architecture:
+  - `EAO_Plugin` - Main orchestration class
+  - `EAO_Loader` - WordPress hooks management
+  - `EAO_Activator` - Plugin activation routines
+  - `EAO_Deactivator` - Plugin deactivation cleanup
+  - `EAO_Helpers` - Utility functions
+- Custom Post Types:
+  - `client_album` - Client album order forms with front-end pages (`/album/client-name/`)
+  - `album_order` - Individual album orders with status tracking
+- Admin menu structure:
+  - Client Albums parent menu with gallery icon
+  - Album Options submenu page
+  - Album Orders standalone menu with cart icon
+- Album Options settings page with tabbed interface:
+  - Materials management (repeater with colors, engraving toggle, size restrictions)
+  - Sizes management (repeater with dimensions and upcharges)
+  - Engraving methods management (repeater with fonts and character limits)
+  - General settings (currency, email notifications)
+- Admin assets (CSS and JavaScript) for repeater fields and media uploads
+- Public assets (CSS and JavaScript) for front-end order forms
+- Helper functions for price calculation and formatting
+
 ### Planning
 - Plugin architecture design
 - Custom post types (Client Albums, Album Orders)
