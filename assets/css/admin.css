@@ -446,10 +446,11 @@
 .eao-material-card__header {
     display: flex;
     align-items: flex-start;
-    gap: var(--eao-space-xl);
+    gap: var(--eao-space-lg);
     padding: var(--eao-space-xl);
     background: var(--eao-gray-50);
     border-bottom: var(--eao-border);
+    overflow: hidden;
 }
 
 .eao-material-card__image {
@@ -539,12 +540,14 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow: hidden;
 }
 
 .eao-material-card__row {
     display: flex;
     align-items: center;
-    gap: var(--eao-space-xl);
+    flex-wrap: wrap;
+    gap: var(--eao-space-md) var(--eao-space-xl);
 }
 
 .eao-material-card__info .eao-material-name-input {
@@ -557,8 +560,9 @@
     box-shadow: none;
     background: transparent;
     transition: border-color var(--eao-transition);
-    width: 250px;
-    flex-shrink: 0;
+    min-width: 180px;
+    max-width: 280px;
+    flex: 1 1 180px;
 }
 
 .eao-material-card__info .eao-material-name-input:focus {
@@ -569,8 +573,8 @@
 .eao-material-card__meta {
     display: flex;
     align-items: center;
-    gap: var(--eao-space-xl);
-    flex: 1;
+    flex-wrap: wrap;
+    gap: var(--eao-space-md) var(--eao-space-lg);
 }
 
 .eao-material-card__delete {
