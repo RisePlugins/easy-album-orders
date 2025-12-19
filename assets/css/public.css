@@ -1000,3 +1000,223 @@
     }
 }
 
+/* ==========================================================================
+   Order History Section
+   ========================================================================== */
+
+.eao-order-history {
+    margin-top: 50px;
+    padding-top: 50px;
+    border-top: 2px solid var(--eao-border-light);
+}
+
+.eao-order-history__header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.eao-order-history__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: var(--eao-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.eao-order-history__title .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--eao-accent);
+}
+
+.eao-order-history__subtitle {
+    color: var(--eao-text-light);
+    margin: 0;
+}
+
+.eao-order-history__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.eao-order-history__item {
+    background: var(--eao-white);
+    border-radius: var(--eao-radius);
+    box-shadow: var(--eao-shadow);
+    overflow: hidden;
+}
+
+.eao-order-history__item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    background: var(--eao-bg);
+    border-bottom: 1px solid var(--eao-border-light);
+}
+
+.eao-order-history__item-info {
+    flex: 1;
+}
+
+.eao-order-history__item-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 5px;
+    color: var(--eao-primary);
+}
+
+.eao-order-history__item-date {
+    font-size: 0.85rem;
+    color: var(--eao-text-light);
+}
+
+.eao-order-history__item-status {
+    flex-shrink: 0;
+}
+
+/* Status badges */
+.eao-status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.eao-status-badge--ordered {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.eao-status-badge--shipped {
+    background: #d4edda;
+    color: #155724;
+}
+
+.eao-order-history__item-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+.eao-order-history__item-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.eao-order-history__spec {
+    display: flex;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.eao-order-history__spec-label {
+    color: var(--eao-text-light);
+    flex-shrink: 0;
+}
+
+.eao-order-history__spec-value {
+    color: var(--eao-text);
+    font-weight: 500;
+}
+
+.eao-order-history__item-shipping {
+    font-size: 0.9rem;
+}
+
+.eao-order-history__item-shipping .eao-order-history__spec-label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.eao-order-history__address {
+    color: var(--eao-text);
+    line-height: 1.5;
+}
+
+.eao-order-history__item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--eao-bg);
+    border-top: 1px solid var(--eao-border-light);
+}
+
+.eao-order-history__credit {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--eao-success);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.eao-order-history__credit .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.eao-order-history__total {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.eao-order-history__total-label {
+    font-size: 0.9rem;
+    color: var(--eao-text-light);
+}
+
+.eao-order-history__total-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--eao-primary);
+}
+
+.eao-order-history__shipped-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--eao-success), #2ecc71);
+    color: var(--eao-white);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.eao-order-history__shipped-notice .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .eao-order-history__item-details {
+        grid-template-columns: 1fr;
+    }
+
+    .eao-order-history__item-footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .eao-order-history__credit {
+        justify-content: center;
+    }
+}
+
