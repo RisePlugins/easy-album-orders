@@ -55,7 +55,8 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <div class="eao-material-card" data-index="<?php echo esc_attr( $index ); ?>">
                             <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][id]" value="<?php echo esc_attr( $material['id'] ); ?>">
                             
-                            <div class="eao-material-card__header">
+                            <div class="eao-material-card__body">
+                                <!-- Column 1: Image -->
                                 <div class="eao-material-card__image">
                                     <div class="eao-image-upload">
                                         <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][image_id]" value="<?php echo esc_attr( $material['image_id'] ); ?>" class="eao-image-id">
@@ -65,76 +66,79 @@ if ( ! defined( 'ABSPATH' ) ) {
                                             <?php endif; ?>
                                         </div>
                                         <div class="eao-image-actions">
-                                            <button type="button" class="button-link eao-upload-image" title="<?php esc_attr_e( 'Upload Image', 'easy-album-orders' ); ?>">
-                                                <span class="dashicons dashicons-camera"></span>
+                                            <button type="button" class="button eao-upload-image">
+                                                <?php echo empty( $material['image_id'] ) ? esc_html__( 'Upload', 'easy-album-orders' ) : esc_html__( 'Change', 'easy-album-orders' ); ?>
                                             </button>
-                                            <button type="button" class="button-link eao-remove-image" title="<?php esc_attr_e( 'Remove Image', 'easy-album-orders' ); ?>" <?php echo empty( $material['image_id'] ) ? 'style="display:none;"' : ''; ?>>
-                                                <span class="dashicons dashicons-trash"></span>
+                                            <button type="button" class="button eao-remove-image" <?php echo empty( $material['image_id'] ) ? 'style="display:none;"' : ''; ?>>
+                                                <?php esc_html_e( 'Remove', 'easy-album-orders' ); ?>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                            <div class="eao-material-card__info">
-                                <div class="eao-material-card__row">
-                                    <input type="text" name="eao_materials[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $material['name'] ); ?>" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
-                                    <div class="eao-material-card__meta">
-                                        <div class="eao-inline-field">
-                                            <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
-                                            <div class="eao-input-prefix">
-                                                <span>$</span>
-                                                <input type="number" name="eao_materials[<?php echo esc_attr( $index ); ?>][upcharge]" value="<?php echo esc_attr( $material['upcharge'] ); ?>" step="0.01" min="0">
-                                            </div>
-                                        </div>
-                                        <label class="eao-toggle">
-                                            <input type="checkbox" name="eao_materials[<?php echo esc_attr( $index ); ?>][allow_engraving]" value="1" <?php checked( ! empty( $material['allow_engraving'] ) ); ?>>
-                                            <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                                <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
-                                    <span class="dashicons dashicons-trash"></span>
-                                </button>
-                            </div>
 
-                            <!-- Colors Section -->
-                            <div class="eao-material-card__colors">
-                                <div class="eao-colors-header">
-                                    <span class="eao-colors-label"><?php esc_html_e( 'Colors', 'easy-album-orders' ); ?></span>
-                                </div>
-                                <div class="eao-colors-grid">
-                                    <?php if ( ! empty( $material['colors'] ) ) : ?>
-                                        <?php foreach ( $material['colors'] as $color_index => $color ) : ?>
-                                            <div class="eao-color-swatch" data-color-index="<?php echo esc_attr( $color_index ); ?>">
-                                                <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][id]" value="<?php echo esc_attr( $color['id'] ); ?>">
-                                                <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][type]" value="<?php echo esc_attr( $color['type'] ); ?>" class="eao-color-type-input">
-                                                <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][color_value]" value="<?php echo esc_attr( $color['color_value'] ); ?>" class="eao-color-value-input">
-                                                <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][name]" value="<?php echo esc_attr( $color['name'] ); ?>" class="eao-color-name-input">
-                                                
-                                                <div class="eao-color-swatch__circle" style="<?php echo 'solid' === $color['type'] ? 'background-color: ' . esc_attr( $color['color_value'] ) . ';' : 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);'; ?>" title="<?php echo esc_attr( $color['name'] ); ?>">
-                                                    <?php if ( 'texture' === $color['type'] ) : ?>
-                                                        <span class="eao-color-swatch__texture-icon">
-                                                            <span class="dashicons dashicons-format-image"></span>
-                                                        </span>
-                                                    <?php endif; ?>
+                                <!-- Column 2: Content -->
+                                <div class="eao-material-card__content">
+                                    <!-- Header: Name, Upcharge, Engraving, Delete -->
+                                    <div class="eao-material-card__header">
+                                        <input type="text" name="eao_materials[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $material['name'] ); ?>" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
+                                        <div class="eao-material-card__meta">
+                                            <div class="eao-inline-field">
+                                                <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
+                                                <div class="eao-input-prefix">
+                                                    <span>$</span>
+                                                    <input type="number" name="eao_materials[<?php echo esc_attr( $index ); ?>][upcharge]" value="<?php echo esc_attr( $material['upcharge'] ); ?>" step="0.01" min="0">
                                                 </div>
-                                                <span class="eao-color-swatch__name"><?php echo esc_html( $color['name'] ); ?></span>
-                                                <button type="button" class="eao-color-swatch__edit" title="<?php esc_attr_e( 'Edit', 'easy-album-orders' ); ?>">
-                                                    <span class="dashicons dashicons-edit"></span>
-                                                </button>
-                                                <button type="button" class="eao-color-swatch__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
-                                                    <span class="dashicons dashicons-no-alt"></span>
-                                                </button>
                                             </div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                    <!-- Add Color Button -->
-                                    <button type="button" class="eao-color-swatch eao-color-swatch--add eao-add-color" title="<?php esc_attr_e( 'Add Color', 'easy-album-orders' ); ?>">
-                                        <div class="eao-color-swatch__circle eao-color-swatch__circle--add">
-                                            <span class="dashicons dashicons-plus"></span>
+                                            <label class="eao-toggle">
+                                                <input type="checkbox" name="eao_materials[<?php echo esc_attr( $index ); ?>][allow_engraving]" value="1" <?php checked( ! empty( $material['allow_engraving'] ) ); ?>>
+                                                <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
+                                            </label>
                                         </div>
-                                        <span class="eao-color-swatch__name"><?php esc_html_e( 'Add', 'easy-album-orders' ); ?></span>
-                                    </button>
+                                        <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
+                                            <span class="dashicons dashicons-trash"></span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Colors Section -->
+                                    <div class="eao-material-card__colors">
+                                        <div class="eao-colors-header">
+                                            <span class="eao-colors-label"><?php esc_html_e( 'Colors', 'easy-album-orders' ); ?></span>
+                                        </div>
+                                        <div class="eao-colors-grid">
+                                            <?php if ( ! empty( $material['colors'] ) ) : ?>
+                                                <?php foreach ( $material['colors'] as $color_index => $color ) : ?>
+                                                    <div class="eao-color-swatch" data-color-index="<?php echo esc_attr( $color_index ); ?>">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][id]" value="<?php echo esc_attr( $color['id'] ); ?>">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][type]" value="<?php echo esc_attr( $color['type'] ); ?>" class="eao-color-type-input">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][color_value]" value="<?php echo esc_attr( $color['color_value'] ); ?>" class="eao-color-value-input">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][name]" value="<?php echo esc_attr( $color['name'] ); ?>" class="eao-color-name-input">
+                                                        
+                                                        <div class="eao-color-swatch__circle" style="<?php echo 'solid' === $color['type'] ? 'background-color: ' . esc_attr( $color['color_value'] ) . ';' : 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);'; ?>" title="<?php echo esc_attr( $color['name'] ); ?>">
+                                                            <?php if ( 'texture' === $color['type'] ) : ?>
+                                                                <span class="eao-color-swatch__texture-icon">
+                                                                    <span class="dashicons dashicons-format-image"></span>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <span class="eao-color-swatch__name"><?php echo esc_html( $color['name'] ); ?></span>
+                                                        <button type="button" class="eao-color-swatch__edit" title="<?php esc_attr_e( 'Edit', 'easy-album-orders' ); ?>">
+                                                            <span class="dashicons dashicons-edit"></span>
+                                                        </button>
+                                                        <button type="button" class="eao-color-swatch__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
+                                                            <span class="dashicons dashicons-no-alt"></span>
+                                                        </button>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                            <!-- Add Color Button -->
+                                            <button type="button" class="eao-color-swatch eao-color-swatch--add eao-add-color" title="<?php esc_attr_e( 'Add Color', 'easy-album-orders' ); ?>">
+                                                <div class="eao-color-swatch__circle eao-color-swatch__circle--add">
+                                                    <span class="dashicons dashicons-plus"></span>
+                                                </div>
+                                                <span class="eao-color-swatch__name"><?php esc_html_e( 'Add', 'easy-album-orders' ); ?></span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -379,23 +383,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="eao-material-card" data-index="{{data.index}}">
         <input type="hidden" name="eao_materials[{{data.index}}][id]" value="{{data.id}}">
         
-        <div class="eao-material-card__header">
+        <div class="eao-material-card__body">
+            <!-- Column 1: Image -->
             <div class="eao-material-card__image">
                 <div class="eao-image-upload">
                     <input type="hidden" name="eao_materials[{{data.index}}][image_id]" value="" class="eao-image-id">
                     <div class="eao-image-preview eao-image-preview--large"></div>
                     <div class="eao-image-actions">
-                        <button type="button" class="button-link eao-upload-image" title="<?php esc_attr_e( 'Upload Image', 'easy-album-orders' ); ?>">
-                            <span class="dashicons dashicons-camera"></span>
-                        </button>
-                        <button type="button" class="button-link eao-remove-image" title="<?php esc_attr_e( 'Remove Image', 'easy-album-orders' ); ?>" style="display:none;">
-                            <span class="dashicons dashicons-trash"></span>
-                        </button>
+                        <button type="button" class="button eao-upload-image"><?php esc_html_e( 'Upload', 'easy-album-orders' ); ?></button>
+                        <button type="button" class="button eao-remove-image" style="display:none;"><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
                     </div>
                 </div>
             </div>
-            <div class="eao-material-card__info">
-                <div class="eao-material-card__row">
+
+            <!-- Column 2: Content -->
+            <div class="eao-material-card__content">
+                <!-- Header: Name, Upcharge, Engraving, Delete -->
+                <div class="eao-material-card__header">
                     <input type="text" name="eao_materials[{{data.index}}][name]" value="" class="eao-material-name-input" placeholder="<?php esc_attr_e( 'Material Name', 'easy-album-orders' ); ?>" required>
                     <div class="eao-material-card__meta">
                         <div class="eao-inline-field">
@@ -410,24 +414,25 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <span class="eao-toggle__label"><?php esc_html_e( 'Allow Engraving', 'easy-album-orders' ); ?></span>
                         </label>
                     </div>
+                    <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
+                        <span class="dashicons dashicons-trash"></span>
+                    </button>
                 </div>
-            </div>
-            <button type="button" class="eao-material-card__delete" title="<?php esc_attr_e( 'Delete Material', 'easy-album-orders' ); ?>">
-                <span class="dashicons dashicons-trash"></span>
-            </button>
-        </div>
 
-        <div class="eao-material-card__colors">
-            <div class="eao-colors-header">
-                <span class="eao-colors-label"><?php esc_html_e( 'Colors', 'easy-album-orders' ); ?></span>
-            </div>
-            <div class="eao-colors-grid">
-                <button type="button" class="eao-color-swatch eao-color-swatch--add eao-add-color" title="<?php esc_attr_e( 'Add Color', 'easy-album-orders' ); ?>">
-                    <div class="eao-color-swatch__circle eao-color-swatch__circle--add">
-                        <span class="dashicons dashicons-plus"></span>
+                <!-- Colors Section -->
+                <div class="eao-material-card__colors">
+                    <div class="eao-colors-header">
+                        <span class="eao-colors-label"><?php esc_html_e( 'Colors', 'easy-album-orders' ); ?></span>
                     </div>
-                    <span class="eao-color-swatch__name"><?php esc_html_e( 'Add', 'easy-album-orders' ); ?></span>
-                </button>
+                    <div class="eao-colors-grid">
+                        <button type="button" class="eao-color-swatch eao-color-swatch--add eao-add-color" title="<?php esc_attr_e( 'Add Color', 'easy-album-orders' ); ?>">
+                            <div class="eao-color-swatch__circle eao-color-swatch__circle--add">
+                                <span class="dashicons dashicons-plus"></span>
+                            </div>
+                            <span class="eao-color-swatch__name"><?php esc_html_e( 'Add', 'easy-album-orders' ); ?></span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
