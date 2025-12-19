@@ -443,12 +443,13 @@
     box-shadow: var(--eao-shadow-md);
 }
 
-/* Material Card - 2 Column Layout */
+/* Material Card - 3 Column Layout */
 .eao-material-card__body {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: auto 1fr auto;
     gap: var(--eao-space-xl);
     padding: var(--eao-space-xl);
+    align-items: start;
 }
 
 /* Column 1: Image */
@@ -456,7 +457,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--eao-space-md);
+    gap: var(--eao-space-sm);
 }
 
 .eao-material-card__image .eao-image-upload {
@@ -467,8 +468,8 @@
 }
 
 .eao-image-preview--large {
-    width: 180px;
-    height: 180px;
+    width: 140px;
+    height: 140px;
     background: var(--eao-gray-100);
     border: 2px dashed var(--eao-gray-300);
     border-radius: var(--eao-radius-lg);
@@ -492,7 +493,7 @@
 .eao-image-preview--large:empty::before {
     content: "\f128";
     font-family: dashicons;
-    font-size: 48px;
+    font-size: 40px;
     color: var(--eao-gray-300);
 }
 
@@ -502,7 +503,7 @@
 }
 
 .eao-image-actions .button {
-    padding: 4px 12px;
+    padding: 4px 10px;
     font-size: var(--eao-font-xs);
 }
 
@@ -514,24 +515,23 @@
     color: var(--eao-error);
 }
 
-/* Column 2: Content */
-.eao-material-card__content {
+/* Column 2: Colors */
+.eao-material-card__colors-col {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Column 3: Info (Name, Upcharge, Engraving) */
+.eao-material-card__info {
     display: flex;
     flex-direction: column;
-    gap: var(--eao-space-lg);
+    gap: var(--eao-space-md);
+    min-width: 220px;
+    position: relative;
+    padding-right: var(--eao-space-xl);
 }
 
-/* Header row: Name, Cost, Engraving, Delete */
-.eao-material-card__header {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--eao-space-md) var(--eao-space-lg);
-    padding-bottom: var(--eao-space-lg);
-    border-bottom: var(--eao-border);
-}
-
-.eao-material-card__header .eao-material-name-input {
+.eao-material-card__info .eao-material-name-input {
     font-size: var(--eao-font-xl);
     font-weight: 600;
     padding: var(--eao-space-sm) 0;
@@ -541,29 +541,30 @@
     box-shadow: none;
     background: transparent;
     transition: border-color var(--eao-transition);
-    min-width: 150px;
-    flex: 1;
+    width: 100%;
 }
 
-.eao-material-card__header .eao-material-name-input:focus {
+.eao-material-card__info .eao-material-name-input:focus {
     border-bottom-color: var(--eao-primary);
     box-shadow: none;
 }
 
 .eao-material-card__meta {
     display: flex;
-    align-items: center;
-    gap: var(--eao-space-lg);
+    flex-direction: column;
+    gap: var(--eao-space-sm);
 }
 
 .eao-material-card__delete {
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     padding: 0;
-    margin-left: auto;
     background: transparent;
     border: none;
     border-radius: var(--eao-radius-md);
@@ -581,13 +582,15 @@
    Color Swatches
    ========================================================================== */
 
-/* Colors section (inside Column 2) */
-.eao-material-card__colors {
-    flex: 1;
+/* Colors section (Column 2) */
+.eao-material-card__colors-col .eao-colors-header {
+    margin-bottom: var(--eao-space-sm);
 }
 
-.eao-colors-header {
-    margin-bottom: var(--eao-space-sm);
+.eao-material-card__colors-col .eao-colors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--eao-space-sm);
 }
 
 .eao-colors-label {
@@ -1652,29 +1655,17 @@
     }
     
     .eao-image-preview--large {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
     }
     
-    .eao-material-card__header {
-        flex-direction: column;
-        align-items: flex-start;
+    .eao-material-card__info {
+        min-width: 100%;
+        padding-right: var(--eao-space-xl);
     }
     
-    .eao-material-card__header .eao-material-name-input {
-        width: 100%;
-    }
-    
-    .eao-material-card__meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--eao-space-sm);
-    }
-    
-    .eao-material-card__delete {
-        position: absolute;
-        top: var(--eao-space-md);
-        right: var(--eao-space-md);
+    .eao-material-card__colors-col {
+        min-width: 100%;
     }
     
     .eao-material-card {
