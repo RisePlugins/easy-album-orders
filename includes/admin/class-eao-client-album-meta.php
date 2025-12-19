@@ -366,9 +366,9 @@ class EAO_Client_Album_Meta {
                             <p class="description"><?php esc_html_e( 'Number of free albums (base price covered). Client pays only for upgrades.', 'easy-album-orders' ); ?></p>
                         </div>
                         <div class="eao-field" style="flex: 1;">
-                            <label><?php esc_html_e( 'Dollar Credit ($)', 'easy-album-orders' ); ?></label>
+                            <label><?php esc_html_e( 'Credit Budget ($)', 'easy-album-orders' ); ?></label>
                             <input type="number" name="<?php echo esc_attr( $name_field ); ?>[dollar_credit]" value="<?php echo esc_attr( $design['dollar_credit'] ); ?>" min="0" step="0.01" class="small-text" style="width: 100%;">
-                            <p class="description"><?php esc_html_e( 'Dollar amount off each album of this design.', 'easy-album-orders' ); ?></p>
+                            <p class="description"><?php esc_html_e( 'Total credit pool for this design. Applied until depleted.', 'easy-album-orders' ); ?></p>
                         </div>
                     </div>
                 </div>

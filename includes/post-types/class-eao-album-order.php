@@ -420,13 +420,13 @@ class EAO_Album_Order {
     }
 
     /**
-     * Get the dollar credit amount for a design.
+     * Get the total dollar credit pool for a design.
      *
      * @since 1.0.0
      *
      * @param int $client_album_id The client album ID.
      * @param int $design_index    The design index.
-     * @return float Dollar credit amount.
+     * @return float Total dollar credit pool.
      */
     public static function get_design_dollar_credit( $client_album_id, $design_index ) {
         $designs = get_post_meta( $client_album_id, '_eao_designs', true );
@@ -438,6 +438,71 @@ class EAO_Album_Order {
 
         $design = $designs[ $design_index ];
         return isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
+    }
+
+    /**
+     * Get total dollar credits already used for a design.
+     *
+     * @since 1.0.0
+     *
+     * @param int $client_album_id The client album ID.
+     * @param int $design_index    The design index.
+     * @param int $exclude_order   Optional. Order ID to exclude (for edits).
+     * @return float Total dollar credits already used.
+     */
+    public static function get_used_dollar_credits( $client_album_id, $design_index, $exclude_order = 0 ) {
+        $args = array(
+            'post_type'      => self::POST_TYPE,
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                'relation' => 'AND',
+                array(
+                    'key'   => '_eao_client_album_id',
+                    'value' => $client_album_id,
+                ),
+                array(
+                    'key'   => '_eao_design_index',
+                    'value' => $design_index,
+                ),
+                array(
+                    'key'   => '_eao_credit_type',
+                    'value' => 'dollar',
+                ),
+            ),
+        );
+
+        // Exclude a specific order (useful when editing).
+        if ( $exclude_order > 0 ) {
+            $args['post__not_in'] = array( $exclude_order );
+        }
+
+        $order_ids = get_posts( $args );
+        $total_used = 0;
+
+        foreach ( $order_ids as $order_id ) {
+            $total_used += floatval( get_post_meta( $order_id, '_eao_applied_credits', true ) );
+        }
+
+        return $total_used;
+    }
+
+    /**
+     * Get remaining dollar credits available for a design.
+     *
+     * @since 1.0.0
+     *
+     * @param int $client_album_id The client album ID.
+     * @param int $design_index    The design index.
+     * @param int $exclude_order   Optional. Order ID to exclude (for edits).
+     * @return float Remaining dollar credits.
+     */
+    public static function get_available_dollar_credits( $client_album_id, $design_index, $exclude_order = 0 ) {
+        $total_pool = self::get_design_dollar_credit( $client_album_id, $design_index );
+        $used       = self::get_used_dollar_credits( $client_album_id, $design_index, $exclude_order );
+
+        return max( 0, $total_pool - $used );
     }
 
     /**

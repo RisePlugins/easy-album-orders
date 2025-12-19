@@ -26,8 +26,8 @@ $designs     = is_array( $designs ) ? $designs : array();
 
 // Add available credits info to each design.
 foreach ( $designs as $index => &$design ) {
-    $design['available_free_credits'] = EAO_Album_Order::get_available_free_credits( $album_id, $index );
-    $design['dollar_credit']          = isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
+    $design['available_free_credits']  = EAO_Album_Order::get_available_free_credits( $album_id, $index );
+    $design['available_dollar_credit'] = EAO_Album_Order::get_available_dollar_credits( $album_id, $index );
 }
 unset( $design ); // Break reference.
 
@@ -86,23 +86,23 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                         <div class="eao-selection-grid eao-designs-grid">
                             <?php foreach ( $designs as $index => $design ) : ?>
                                 <?php
-                                $cover_url    = ! empty( $design['cover_id'] ) ? wp_get_attachment_image_url( $design['cover_id'], 'medium' ) : '';
-                                $pdf_url      = ! empty( $design['pdf_id'] ) ? wp_get_attachment_url( $design['pdf_id'] ) : '';
-                                $free_credits = isset( $design['available_free_credits'] ) ? intval( $design['available_free_credits'] ) : 0;
-                                $dollar_credit = isset( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0;
-                                $has_credits  = $free_credits > 0 || $dollar_credit > 0;
+                                $cover_url             = ! empty( $design['cover_id'] ) ? wp_get_attachment_image_url( $design['cover_id'], 'medium' ) : '';
+                                $pdf_url               = ! empty( $design['pdf_id'] ) ? wp_get_attachment_url( $design['pdf_id'] ) : '';
+                                $free_credits          = isset( $design['available_free_credits'] ) ? intval( $design['available_free_credits'] ) : 0;
+                                $available_dollar      = isset( $design['available_dollar_credit'] ) ? floatval( $design['available_dollar_credit'] ) : 0;
+                                $has_credits           = $free_credits > 0 || $available_dollar > 0;
                                 ?>
                                 <label class="eao-selection-card eao-design-card<?php echo $has_credits ? ' has-credit' : ''; ?>" 
                                        data-base-price="<?php echo esc_attr( $design['base_price'] ); ?>"
                                        data-free-credits="<?php echo esc_attr( $free_credits ); ?>"
-                                       data-dollar-credit="<?php echo esc_attr( $dollar_credit ); ?>">
+                                       data-dollar-credit="<?php echo esc_attr( $available_dollar ); ?>">
                                     <input type="radio" name="design_index" value="<?php echo esc_attr( $index ); ?>" required>
                                     <?php if ( $has_credits ) : ?>
                                         <div class="eao-selection-card__badge">
                                             <?php if ( $free_credits > 0 ) : ?>
                                                 <?php echo esc_html( sprintf( _n( '%d Free Album', '%d Free Albums', $free_credits, 'easy-album-orders' ), $free_credits ) ); ?>
                                             <?php else : ?>
-                                                <?php echo esc_html( eao_format_price( $dollar_credit ) . ' ' . __( 'Off', 'easy-album-orders' ) ); ?>
+                                                <?php echo esc_html( eao_format_price( $available_dollar ) . ' ' . __( 'Credit', 'easy-album-orders' ) ); ?>
                                             <?php endif; ?>
                                         </div>
                                     <?php endif; ?>

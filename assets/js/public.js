@@ -324,6 +324,9 @@
             const sizeUpcharge = self.selections.size ? self.selections.size.upcharge : 0;
             const engravingUpcharge = self.selections.engraving ? self.selections.engraving.upcharge : 0;
 
+            // Calculate subtotal first.
+            const subtotal = basePrice + materialUpcharge + sizeUpcharge + engravingUpcharge;
+
             // Determine design-specific credits.
             let creditAmount = 0;
             let creditLabel = '';
@@ -334,13 +337,13 @@
                     creditAmount = basePrice;
                     creditLabel = eaoPublic.i18n?.freeAlbumCredit || 'Free Album Credit';
                 } else if (self.selections.design.dollarCredit > 0) {
-                    creditAmount = self.selections.design.dollarCredit;
+                    // Dollar credit applies up to available amount, but not more than subtotal.
+                    creditAmount = Math.min(self.selections.design.dollarCredit, subtotal);
                     creditLabel = eaoPublic.i18n?.albumCredit || 'Album Credit';
                 }
             }
 
             // Calculate total.
-            const subtotal = basePrice + materialUpcharge + sizeUpcharge + engravingUpcharge;
             const total = Math.max(0, subtotal - creditAmount);
 
             // Update display.

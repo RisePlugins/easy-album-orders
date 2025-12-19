@@ -118,6 +118,9 @@ class EAO_Ajax_Handler {
         $credit_type     = 'none';
         $applied_credits = 0;
 
+        // Calculate the album total before credits.
+        $album_total = $base_price + $material_upcharge + $size_upcharge + $engraving_upcharge;
+
         // Check for free album credits first.
         $available_free_credits = EAO_Album_Order::get_available_free_credits( $client_album_id, $design_index );
         if ( $available_free_credits > 0 ) {
@@ -125,11 +128,12 @@ class EAO_Ajax_Handler {
             $credit_type     = 'free_album';
             $applied_credits = $base_price;
         } else {
-            // Check for dollar credit.
-            $dollar_credit = EAO_Album_Order::get_design_dollar_credit( $client_album_id, $design_index );
-            if ( $dollar_credit > 0 ) {
-                $credit_type     = 'dollar';
-                $applied_credits = $dollar_credit;
+            // Check for remaining dollar credit pool.
+            $available_dollar_credit = EAO_Album_Order::get_available_dollar_credits( $client_album_id, $design_index );
+            if ( $available_dollar_credit > 0 ) {
+                $credit_type = 'dollar';
+                // Apply up to the available credit, but not more than the album total.
+                $applied_credits = min( $available_dollar_credit, $album_total );
             }
         }
 
@@ -256,6 +260,9 @@ class EAO_Ajax_Handler {
         $size_upcharge      = $size ? floatval( $size['upcharge'] ) : 0;
         $engraving_upcharge = $engraving_option ? floatval( $engraving_option['upcharge'] ) : 0;
 
+        // Calculate the album total before credits.
+        $album_total = $base_price + $material_upcharge + $size_upcharge + $engraving_upcharge;
+
         // Determine credits to apply (exclude current order from count).
         $credit_type     = 'none';
         $applied_credits = 0;
@@ -266,11 +273,12 @@ class EAO_Ajax_Handler {
             $credit_type     = 'free_album';
             $applied_credits = $base_price;
         } else {
-            // Check for dollar credit.
-            $dollar_credit = EAO_Album_Order::get_design_dollar_credit( $client_album_id, $design_index );
-            if ( $dollar_credit > 0 ) {
-                $credit_type     = 'dollar';
-                $applied_credits = $dollar_credit;
+            // Check for remaining dollar credit pool (exclude this order).
+            $available_dollar_credit = EAO_Album_Order::get_available_dollar_credits( $client_album_id, $design_index, $order_id );
+            if ( $available_dollar_credit > 0 ) {
+                $credit_type = 'dollar';
+                // Apply up to the available credit, but not more than the album total.
+                $applied_credits = min( $available_dollar_credit, $album_total );
             }
         }
 

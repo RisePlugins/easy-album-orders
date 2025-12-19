@@ -71,10 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Album credits are now per-design instead of per-client-album
 - Each design can have:
   - Free Album Credits: Number of free albums (base price covered, upgrades still apply)
-  - Dollar Credit: Fixed dollar amount off each album of that design
-- Free album credits are automatically tracked and decremented when used
-- Credits badge displayed on design cards showing available credits
-- Price calculator dynamically updates based on selected design's credits
+  - Credit Budget: A pool of dollar credit that depletes as orders are placed
+- Credit pools are automatically tracked:
+  - Free album credits decrement by 1 per order
+  - Dollar credit pools reduce by the amount applied per order
+- Example: $200 credit budget on a $250 design = first album costs $50, second costs $250
+- Credits badge shows remaining available credit
+- Price calculator dynamically applies remaining credit (up to album total)
 - Cart items show which credit type was applied
 - Admin order view shows credit type (Free Album Credit vs Album Credit)
 
