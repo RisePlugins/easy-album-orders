@@ -139,6 +139,11 @@ class EAO_Public {
                     'confirmDeleteAddress' => __( 'Are you sure you want to delete this address?', 'easy-album-orders' ),
                     'deleteAddress'        => __( 'Delete address', 'easy-album-orders' ),
                     'addressSaved'         => __( 'Address saved!', 'easy-album-orders' ),
+                    'enterCustomerName'    => __( 'Please enter your name.', 'easy-album-orders' ),
+                    'enterCustomerEmail'   => __( 'Please enter your email address.', 'easy-album-orders' ),
+                    'invalidEmail'         => __( 'Please enter a valid email address.', 'easy-album-orders' ),
+                    'processing'           => __( 'Processing...', 'easy-album-orders' ),
+                    'submitOrder'          => __( 'Submit Order', 'easy-album-orders' ),
                 ),
             )
         );

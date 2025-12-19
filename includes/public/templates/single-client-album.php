@@ -415,6 +415,55 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
         </aside>
     </div>
 
+    <!-- Checkout Modal -->
+    <div class="eao-modal" id="eao-checkout-modal" style="display: none;">
+        <div class="eao-modal__backdrop"></div>
+        <div class="eao-modal__container">
+            <div class="eao-modal__header">
+                <h2 class="eao-modal__title"><?php esc_html_e( 'Complete Your Order', 'easy-album-orders' ); ?></h2>
+                <button type="button" class="eao-modal__close" id="eao-modal-close">
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </div>
+            <div class="eao-modal__body">
+                <p class="eao-modal__intro"><?php esc_html_e( 'Please provide your contact information so we can reach you about your order.', 'easy-album-orders' ); ?></p>
+                
+                <form id="eao-checkout-form">
+                    <div class="eao-field">
+                        <label for="eao-customer-name" class="eao-field__label"><?php esc_html_e( 'Your Name', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                        <input type="text" id="eao-customer-name" name="customer_name" class="eao-field__input" placeholder="<?php esc_attr_e( 'John Smith', 'easy-album-orders' ); ?>" required>
+                    </div>
+                    
+                    <div class="eao-field">
+                        <label for="eao-customer-email" class="eao-field__label"><?php esc_html_e( 'Email Address', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                        <input type="email" id="eao-customer-email" name="customer_email" class="eao-field__input" placeholder="<?php esc_attr_e( 'john@example.com', 'easy-album-orders' ); ?>" required>
+                        <p class="eao-field__help"><?php esc_html_e( 'We\'ll send order confirmation to this email.', 'easy-album-orders' ); ?></p>
+                    </div>
+                    
+                    <div class="eao-field">
+                        <label for="eao-customer-phone" class="eao-field__label"><?php esc_html_e( 'Phone Number', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
+                        <input type="tel" id="eao-customer-phone" name="customer_phone" class="eao-field__input" placeholder="<?php esc_attr_e( '(555) 123-4567', 'easy-album-orders' ); ?>">
+                    </div>
+                    
+                    <div class="eao-field">
+                        <label for="eao-client-notes" class="eao-field__label"><?php esc_html_e( 'Order Notes', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
+                        <textarea id="eao-client-notes" name="client_notes" class="eao-field__textarea" rows="3" placeholder="<?php esc_attr_e( 'Any special requests or notes about your order...', 'easy-album-orders' ); ?>"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="eao-modal__footer">
+                <div class="eao-modal__total">
+                    <span><?php esc_html_e( 'Order Total:', 'easy-album-orders' ); ?></span>
+                    <span class="eao-modal__total-value" id="eao-modal-total"><?php echo esc_html( eao_format_price( $cart_total ) ); ?></span>
+                </div>
+                <button type="button" class="eao-btn eao-btn--primary eao-btn--full" id="eao-submit-order-btn">
+                    <span class="eao-btn-text"><?php esc_html_e( 'Submit Order', 'easy-album-orders' ); ?></span>
+                    <span class="eao-spinner" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <?php
     // Get completed orders (status = ordered or shipped) for this client album.
     $completed_orders = get_posts( array(

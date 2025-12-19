@@ -976,36 +976,129 @@
         bindCheckout: function() {
             const self = this;
 
+            // Open checkout modal.
             $('#eao-checkout-btn').on('click', function() {
-                if (!confirm(eaoPublic.i18n?.confirmCheckout || 'Are you sure you want to complete this order? You will not be able to make changes after checkout.')) {
-                    return;
+                self.openCheckoutModal();
+            });
+
+            // Close modal handlers.
+            $('#eao-modal-close, .eao-modal__backdrop').on('click', function() {
+                self.closeCheckoutModal();
+            });
+
+            // Close on escape key.
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && $('#eao-checkout-modal').is(':visible')) {
+                    self.closeCheckoutModal();
                 }
+            });
 
-                const $btn = $(this);
-                $btn.prop('disabled', true).text('Processing...');
+            // Submit order from modal.
+            $('#eao-submit-order-btn').on('click', function() {
+                self.submitCheckout();
+            });
 
-                $.ajax({
-                    url: eaoPublic.ajaxUrl,
-                    type: 'POST',
-                    data: {
-                        action: 'eao_checkout',
-                        nonce: eaoPublic.nonce,
-                        client_album_id: eaoPublic.clientAlbumId
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Redirect to confirmation.
-                            window.location.href = response.data.redirect_url;
-                        } else {
-                            self.showMessage('error', response.data.message);
-                            $btn.prop('disabled', false).text(eaoPublic.i18n?.checkout || 'Complete Order');
-                        }
-                    },
-                    error: function() {
-                        self.showMessage('error', eaoPublic.i18n?.errorOccurred || 'An error occurred. Please try again.');
-                        $btn.prop('disabled', false).text(eaoPublic.i18n?.checkout || 'Complete Order');
+            // Also submit on form enter.
+            $('#eao-checkout-form').on('submit', function(e) {
+                e.preventDefault();
+                self.submitCheckout();
+            });
+        },
+
+        /**
+         * Open the checkout modal.
+         */
+        openCheckoutModal: function() {
+            // Update modal total.
+            $('#eao-modal-total').text($('#eao-cart-total').text());
+            
+            // Show modal.
+            $('#eao-checkout-modal').fadeIn(200);
+            $('body').css('overflow', 'hidden');
+            
+            // Focus first input.
+            setTimeout(function() {
+                $('#eao-customer-name').focus();
+            }, 200);
+        },
+
+        /**
+         * Close the checkout modal.
+         */
+        closeCheckoutModal: function() {
+            $('#eao-checkout-modal').fadeOut(200);
+            $('body').css('overflow', '');
+        },
+
+        /**
+         * Submit checkout with customer info.
+         */
+        submitCheckout: function() {
+            const self = this;
+
+            // Validate required fields.
+            const customerName = $('#eao-customer-name').val().trim();
+            const customerEmail = $('#eao-customer-email').val().trim();
+
+            if (!customerName) {
+                self.showMessage('error', eaoPublic.i18n?.enterCustomerName || 'Please enter your name.');
+                $('#eao-customer-name').focus();
+                return;
+            }
+
+            if (!customerEmail) {
+                self.showMessage('error', eaoPublic.i18n?.enterCustomerEmail || 'Please enter your email address.');
+                $('#eao-customer-email').focus();
+                return;
+            }
+
+            // Basic email validation.
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(customerEmail)) {
+                self.showMessage('error', eaoPublic.i18n?.invalidEmail || 'Please enter a valid email address.');
+                $('#eao-customer-email').focus();
+                return;
+            }
+
+            const $btn = $('#eao-submit-order-btn');
+            const $btnText = $btn.find('.eao-btn-text');
+            const $spinner = $btn.find('.eao-spinner');
+
+            $btn.prop('disabled', true);
+            $btnText.text(eaoPublic.i18n?.processing || 'Processing...');
+            $spinner.show();
+
+            $.ajax({
+                url: eaoPublic.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'eao_checkout',
+                    nonce: eaoPublic.nonce,
+                    client_album_id: eaoPublic.clientAlbumId,
+                    customer_name: customerName,
+                    customer_email: customerEmail,
+                    customer_phone: $('#eao-customer-phone').val().trim(),
+                    client_notes: $('#eao-client-notes').val().trim()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Redirect to confirmation.
+                        window.location.href = response.data.redirect_url;
+                    } else {
+                        self.closeCheckoutModal();
+                        self.showMessage('error', response.data.message);
+                        $btn.prop('disabled', false);
+                        $btnText.text(eaoPublic.i18n?.submitOrder || 'Submit Order');
+                        $spinner.hide();
                     }
-                });
+                },
+                error: function() {
+                    self.closeCheckoutModal();
+                    self.showMessage('error', eaoPublic.i18n?.errorOccurred || 'An error occurred. Please try again.');
+                    $btn.prop('disabled', false);
+                    $btnText.text(eaoPublic.i18n?.submitOrder || 'Submit Order');
+                    $spinner.hide();
+                }
             });
         },
 
