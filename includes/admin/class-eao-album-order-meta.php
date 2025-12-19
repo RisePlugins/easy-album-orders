@@ -341,9 +341,17 @@ class EAO_Album_Order_Meta {
         $customer_name  = get_post_meta( $post->ID, '_eao_customer_name', true );
         $customer_email = get_post_meta( $post->ID, '_eao_customer_email', true );
         $customer_phone = get_post_meta( $post->ID, '_eao_customer_phone', true );
-        $shipping_address = get_post_meta( $post->ID, '_eao_shipping_address', true );
+
+        // Structured shipping address fields.
+        $shipping_name      = get_post_meta( $post->ID, '_eao_shipping_name', true );
+        $shipping_address_1 = get_post_meta( $post->ID, '_eao_shipping_address_1', true );
+        $shipping_address_2 = get_post_meta( $post->ID, '_eao_shipping_address_2', true );
+        $shipping_city      = get_post_meta( $post->ID, '_eao_shipping_city', true );
+        $shipping_state     = get_post_meta( $post->ID, '_eao_shipping_state', true );
+        $shipping_zip       = get_post_meta( $post->ID, '_eao_shipping_zip', true );
         ?>
         <div class="eao-meta-box">
+            <h4 style="margin: 0 0 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;"><?php esc_html_e( 'Customer Contact', 'easy-album-orders' ); ?></h4>
             <div class="eao-field-row">
                 <div class="eao-field" style="flex: 1;">
                     <label for="eao_customer_name"><?php esc_html_e( 'Name', 'easy-album-orders' ); ?></label>
@@ -360,9 +368,37 @@ class EAO_Album_Order_Meta {
                     <input type="tel" id="eao_customer_phone" name="eao_customer_phone" value="<?php echo esc_attr( $customer_phone ); ?>" class="regular-text" style="width: 100%;">
                 </div>
             </div>
+
+            <h4 style="margin: 20px 0 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></h4>
+            
             <div class="eao-field">
-                <label for="eao_shipping_address"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></label>
-                <textarea id="eao_shipping_address" name="eao_shipping_address" rows="3" class="large-text"><?php echo esc_textarea( $shipping_address ); ?></textarea>
+                <label for="eao_shipping_name"><?php esc_html_e( 'Recipient Name', 'easy-album-orders' ); ?></label>
+                <input type="text" id="eao_shipping_name" name="eao_shipping_name" value="<?php echo esc_attr( $shipping_name ); ?>" class="regular-text" style="width: 100%;">
+            </div>
+
+            <div class="eao-field">
+                <label for="eao_shipping_address_1"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?></label>
+                <input type="text" id="eao_shipping_address_1" name="eao_shipping_address_1" value="<?php echo esc_attr( $shipping_address_1 ); ?>" class="regular-text" style="width: 100%;">
+            </div>
+
+            <div class="eao-field">
+                <label for="eao_shipping_address_2"><?php esc_html_e( 'Apartment, Suite, etc.', 'easy-album-orders' ); ?></label>
+                <input type="text" id="eao_shipping_address_2" name="eao_shipping_address_2" value="<?php echo esc_attr( $shipping_address_2 ); ?>" class="regular-text" style="width: 100%;">
+            </div>
+
+            <div class="eao-field-row">
+                <div class="eao-field" style="flex: 2;">
+                    <label for="eao_shipping_city"><?php esc_html_e( 'City', 'easy-album-orders' ); ?></label>
+                    <input type="text" id="eao_shipping_city" name="eao_shipping_city" value="<?php echo esc_attr( $shipping_city ); ?>" class="regular-text" style="width: 100%;">
+                </div>
+                <div class="eao-field" style="flex: 1;">
+                    <label for="eao_shipping_state"><?php esc_html_e( 'State', 'easy-album-orders' ); ?></label>
+                    <input type="text" id="eao_shipping_state" name="eao_shipping_state" value="<?php echo esc_attr( $shipping_state ); ?>" class="regular-text" style="width: 100%;">
+                </div>
+                <div class="eao-field" style="flex: 1;">
+                    <label for="eao_shipping_zip"><?php esc_html_e( 'ZIP Code', 'easy-album-orders' ); ?></label>
+                    <input type="text" id="eao_shipping_zip" name="eao_shipping_zip" value="<?php echo esc_attr( $shipping_zip ); ?>" class="regular-text" style="width: 100%;">
+                </div>
             </div>
         </div>
         <?php
@@ -486,9 +522,20 @@ class EAO_Album_Order_Meta {
             update_post_meta( $post_id, '_eao_customer_email', sanitize_email( $_POST['eao_customer_email'] ) );
         }
 
-        // Save textarea fields.
-        if ( isset( $_POST['eao_shipping_address'] ) ) {
-            update_post_meta( $post_id, '_eao_shipping_address', sanitize_textarea_field( $_POST['eao_shipping_address'] ) );
+        // Save structured shipping address fields.
+        $shipping_fields = array(
+            'eao_shipping_name'      => '_eao_shipping_name',
+            'eao_shipping_address_1' => '_eao_shipping_address_1',
+            'eao_shipping_address_2' => '_eao_shipping_address_2',
+            'eao_shipping_city'      => '_eao_shipping_city',
+            'eao_shipping_state'     => '_eao_shipping_state',
+            'eao_shipping_zip'       => '_eao_shipping_zip',
+        );
+
+        foreach ( $shipping_fields as $post_key => $meta_key ) {
+            if ( isset( $_POST[ $post_key ] ) ) {
+                update_post_meta( $post_id, $meta_key, sanitize_text_field( $_POST[ $post_key ] ) );
+            }
         }
 
         if ( isset( $_POST['eao_client_notes'] ) ) {
