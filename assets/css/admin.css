@@ -1306,8 +1306,6 @@
 }
 
 .eao-image-preview {
-    width: 80px;
-    height: 80px;
     background: var(--eao-gray-100);
     border: var(--eao-border);
     border-radius: var(--eao-radius-sm);
