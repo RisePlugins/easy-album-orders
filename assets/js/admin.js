@@ -23,6 +23,7 @@
          * Initialize admin functionality.
          */
         init: function() {
+            this.bindFormDebug();
             this.bindTabs();
             this.bindMaterialCards();
             this.bindSizeCards();
@@ -47,6 +48,25 @@
                 const r = Math.random() * 16 | 0;
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
+            });
+        },
+
+        /**
+         * Bind form submit debugging.
+         */
+        bindFormDebug: function() {
+            $('.eao-options-form').on('submit', function() {
+                console.log('=== EAO Form Submit Debug ===');
+                $(this).find('.eao-color-swatch').each(function(i) {
+                    const $swatch = $(this);
+                    if ($swatch.hasClass('eao-color-swatch--add')) return;
+                    console.log('Color ' + i + ':', {
+                        name: $swatch.find('.eao-color-name-input').val(),
+                        type: $swatch.find('.eao-color-type-input').val(),
+                        textureImageId: $swatch.find('.eao-color-texture-image-id-input').val(),
+                        textureRegion: $swatch.find('.eao-color-texture-region-input').val()
+                    });
+                });
             });
         },
 
@@ -713,6 +733,15 @@
             const textureRegion = $('#eao-modal-texture-region').val();
             const previewImageId = $('#eao-modal-preview-image-id').val();
 
+            // Debug: Log values being saved.
+            console.log('EAO Color Save Debug:', {
+                name: name,
+                type: type,
+                textureImageId: textureImageId,
+                textureImageUrl: textureImageUrl,
+                textureRegion: textureRegion
+            });
+
             if (!name) {
                 $('#eao-modal-color-name').focus();
                 return;
@@ -839,13 +868,21 @@
                 colorValue: data.colorValue,
                 textureImageId: data.textureImageId || '',
                 textureImageUrl: data.textureImageUrl || '',
-                textureRegion: this.escapeAttr(data.textureRegion || ''),
+                textureRegion: '', // Set via .val() below to avoid escaping issues.
                 previewImageId: data.previewImageId || '',
                 swatchStyle: swatchStyle
             }));
 
-            // Set the texture region value properly (jQuery handles escaping).
+            // Set values with jQuery to properly handle special characters.
             $newSwatch.find('.eao-color-texture-region-input').val(data.textureRegion || '');
+            $newSwatch.find('.eao-color-texture-image-url-input').val(data.textureImageUrl || '');
+
+            // Debug: Log the hidden input values after creation.
+            console.log('EAO New Swatch Inputs:', {
+                type: $newSwatch.find('.eao-color-type-input').val(),
+                textureImageId: $newSwatch.find('.eao-color-texture-image-id-input').val(),
+                textureRegion: $newSwatch.find('.eao-color-texture-region-input').val()
+            });
 
             // Insert before the add button.
             $colorsGrid.find('.eao-color-swatch--add').before($newSwatch);
