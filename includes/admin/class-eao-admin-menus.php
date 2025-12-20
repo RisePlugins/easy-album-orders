@@ -206,14 +206,15 @@ class EAO_Admin_Menus {
                     }
 
                     $sanitized_material['colors'][] = array(
-                        'id'            => isset( $color['id'] ) ? sanitize_key( $color['id'] ) : wp_generate_uuid4(),
-                        'name'          => sanitize_text_field( $color['name'] ),
-                        'type'          => isset( $color['type'] ) && in_array( $color['type'], array( 'solid', 'texture' ), true )
+                        'id'               => isset( $color['id'] ) ? sanitize_key( $color['id'] ) : wp_generate_uuid4(),
+                        'name'             => sanitize_text_field( $color['name'] ),
+                        'type'             => isset( $color['type'] ) && in_array( $color['type'], array( 'solid', 'texture' ), true )
                             ? $color['type']
                             : 'solid',
-                        'color_value'   => isset( $color['color_value'] ) ? sanitize_hex_color( $color['color_value'] ) : '#000000',
-                        'texture_id'    => isset( $color['texture_id'] ) ? absint( $color['texture_id'] ) : 0,
-                        'texture_coords'=> isset( $color['texture_coords'] ) ? sanitize_text_field( $color['texture_coords'] ) : '',
+                        'color_value'      => isset( $color['color_value'] ) ? sanitize_hex_color( $color['color_value'] ) : '#000000',
+                        'texture_image_id' => isset( $color['texture_image_id'] ) ? absint( $color['texture_image_id'] ) : 0,
+                        'texture_region'   => isset( $color['texture_region'] ) ? sanitize_text_field( $color['texture_region'] ) : '',
+                        'preview_image_id' => isset( $color['preview_image_id'] ) ? absint( $color['preview_image_id'] ) : 0,
                     );
                 }
             }

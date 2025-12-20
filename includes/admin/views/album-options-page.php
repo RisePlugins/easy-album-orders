@@ -119,20 +119,59 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         <div class="eao-colors-grid">
                                             <?php if ( ! empty( $material['colors'] ) ) : ?>
                                                 <?php foreach ( $material['colors'] as $color_index => $color ) : ?>
+                                                    <?php
+                                                    // Get texture data.
+                                                    $texture_image_id  = isset( $color['texture_image_id'] ) ? $color['texture_image_id'] : '';
+                                                    $texture_image_url = '';
+                                                    $texture_region    = isset( $color['texture_region'] ) ? $color['texture_region'] : '';
+                                                    $preview_image_id  = isset( $color['preview_image_id'] ) ? $color['preview_image_id'] : '';
+
+                                                    if ( $texture_image_id ) {
+                                                        $texture_image_url = wp_get_attachment_url( $texture_image_id );
+                                                    }
+
+                                                    // Build swatch style.
+                                                    $swatch_style = '';
+                                                    if ( 'texture' === $color['type'] && $texture_image_url && $texture_region ) {
+                                                        $region = json_decode( $texture_region, true );
+                                                        if ( $region ) {
+                                                            $swatch_style = sprintf(
+                                                                'background-image: url(%s); background-position: %s%% %s%%; background-size: %s%%;',
+                                                                esc_url( $texture_image_url ),
+                                                                esc_attr( $region['x'] ),
+                                                                esc_attr( $region['y'] ),
+                                                                esc_attr( $region['zoom'] )
+                                                            );
+                                                        }
+                                                    } elseif ( 'solid' === $color['type'] ) {
+                                                        $swatch_style = 'background-color: ' . esc_attr( $color['color_value'] ) . ';';
+                                                    } else {
+                                                        $swatch_style = 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);';
+                                                    }
+                                                    ?>
                                                     <div class="eao-color-swatch" data-color-index="<?php echo esc_attr( $color_index ); ?>">
                                                         <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][id]" value="<?php echo esc_attr( $color['id'] ); ?>">
                                                         <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][type]" value="<?php echo esc_attr( $color['type'] ); ?>" class="eao-color-type-input">
                                                         <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][color_value]" value="<?php echo esc_attr( $color['color_value'] ); ?>" class="eao-color-value-input">
                                                         <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][name]" value="<?php echo esc_attr( $color['name'] ); ?>" class="eao-color-name-input">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][texture_image_id]" value="<?php echo esc_attr( $texture_image_id ); ?>" class="eao-color-texture-image-id-input">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][texture_image_url]" value="<?php echo esc_attr( $texture_image_url ); ?>" class="eao-color-texture-image-url-input">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][texture_region]" value="<?php echo esc_attr( $texture_region ); ?>" class="eao-color-texture-region-input">
+                                                        <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][colors][<?php echo esc_attr( $color_index ); ?>][preview_image_id]" value="<?php echo esc_attr( $preview_image_id ); ?>" class="eao-color-preview-image-id-input">
                                                         
-                                                        <div class="eao-color-swatch__circle" style="<?php echo 'solid' === $color['type'] ? 'background-color: ' . esc_attr( $color['color_value'] ) . ';' : 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);'; ?>" title="<?php echo esc_attr( $color['name'] ); ?>">
-                                                            <?php if ( 'texture' === $color['type'] ) : ?>
+                                                        <div class="eao-color-swatch__circle" style="<?php echo $swatch_style; ?>" title="<?php echo esc_attr( $color['name'] ); ?>">
+                                                            <?php if ( 'texture' === $color['type'] && ! $texture_image_url ) : ?>
                                                                 <span class="eao-color-swatch__texture-icon">
                                                                     <span class="dashicons dashicons-format-image"></span>
                                                                 </span>
                                                             <?php endif; ?>
                                                         </div>
                                                         <span class="eao-color-swatch__name"><?php echo esc_html( $color['name'] ); ?></span>
+                                                        <?php if ( $preview_image_id ) : ?>
+                                                            <span class="eao-color-swatch__has-preview" title="<?php esc_attr_e( 'Has preview image', 'easy-album-orders' ); ?>">
+                                                                <span class="dashicons dashicons-visibility"></span>
+                                                            </span>
+                                                        <?php endif; ?>
                                                         <button type="button" class="eao-color-swatch__edit" title="<?php esc_attr_e( 'Edit', 'easy-album-orders' ); ?>">
                                                             <span class="dashicons dashicons-edit"></span>
                                                         </button>
@@ -616,7 +655,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 </div>
 
 <!-- Color Edit Modal -->
-<div id="eao-color-modal" class="eao-modal" style="display: none;">
+<div id="eao-color-modal" class="eao-modal eao-modal--medium" style="display: none;">
     <div class="eao-modal__backdrop"></div>
     <div class="eao-modal__content">
         <div class="eao-modal__header">
@@ -628,7 +667,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="eao-modal__body">
             <div class="eao-field">
                 <label><?php esc_html_e( 'Color Name', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao-modal-color-name" placeholder="<?php esc_attr_e( 'e.g., Navy Blue', 'easy-album-orders' ); ?>">
+                <input type="text" id="eao-modal-color-name" placeholder="<?php esc_attr_e( 'e.g., Navy Blue, Distressed Brown', 'easy-album-orders' ); ?>">
             </div>
             <div class="eao-field">
                 <label><?php esc_html_e( 'Type', 'easy-album-orders' ); ?></label>
@@ -643,11 +682,70 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </label>
                 </div>
             </div>
-            <div class="eao-field eao-color-picker-field">
+
+            <!-- Solid Color Picker -->
+            <div class="eao-field eao-color-picker-field" id="eao-solid-color-section">
                 <label><?php esc_html_e( 'Color', 'easy-album-orders' ); ?></label>
                 <div class="eao-color-picker-wrap">
                     <input type="color" id="eao-modal-color-value" value="#000000">
                     <span class="eao-color-hex" id="eao-modal-color-hex">#000000</span>
+                </div>
+            </div>
+
+            <!-- Texture/Pattern Section -->
+            <div class="eao-texture-section" id="eao-texture-section" style="display: none;">
+                <div class="eao-field">
+                    <label><?php esc_html_e( 'Texture Image', 'easy-album-orders' ); ?></label>
+                    <p class="description"><?php esc_html_e( 'Upload an image showing the material texture, then select a region for the color swatch.', 'easy-album-orders' ); ?></p>
+                    <div class="eao-texture-upload">
+                        <input type="hidden" id="eao-modal-texture-image-id" value="">
+                        <input type="hidden" id="eao-modal-texture-image-url" value="">
+                        <div class="eao-texture-upload__preview" id="eao-texture-preview">
+                            <span class="eao-texture-upload__placeholder">
+                                <span class="dashicons dashicons-format-image"></span>
+                                <span><?php esc_html_e( 'Click to upload texture image', 'easy-album-orders' ); ?></span>
+                            </span>
+                        </div>
+                        <div class="eao-texture-upload__actions">
+                            <button type="button" class="button eao-upload-texture"><?php esc_html_e( 'Upload Image', 'easy-album-orders' ); ?></button>
+                            <button type="button" class="button eao-remove-texture" style="display: none;"><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Region Selector -->
+                <div class="eao-field eao-region-selector-field" id="eao-region-selector-container" style="display: none;">
+                    <label><?php esc_html_e( 'Select Swatch Region', 'easy-album-orders' ); ?></label>
+                    <p class="description"><?php esc_html_e( 'Click and drag on the image to select the area that will represent this color.', 'easy-album-orders' ); ?></p>
+                    <div class="eao-region-selector">
+                        <div class="eao-region-selector__image-container" id="eao-region-image-container">
+                            <img id="eao-region-image" src="" alt="">
+                            <div class="eao-region-selector__selection" id="eao-region-selection"></div>
+                        </div>
+                        <input type="hidden" id="eao-modal-texture-region" value="">
+                    </div>
+                    <div class="eao-region-preview">
+                        <span class="eao-region-preview__label"><?php esc_html_e( 'Swatch Preview:', 'easy-album-orders' ); ?></span>
+                        <div class="eao-region-preview__swatch" id="eao-region-preview-swatch"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Image (for both solid and texture) -->
+            <div class="eao-field eao-preview-image-field">
+                <label><?php esc_html_e( 'Preview Image (Optional)', 'easy-album-orders' ); ?></label>
+                <p class="description"><?php esc_html_e( 'Upload a larger preview image that clients will see when selecting this color on the front-end.', 'easy-album-orders' ); ?></p>
+                <div class="eao-preview-image-upload">
+                    <input type="hidden" id="eao-modal-preview-image-id" value="">
+                    <div class="eao-preview-image-upload__preview" id="eao-preview-image-container">
+                        <span class="eao-preview-image-upload__placeholder">
+                            <span class="dashicons dashicons-format-image"></span>
+                        </span>
+                    </div>
+                    <div class="eao-preview-image-upload__actions">
+                        <button type="button" class="button eao-upload-preview-image"><?php esc_html_e( 'Upload Preview', 'easy-album-orders' ); ?></button>
+                        <button type="button" class="button eao-remove-preview-image" style="display: none;"><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -733,9 +831,24 @@ if ( ! defined( 'ABSPATH' ) ) {
         <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][type]" value="{{data.type}}" class="eao-color-type-input">
         <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][color_value]" value="{{data.colorValue}}" class="eao-color-value-input">
         <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][name]" value="{{data.name}}" class="eao-color-name-input">
+        <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][texture_image_id]" value="{{data.textureImageId}}" class="eao-color-texture-image-id-input">
+        <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][texture_image_url]" value="{{data.textureImageUrl}}" class="eao-color-texture-image-url-input">
+        <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][texture_region]" value="{{data.textureRegion}}" class="eao-color-texture-region-input">
+        <input type="hidden" name="eao_materials[{{data.materialIndex}}][colors][{{data.colorIndex}}][preview_image_id]" value="{{data.previewImageId}}" class="eao-color-preview-image-id-input">
         
-        <div class="eao-color-swatch__circle" style="background-color: {{data.colorValue}};" title="{{data.name}}"></div>
+        <div class="eao-color-swatch__circle" style="{{data.swatchStyle}}" title="{{data.name}}">
+            <# if (data.type === 'texture' && !data.textureImageUrl) { #>
+                <span class="eao-color-swatch__texture-icon">
+                    <span class="dashicons dashicons-format-image"></span>
+                </span>
+            <# } #>
+        </div>
         <span class="eao-color-swatch__name">{{data.name}}</span>
+        <# if (data.previewImageId) { #>
+            <span class="eao-color-swatch__has-preview" title="<?php esc_attr_e( 'Has preview image', 'easy-album-orders' ); ?>">
+                <span class="dashicons dashicons-visibility"></span>
+            </span>
+        <# } #>
         <button type="button" class="eao-color-swatch__edit" title="<?php esc_attr_e( 'Edit', 'easy-album-orders' ); ?>">
             <span class="dashicons dashicons-edit"></span>
         </button>

@@ -293,6 +293,15 @@
         },
 
         /**
+         * Region selection state.
+         */
+        regionSelection: {
+            isSelecting: false,
+            startX: 0,
+            startY: 0
+        },
+
+        /**
          * Bind color modal functionality.
          */
         bindColorModal: function() {
@@ -311,11 +320,42 @@
 
             // Toggle color picker visibility based on type.
             $('input[name="eao_modal_color_type"]').on('change', function() {
-                if ($(this).val() === 'solid') {
-                    $('.eao-color-picker-field').show();
-                } else {
-                    $('.eao-color-picker-field').hide();
-                }
+                self.toggleColorTypeUI($(this).val());
+            });
+
+            // Texture image upload.
+            $modal.on('click', '.eao-upload-texture, .eao-texture-upload__preview', function() {
+                self.openTextureUpload();
+            });
+
+            // Remove texture image.
+            $modal.on('click', '.eao-remove-texture', function(e) {
+                e.stopPropagation();
+                self.removeTextureImage();
+            });
+
+            // Preview image upload.
+            $modal.on('click', '.eao-upload-preview-image, .eao-preview-image-upload__preview', function() {
+                self.openPreviewImageUpload();
+            });
+
+            // Remove preview image.
+            $modal.on('click', '.eao-remove-preview-image', function(e) {
+                e.stopPropagation();
+                self.removePreviewImage();
+            });
+
+            // Region selection mouse events.
+            $(document).on('mousedown', '#eao-region-image-container', function(e) {
+                self.startRegionSelection(e);
+            });
+
+            $(document).on('mousemove', function(e) {
+                self.updateRegionSelection(e);
+            });
+
+            $(document).on('mouseup', function() {
+                self.endRegionSelection();
             });
 
             // Save color.
@@ -336,35 +376,385 @@
         },
 
         /**
+         * Toggle UI between solid color and texture modes.
+         */
+        toggleColorTypeUI: function(type) {
+            if (type === 'solid') {
+                $('#eao-solid-color-section').show();
+                $('#eao-texture-section').hide();
+            } else {
+                $('#eao-solid-color-section').hide();
+                $('#eao-texture-section').show();
+            }
+        },
+
+        /**
+         * Open texture image upload dialog.
+         */
+        openTextureUpload: function() {
+            const self = this;
+            let textureFrame;
+
+            textureFrame = wp.media({
+                title: eaoAdmin.textureUploadTitle || 'Select Texture Image',
+                button: {
+                    text: eaoAdmin.textureUploadButton || 'Use this image'
+                },
+                multiple: false
+            });
+
+            textureFrame.on('select', function() {
+                const attachment = textureFrame.state().get('selection').first().toJSON();
+                self.setTextureImage(attachment);
+            });
+
+            textureFrame.open();
+        },
+
+        /**
+         * Set the texture image in the modal.
+         */
+        setTextureImage: function(attachment) {
+            const imageUrl = attachment.sizes && attachment.sizes.medium
+                ? attachment.sizes.medium.url
+                : attachment.url;
+
+            $('#eao-modal-texture-image-id').val(attachment.id);
+            $('#eao-modal-texture-image-url').val(attachment.url);
+
+            // Show image in texture preview.
+            $('#eao-texture-preview').html('<img src="' + imageUrl + '" alt="">');
+            $('.eao-remove-texture').show();
+
+            // Show region selector.
+            $('#eao-region-selector-container').show();
+            $('#eao-region-image').attr('src', attachment.url).on('load', function() {
+                // Reset selection.
+                $('#eao-region-selection').css({
+                    display: 'none',
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0
+                });
+                $('#eao-modal-texture-region').val('');
+                $('#eao-region-preview-swatch').css('background-image', 'none');
+            });
+        },
+
+        /**
+         * Remove texture image from modal.
+         */
+        removeTextureImage: function() {
+            $('#eao-modal-texture-image-id').val('');
+            $('#eao-modal-texture-image-url').val('');
+            $('#eao-texture-preview').html(
+                '<span class="eao-texture-upload__placeholder">' +
+                    '<span class="dashicons dashicons-format-image"></span>' +
+                    '<span>' + (eaoAdmin.uploadTexture || 'Click to upload texture image') + '</span>' +
+                '</span>'
+            );
+            $('.eao-remove-texture').hide();
+            $('#eao-region-selector-container').hide();
+            $('#eao-modal-texture-region').val('');
+            $('#eao-region-preview-swatch').css('background-image', 'none');
+        },
+
+        /**
+         * Start region selection.
+         */
+        startRegionSelection: function(e) {
+            const $container = $('#eao-region-image-container');
+            const offset = $container.offset();
+
+            this.regionSelection.isSelecting = true;
+            this.regionSelection.startX = e.pageX - offset.left;
+            this.regionSelection.startY = e.pageY - offset.top;
+
+            $('#eao-region-selection').css({
+                display: 'block',
+                left: this.regionSelection.startX,
+                top: this.regionSelection.startY,
+                width: 0,
+                height: 0
+            });
+
+            e.preventDefault();
+        },
+
+        /**
+         * Update region selection during drag.
+         */
+        updateRegionSelection: function(e) {
+            if (!this.regionSelection.isSelecting) {
+                return;
+            }
+
+            const $container = $('#eao-region-image-container');
+            const $selection = $('#eao-region-selection');
+            const offset = $container.offset();
+            const containerWidth = $container.width();
+            const containerHeight = $container.height();
+
+            let currentX = e.pageX - offset.left;
+            let currentY = e.pageY - offset.top;
+
+            // Constrain to container bounds.
+            currentX = Math.max(0, Math.min(currentX, containerWidth));
+            currentY = Math.max(0, Math.min(currentY, containerHeight));
+
+            // Calculate selection rectangle.
+            const left = Math.min(this.regionSelection.startX, currentX);
+            const top = Math.min(this.regionSelection.startY, currentY);
+            const width = Math.abs(currentX - this.regionSelection.startX);
+            const height = Math.abs(currentY - this.regionSelection.startY);
+
+            // Force square selection for better swatch appearance.
+            const size = Math.min(width, height);
+
+            $selection.css({
+                left: left,
+                top: top,
+                width: size,
+                height: size
+            });
+        },
+
+        /**
+         * End region selection.
+         */
+        endRegionSelection: function() {
+            if (!this.regionSelection.isSelecting) {
+                return;
+            }
+
+            this.regionSelection.isSelecting = false;
+
+            const $container = $('#eao-region-image-container');
+            const $selection = $('#eao-region-selection');
+            const $image = $('#eao-region-image');
+
+            const containerWidth = $container.width();
+            const containerHeight = $container.height();
+            const selLeft = parseFloat($selection.css('left'));
+            const selTop = parseFloat($selection.css('top'));
+            const selWidth = parseFloat($selection.css('width'));
+            const selHeight = parseFloat($selection.css('height'));
+
+            if (selWidth < 10 || selHeight < 10) {
+                // Selection too small, ignore.
+                return;
+            }
+
+            // Calculate percentage-based region.
+            const region = {
+                x: ((selLeft + selWidth / 2) / containerWidth * 100).toFixed(2),
+                y: ((selTop + selHeight / 2) / containerHeight * 100).toFixed(2),
+                zoom: ((containerWidth / selWidth) * 100).toFixed(0)
+            };
+
+            $('#eao-modal-texture-region').val(JSON.stringify(region));
+
+            // Update preview swatch.
+            const textureUrl = $('#eao-modal-texture-image-url').val();
+            if (textureUrl) {
+                $('#eao-region-preview-swatch').css({
+                    'background-image': 'url(' + textureUrl + ')',
+                    'background-position': region.x + '% ' + region.y + '%',
+                    'background-size': region.zoom + '%'
+                });
+            }
+        },
+
+        /**
+         * Open preview image upload dialog.
+         */
+        openPreviewImageUpload: function() {
+            const self = this;
+            let previewFrame;
+
+            previewFrame = wp.media({
+                title: eaoAdmin.previewUploadTitle || 'Select Preview Image',
+                button: {
+                    text: eaoAdmin.previewUploadButton || 'Use this image'
+                },
+                multiple: false
+            });
+
+            previewFrame.on('select', function() {
+                const attachment = previewFrame.state().get('selection').first().toJSON();
+                self.setPreviewImage(attachment);
+            });
+
+            previewFrame.open();
+        },
+
+        /**
+         * Set the preview image in the modal.
+         */
+        setPreviewImage: function(attachment) {
+            const thumbUrl = attachment.sizes && attachment.sizes.thumbnail
+                ? attachment.sizes.thumbnail.url
+                : attachment.url;
+
+            $('#eao-modal-preview-image-id').val(attachment.id);
+            $('#eao-preview-image-container').html('<img src="' + thumbUrl + '" alt="">');
+            $('.eao-remove-preview-image').show();
+        },
+
+        /**
+         * Remove preview image from modal.
+         */
+        removePreviewImage: function() {
+            $('#eao-modal-preview-image-id').val('');
+            $('#eao-preview-image-container').html(
+                '<span class="eao-preview-image-upload__placeholder">' +
+                    '<span class="dashicons dashicons-format-image"></span>' +
+                '</span>'
+            );
+            $('.eao-remove-preview-image').hide();
+        },
+
+        /**
          * Open the color modal.
          *
          * @param {jQuery} $swatch Optional existing swatch to edit.
          */
         openColorModal: function($swatch) {
+            const self = this;
             const $modal = $('#eao-color-modal');
+
+            // Reset modal state.
+            this.resetColorModal();
 
             if ($swatch) {
                 // Editing existing color.
                 const name = $swatch.find('.eao-color-name-input').val();
                 const type = $swatch.find('.eao-color-type-input').val();
                 const colorValue = $swatch.find('.eao-color-value-input').val();
+                const textureImageId = $swatch.find('.eao-color-texture-image-id-input').val();
+                const textureImageUrl = $swatch.find('.eao-color-texture-image-url-input').val();
+                const textureRegion = $swatch.find('.eao-color-texture-region-input').val();
+                const previewImageId = $swatch.find('.eao-color-preview-image-id-input').val();
 
                 $('#eao-modal-color-name').val(name);
-                $('input[name="eao_modal_color_type"][value="' + type + '"]').prop('checked', true).trigger('change');
+                $('input[name="eao_modal_color_type"][value="' + type + '"]').prop('checked', true);
+                this.toggleColorTypeUI(type);
+
+                // Solid color.
                 $('#eao-modal-color-value').val(colorValue || '#000000');
                 $('#eao-modal-color-hex').text((colorValue || '#000000').toUpperCase());
+
+                // Texture data.
+                if (type === 'texture' && textureImageId && textureImageUrl) {
+                    $('#eao-modal-texture-image-id').val(textureImageId);
+                    $('#eao-modal-texture-image-url').val(textureImageUrl);
+                    $('#eao-texture-preview').html('<img src="' + textureImageUrl + '" alt="">');
+                    $('.eao-remove-texture').show();
+
+                    // Show region selector with existing image.
+                    $('#eao-region-selector-container').show();
+                    $('#eao-region-image').attr('src', textureImageUrl);
+
+                    // Restore region selection if exists.
+                    if (textureRegion) {
+                        $('#eao-modal-texture-region').val(textureRegion);
+                        try {
+                            const region = JSON.parse(textureRegion);
+                            $('#eao-region-preview-swatch').css({
+                                'background-image': 'url(' + textureImageUrl + ')',
+                                'background-position': region.x + '% ' + region.y + '%',
+                                'background-size': region.zoom + '%'
+                            });
+
+                            // Show selection box (approximate position).
+                            setTimeout(function() {
+                                const $container = $('#eao-region-image-container');
+                                const containerWidth = $container.width();
+                                const containerHeight = $container.height();
+                                const selSize = containerWidth / (region.zoom / 100);
+                                const selLeft = (region.x / 100 * containerWidth) - selSize / 2;
+                                const selTop = (region.y / 100 * containerHeight) - selSize / 2;
+
+                                $('#eao-region-selection').css({
+                                    display: 'block',
+                                    left: Math.max(0, selLeft),
+                                    top: Math.max(0, selTop),
+                                    width: selSize,
+                                    height: selSize
+                                });
+                            }, 100);
+                        } catch (e) {
+                            console.error('Error parsing texture region:', e);
+                        }
+                    }
+                }
+
+                // Preview image.
+                if (previewImageId) {
+                    $('#eao-modal-preview-image-id').val(previewImageId);
+                    // Fetch preview image URL via AJAX or use placeholder.
+                    $.ajax({
+                        url: eaoAdmin.ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'eao_get_attachment_url',
+                            nonce: eaoAdmin.nonce,
+                            attachment_id: previewImageId
+                        },
+                        success: function(response) {
+                            if (response.success && response.data.url) {
+                                $('#eao-preview-image-container').html('<img src="' + response.data.url + '" alt="">');
+                                $('.eao-remove-preview-image').show();
+                            }
+                        }
+                    });
+                }
+
                 $modal.find('.eao-modal__header h3').text(eaoAdmin.editColor || 'Edit Color');
             } else {
                 // Adding new color.
-                $('#eao-modal-color-name').val('');
-                $('input[name="eao_modal_color_type"][value="solid"]').prop('checked', true).trigger('change');
-                $('#eao-modal-color-value').val('#000000');
-                $('#eao-modal-color-hex').text('#000000');
+                $('input[name="eao_modal_color_type"][value="solid"]').prop('checked', true);
+                this.toggleColorTypeUI('solid');
                 $modal.find('.eao-modal__header h3').text(eaoAdmin.addColor || 'Add Color');
             }
 
             $modal.fadeIn(150);
             $('#eao-modal-color-name').focus();
+        },
+
+        /**
+         * Reset color modal to initial state.
+         */
+        resetColorModal: function() {
+            $('#eao-modal-color-name').val('');
+            $('#eao-modal-color-value').val('#000000');
+            $('#eao-modal-color-hex').text('#000000');
+
+            // Reset texture fields.
+            $('#eao-modal-texture-image-id').val('');
+            $('#eao-modal-texture-image-url').val('');
+            $('#eao-modal-texture-region').val('');
+            $('#eao-texture-preview').html(
+                '<span class="eao-texture-upload__placeholder">' +
+                    '<span class="dashicons dashicons-format-image"></span>' +
+                    '<span>' + (eaoAdmin.uploadTexture || 'Click to upload texture image') + '</span>' +
+                '</span>'
+            );
+            $('.eao-remove-texture').hide();
+            $('#eao-region-selector-container').hide();
+            $('#eao-region-image').attr('src', '');
+            $('#eao-region-selection').css({ display: 'none', width: 0, height: 0 });
+            $('#eao-region-preview-swatch').css('background-image', 'none');
+
+            // Reset preview image.
+            $('#eao-modal-preview-image-id').val('');
+            $('#eao-preview-image-container').html(
+                '<span class="eao-preview-image-upload__placeholder">' +
+                    '<span class="dashicons dashicons-format-image"></span>' +
+                '</span>'
+            );
+            $('.eao-remove-preview-image').hide();
         },
 
         /**
@@ -383,71 +773,128 @@
             const name = $('#eao-modal-color-name').val().trim();
             const type = $('input[name="eao_modal_color_type"]:checked').val();
             const colorValue = $('#eao-modal-color-value').val();
+            const textureImageId = $('#eao-modal-texture-image-id').val();
+            const textureImageUrl = $('#eao-modal-texture-image-url').val();
+            const textureRegion = $('#eao-modal-texture-region').val();
+            const previewImageId = $('#eao-modal-preview-image-id').val();
 
             if (!name) {
                 $('#eao-modal-color-name').focus();
                 return;
             }
 
+            // Validate texture data if texture type.
+            if (type === 'texture' && !textureImageId) {
+                alert(eaoAdmin.textureRequired || 'Please upload a texture image.');
+                return;
+            }
+
+            const colorData = {
+                name: name,
+                type: type,
+                colorValue: colorValue,
+                textureImageId: textureImageId,
+                textureImageUrl: textureImageUrl,
+                textureRegion: textureRegion,
+                previewImageId: previewImageId
+            };
+
             if (this.currentColorSwatch) {
                 // Update existing swatch.
-                this.updateColorSwatch(this.currentColorSwatch, name, type, colorValue);
+                this.updateColorSwatch(this.currentColorSwatch, colorData);
             } else {
                 // Add new swatch.
-                this.addColorSwatch(name, type, colorValue);
+                this.addColorSwatch(colorData);
             }
 
             this.closeColorModal();
         },
 
         /**
+         * Build swatch style from color data.
+         */
+        buildSwatchStyle: function(data) {
+            if (data.type === 'texture' && data.textureImageUrl && data.textureRegion) {
+                try {
+                    const region = typeof data.textureRegion === 'string'
+                        ? JSON.parse(data.textureRegion)
+                        : data.textureRegion;
+                    return 'background-image: url(' + data.textureImageUrl + '); ' +
+                           'background-position: ' + region.x + '% ' + region.y + '%; ' +
+                           'background-size: ' + region.zoom + '%;';
+                } catch (e) {
+                    return 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);';
+                }
+            } else if (data.type === 'solid') {
+                return 'background-color: ' + data.colorValue + ';';
+            }
+            return 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);';
+        },
+
+        /**
          * Update an existing color swatch.
          */
-        updateColorSwatch: function($swatch, name, type, colorValue) {
-            $swatch.find('.eao-color-name-input').val(name);
-            $swatch.find('.eao-color-type-input').val(type);
-            $swatch.find('.eao-color-value-input').val(colorValue);
-            $swatch.find('.eao-color-swatch__name').text(name);
+        updateColorSwatch: function($swatch, data) {
+            $swatch.find('.eao-color-name-input').val(data.name);
+            $swatch.find('.eao-color-type-input').val(data.type);
+            $swatch.find('.eao-color-value-input').val(data.colorValue);
+            $swatch.find('.eao-color-texture-image-id-input').val(data.textureImageId);
+            $swatch.find('.eao-color-texture-image-url-input').val(data.textureImageUrl);
+            $swatch.find('.eao-color-texture-region-input').val(data.textureRegion);
+            $swatch.find('.eao-color-preview-image-id-input').val(data.previewImageId);
+            $swatch.find('.eao-color-swatch__name').text(data.name);
 
             const $circle = $swatch.find('.eao-color-swatch__circle');
-            $circle.attr('title', name);
+            $circle.attr('title', data.name);
+            $circle.attr('style', this.buildSwatchStyle(data));
 
-            if (type === 'solid') {
-                $circle.css('background', colorValue);
-                $circle.html('');
-            } else {
-                $circle.css('background', 'linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%)');
+            // Update texture icon visibility.
+            if (data.type === 'texture' && !data.textureImageUrl) {
                 $circle.html('<span class="eao-color-swatch__texture-icon"><span class="dashicons dashicons-format-image"></span></span>');
+            } else {
+                $circle.html('');
+            }
+
+            // Update preview indicator.
+            const $previewIndicator = $swatch.find('.eao-color-swatch__has-preview');
+            if (data.previewImageId) {
+                if (!$previewIndicator.length) {
+                    $swatch.find('.eao-color-swatch__name').after(
+                        '<span class="eao-color-swatch__has-preview" title="Has preview image">' +
+                            '<span class="dashicons dashicons-visibility"></span>' +
+                        '</span>'
+                    );
+                }
+            } else {
+                $previewIndicator.remove();
             }
         },
 
         /**
          * Add a new color swatch.
          */
-        addColorSwatch: function(name, type, colorValue) {
+        addColorSwatch: function(data) {
             const $materialCard = this.currentMaterialCard;
             const materialIndex = $materialCard.data('index');
             const $colorsGrid = $materialCard.find('.eao-colors-grid');
             const colorIndex = $colorsGrid.find('.eao-color-swatch:not(.eao-color-swatch--add)').length;
+
+            const swatchStyle = this.buildSwatchStyle(data);
 
             const template = wp.template('eao-color-swatch');
             const $newSwatch = $(template({
                 materialIndex: materialIndex,
                 colorIndex: colorIndex,
                 id: this.generateId(),
-                name: name,
-                type: type,
-                colorValue: colorValue
+                name: data.name,
+                type: data.type,
+                colorValue: data.colorValue,
+                textureImageId: data.textureImageId || '',
+                textureImageUrl: data.textureImageUrl || '',
+                textureRegion: data.textureRegion || '',
+                previewImageId: data.previewImageId || '',
+                swatchStyle: swatchStyle
             }));
-
-            // Update the circle style based on type.
-            const $circle = $newSwatch.find('.eao-color-swatch__circle');
-            if (type === 'solid') {
-                $circle.css('background-color', colorValue);
-            } else {
-                $circle.css('background', 'linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%)');
-                $circle.html('<span class="eao-color-swatch__texture-icon"><span class="dashicons dashicons-format-image"></span></span>');
-            }
 
             // Insert before the add button.
             $colorsGrid.find('.eao-color-swatch--add').before($newSwatch);

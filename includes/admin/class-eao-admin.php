@@ -63,6 +63,45 @@ class EAO_Admin {
     private function init_hooks() {
         // Display activation notice.
         add_action( 'admin_notices', array( $this, 'activation_notice' ) );
+
+        // AJAX handlers.
+        add_action( 'wp_ajax_eao_get_attachment_url', array( $this, 'ajax_get_attachment_url' ) );
+    }
+
+    /**
+     * AJAX handler to get attachment URL by ID.
+     *
+     * @since 1.0.0
+     */
+    public function ajax_get_attachment_url() {
+        // Verify nonce.
+        check_ajax_referer( 'eao_admin_nonce', 'nonce' );
+
+        // Check permissions.
+        if ( ! current_user_can( 'upload_files' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'easy-album-orders' ) );
+        }
+
+        $attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
+
+        if ( ! $attachment_id ) {
+            wp_send_json_error( __( 'Invalid attachment ID.', 'easy-album-orders' ) );
+        }
+
+        // Get thumbnail URL if available, otherwise full URL.
+        $thumb_url = wp_get_attachment_image_url( $attachment_id, 'thumbnail' );
+        $full_url  = wp_get_attachment_url( $attachment_id );
+
+        if ( ! $full_url ) {
+            wp_send_json_error( __( 'Attachment not found.', 'easy-album-orders' ) );
+        }
+
+        wp_send_json_success(
+            array(
+                'url'       => $thumb_url ? $thumb_url : $full_url,
+                'full_url'  => $full_url,
+            )
+        );
     }
 
     /**
@@ -116,22 +155,28 @@ class EAO_Admin {
             $this->plugin_name . '-admin',
             'eaoAdmin',
             array(
-                'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-                'nonce'          => wp_create_nonce( 'eao_admin_nonce' ),
-                'confirmDelete'  => __( 'Are you sure you want to delete this item?', 'easy-album-orders' ),
-                'mediaTitle'     => __( 'Select or Upload Media', 'easy-album-orders' ),
-                'mediaButton'    => __( 'Use this media', 'easy-album-orders' ),
-                'pdfMediaTitle'  => __( 'Select or Upload PDF', 'easy-album-orders' ),
-                'pdfMediaButton' => __( 'Use this PDF', 'easy-album-orders' ),
-                'addColor'       => __( 'Add Color', 'easy-album-orders' ),
-                'editColor'      => __( 'Edit Color', 'easy-album-orders' ),
-                'emailTitles'      => array(
+                'ajaxUrl'              => admin_url( 'admin-ajax.php' ),
+                'nonce'                => wp_create_nonce( 'eao_admin_nonce' ),
+                'confirmDelete'        => __( 'Are you sure you want to delete this item?', 'easy-album-orders' ),
+                'mediaTitle'           => __( 'Select or Upload Media', 'easy-album-orders' ),
+                'mediaButton'          => __( 'Use this media', 'easy-album-orders' ),
+                'pdfMediaTitle'        => __( 'Select or Upload PDF', 'easy-album-orders' ),
+                'pdfMediaButton'       => __( 'Use this PDF', 'easy-album-orders' ),
+                'addColor'             => __( 'Add Color', 'easy-album-orders' ),
+                'editColor'            => __( 'Edit Color', 'easy-album-orders' ),
+                'textureUploadTitle'   => __( 'Select Texture Image', 'easy-album-orders' ),
+                'textureUploadButton'  => __( 'Use this image', 'easy-album-orders' ),
+                'previewUploadTitle'   => __( 'Select Preview Image', 'easy-album-orders' ),
+                'previewUploadButton'  => __( 'Use this image', 'easy-album-orders' ),
+                'uploadTexture'        => __( 'Click to upload texture image', 'easy-album-orders' ),
+                'textureRequired'      => __( 'Please upload a texture image for texture/pattern type.', 'easy-album-orders' ),
+                'emailTitles'          => array(
                     'order_confirmation'   => __( 'Order Confirmation Email', 'easy-album-orders' ),
                     'new_order_alert'      => __( 'New Order Alert Email', 'easy-album-orders' ),
                     'shipped_notification' => __( 'Shipped Notification Email', 'easy-album-orders' ),
                     'cart_reminder'        => __( 'Cart Reminder Email', 'easy-album-orders' ),
                 ),
-                'sendingReminders' => __( 'Sending...', 'easy-album-orders' ),
+                'sendingReminders'     => __( 'Sending...', 'easy-album-orders' ),
             )
         );
     }

@@ -2063,3 +2063,253 @@
 .dashicons.spin {
     animation: eao-spin 1s linear infinite;
 }
+
+/* ==========================================================================
+   Color Modal - Medium Size
+   ========================================================================== */
+
+.eao-modal--medium .eao-modal__content {
+    max-width: 550px;
+}
+
+/* ==========================================================================
+   Texture Upload Section
+   ========================================================================== */
+
+.eao-texture-section {
+    margin-top: var(--eao-space-md);
+    padding-top: var(--eao-space-md);
+    border-top: 1px dashed var(--eao-gray-200);
+}
+
+.eao-texture-upload {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-sm);
+}
+
+.eao-texture-upload__preview {
+    width: 100%;
+    height: 150px;
+    background: var(--eao-gray-100);
+    border: 2px dashed var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color var(--eao-transition), background-color var(--eao-transition);
+}
+
+.eao-texture-upload__preview:hover {
+    border-color: var(--eao-primary);
+    background: var(--eao-primary-light);
+}
+
+.eao-texture-upload__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.eao-texture-upload__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--eao-space-xs);
+    color: var(--eao-gray-400);
+    text-align: center;
+    padding: var(--eao-space-md);
+}
+
+.eao-texture-upload__placeholder .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.eao-texture-upload__placeholder span:last-child {
+    font-size: var(--eao-font-sm);
+}
+
+.eao-texture-upload__actions {
+    display: flex;
+    gap: var(--eao-space-xs);
+}
+
+/* ==========================================================================
+   Region Selector
+   ========================================================================== */
+
+.eao-region-selector-field {
+    margin-top: var(--eao-space-md);
+}
+
+.eao-region-selector {
+    position: relative;
+    margin-top: var(--eao-space-sm);
+}
+
+.eao-region-selector__image-container {
+    position: relative;
+    width: 100%;
+    max-height: 300px;
+    overflow: hidden;
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-md);
+    cursor: crosshair;
+    background: var(--eao-gray-100);
+}
+
+.eao-region-selector__image-container img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
+.eao-region-selector__selection {
+    position: absolute;
+    border: 2px solid var(--eao-primary);
+    background: rgba(56, 88, 233, 0.2);
+    border-radius: var(--eao-radius-sm);
+    pointer-events: none;
+    display: none;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5),
+                0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.eao-region-selector__selection::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border: 1px dashed var(--eao-primary);
+    border-radius: var(--eao-radius-md);
+    opacity: 0.5;
+}
+
+/* Region Preview */
+.eao-region-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-md);
+    margin-top: var(--eao-space-md);
+    padding: var(--eao-space-md);
+    background: var(--eao-gray-50);
+    border-radius: var(--eao-radius-md);
+}
+
+.eao-region-preview__label {
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-gray-600);
+}
+
+.eao-region-preview__swatch {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px var(--eao-gray-200), var(--eao-shadow-sm);
+    background-color: var(--eao-gray-200);
+    background-size: cover;
+    background-position: center;
+}
+
+/* ==========================================================================
+   Preview Image Upload
+   ========================================================================== */
+
+.eao-preview-image-field {
+    margin-top: var(--eao-space-md);
+    padding-top: var(--eao-space-md);
+    border-top: 1px dashed var(--eao-gray-200);
+}
+
+.eao-preview-image-upload {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--eao-space-md);
+    margin-top: var(--eao-space-sm);
+}
+
+.eao-preview-image-upload__preview {
+    width: 80px;
+    height: 80px;
+    background: var(--eao-gray-100);
+    border: 2px dashed var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color var(--eao-transition);
+    flex-shrink: 0;
+}
+
+.eao-preview-image-upload__preview:hover {
+    border-color: var(--eao-primary);
+}
+
+.eao-preview-image-upload__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.eao-preview-image-upload__placeholder {
+    color: var(--eao-gray-400);
+}
+
+.eao-preview-image-upload__placeholder .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.eao-preview-image-upload__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-xs);
+}
+
+/* ==========================================================================
+   Color Swatch - Preview Indicator
+   ========================================================================== */
+
+.eao-color-swatch__has-preview {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    background: var(--eao-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--eao-shadow-sm);
+}
+
+.eao-color-swatch__has-preview .dashicons {
+    font-size: 10px;
+    width: 10px;
+    height: 10px;
+    color: #fff;
+}
+
+/* Color swatch circle with texture background */
+.eao-color-swatch__circle {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
