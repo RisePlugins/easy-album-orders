@@ -293,15 +293,6 @@
         },
 
         /**
-         * Region selection state.
-         */
-        regionSelection: {
-            isSelecting: false,
-            startX: 0,
-            startY: 0
-        },
-
-        /**
          * Bind color modal functionality.
          */
         bindColorModal: function() {
@@ -345,97 +336,9 @@
                 self.removePreviewImage();
             });
 
-            // Region selection - bind mousedown on the container.
-            $modal.on('mousedown', '#eao-region-image-container', function(e) {
-                // Only start selection on left mouse button.
-                if (e.which === 1) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const $container = $(this);
-                    const containerRect = this.getBoundingClientRect();
-                    const startX = e.clientX - containerRect.left;
-                    const startY = e.clientY - containerRect.top;
-                    
-                    console.log('Mousedown at:', startX.toFixed(0), startY.toFixed(0));
-                    
-                    const $selection = $('#eao-region-selection');
-                    $selection.css({
-                        display: 'block',
-                        left: startX + 'px',
-                        top: startY + 'px',
-                        width: '0px',
-                        height: '0px'
-                    });
-                    
-                    // Bind mousemove and mouseup to document during drag.
-                    const onMouseMove = function(moveEvent) {
-                        const rect = $container[0].getBoundingClientRect();
-                        let currentX = moveEvent.clientX - rect.left;
-                        let currentY = moveEvent.clientY - rect.top;
-                        
-                        // Constrain to bounds.
-                        currentX = Math.max(0, Math.min(currentX, rect.width));
-                        currentY = Math.max(0, Math.min(currentY, rect.height));
-                        
-                        const left = Math.min(startX, currentX);
-                        const top = Math.min(startY, currentY);
-                        const width = Math.abs(currentX - startX);
-                        const height = Math.abs(currentY - startY);
-                        
-                        $selection.css({
-                            left: left + 'px',
-                            top: top + 'px',
-                            width: width + 'px',
-                            height: height + 'px'
-                        });
-                    };
-                    
-                    const onMouseUp = function() {
-                        // Unbind the handlers.
-                        $(document).off('mousemove.eaoSelect');
-                        $(document).off('mouseup.eaoSelect');
-                        
-                        // Get final selection size.
-                        const selWidth = parseFloat($selection.css('width')) || 0;
-                        const selHeight = parseFloat($selection.css('height')) || 0;
-                        
-                        console.log('Selection size:', selWidth.toFixed(0), 'x', selHeight.toFixed(0));
-                        
-                        if (selWidth < 20 || selHeight < 20) {
-                            console.log('Selection too small, ignoring');
-                            return;
-                        }
-                        
-                        // Calculate region.
-                        const rect = $container[0].getBoundingClientRect();
-                        const selLeft = parseFloat($selection.css('left')) || 0;
-                        const selTop = parseFloat($selection.css('top')) || 0;
-                        
-                        const centerX = ((selLeft + selWidth / 2) / rect.width * 100).toFixed(2);
-                        const centerY = ((selTop + selHeight / 2) / rect.height * 100).toFixed(2);
-                        const zoom = ((rect.width / Math.min(selWidth, selHeight)) * 100).toFixed(0);
-                        
-                        const region = { x: centerX, y: centerY, zoom: zoom };
-                        console.log('Region:', region);
-                        
-                        $('#eao-modal-texture-region').val(JSON.stringify(region));
-                        
-                        // Update preview swatch.
-                        const textureUrl = $('#eao-modal-texture-image-url').val();
-                        if (textureUrl) {
-                            $('#eao-region-preview-swatch').css({
-                                'background-image': 'url(' + textureUrl + ')',
-                                'background-position': region.x + '% ' + region.y + '%',
-                                'background-size': region.zoom + '%'
-                            });
-                            console.log('Preview updated');
-                        }
-                    };
-                    
-                    $(document).on('mousemove.eaoSelect', onMouseMove);
-                    $(document).on('mouseup.eaoSelect', onMouseUp);
-                }
+            // Region selection - click to place circle.
+            $(document).on('click', '#eao-region-image-container', function(e) {
+                self.placeRegionSelection(e);
             });
 
             // Save color.
@@ -518,13 +421,7 @@
                     height: 0
                 });
                 $('#eao-modal-texture-region').val('');
-                
-                // Show default preview (whole image centered).
-                $('#eao-region-preview-swatch').css({
-                    'background-image': 'url(' + attachment.url + ')',
-                    'background-position': 'center',
-                    'background-size': 'cover'
-                });
+                $('#eao-region-preview-swatch').css('background-image', 'none');
             });
         },
 
@@ -547,158 +444,59 @@
         },
 
         /**
-         * Start region selection.
+         * Default swatch size (percentage of container width).
          */
-        startRegionSelection: function(e, $container) {
-            if (!$container) {
-                $container = $('#eao-region-image-container');
-            }
-            
-            if (!$container.length || !$container[0]) {
-                console.log('Container not found');
-                return;
-            }
-            
-            const containerRect = $container[0].getBoundingClientRect();
-            
-            this.regionSelection.isSelecting = true;
-            this.regionSelection.$container = $container;
-            this.regionSelection.startX = e.clientX - containerRect.left;
-            this.regionSelection.startY = e.clientY - containerRect.top;
-
-            console.log('Selection started at:', this.regionSelection.startX, this.regionSelection.startY);
-
-            $('#eao-region-selection').css({
-                display: 'block',
-                left: this.regionSelection.startX + 'px',
-                top: this.regionSelection.startY + 'px',
-                width: '0px',
-                height: '0px'
-            });
-
-            e.preventDefault();
-        },
+        swatchSizePercent: 15,
 
         /**
-         * Update region selection during drag.
+         * Place region selection on click.
+         * Creates a circular selection where the user clicks.
          */
-        updateRegionSelection: function(e) {
-            if (!this.regionSelection || !this.regionSelection.isSelecting) {
-                return;
-            }
-            
-            if (!this.regionSelection.$container) {
-                console.log('No container stored');
-                return;
-            }
-
-            const $container = this.regionSelection.$container;
+        placeRegionSelection: function(e) {
+            const $container = $('#eao-region-image-container');
             const $selection = $('#eao-region-selection');
-            
-            if (!$container.length || !$container[0]) {
-                console.log('Container element not found');
-                return;
-            }
-            
-            const containerRect = $container[0].getBoundingClientRect();
-            const containerWidth = containerRect.width;
-            const containerHeight = containerRect.height;
+            const offset = $container.offset();
+            const containerWidth = $container.width();
+            const containerHeight = $container.height();
 
-            let currentX = e.clientX - containerRect.left;
-            let currentY = e.clientY - containerRect.top;
+            // Get click position relative to container.
+            let clickX = e.pageX - offset.left;
+            let clickY = e.pageY - offset.top;
 
-            // Constrain to container bounds.
-            currentX = Math.max(0, Math.min(currentX, containerWidth));
-            currentY = Math.max(0, Math.min(currentY, containerHeight));
+            // Calculate selection circle size (fixed percentage of container).
+            const selSize = containerWidth * (this.swatchSizePercent / 100);
+            const halfSize = selSize / 2;
 
-            // Calculate selection rectangle.
-            const left = Math.min(this.regionSelection.startX, currentX);
-            const top = Math.min(this.regionSelection.startY, currentY);
-            const width = Math.abs(currentX - this.regionSelection.startX);
-            const height = Math.abs(currentY - this.regionSelection.startY);
+            // Constrain click position so circle stays within bounds.
+            clickX = Math.max(halfSize, Math.min(clickX, containerWidth - halfSize));
+            clickY = Math.max(halfSize, Math.min(clickY, containerHeight - halfSize));
 
-            // Log occasionally to avoid flooding console
-            if (Math.random() < 0.1) {
-                console.log('Updating selection:', width.toFixed(0), 'x', height.toFixed(0));
-            }
-
+            // Position the selection circle centered on click point.
             $selection.css({
-                left: left + 'px',
-                top: top + 'px',
-                width: width + 'px',
-                height: height + 'px'
+                display: 'block',
+                left: clickX - halfSize,
+                top: clickY - halfSize,
+                width: selSize,
+                height: selSize
             });
-        },
 
-        /**
-         * End region selection.
-         */
-        endRegionSelection: function() {
-            if (!this.regionSelection.isSelecting) {
-                return;
-            }
-
-            this.regionSelection.isSelecting = false;
-
-            const $container = this.regionSelection.$container || $('#eao-region-image-container');
-            const $selection = $('#eao-region-selection');
-
-            const containerRect = $container[0].getBoundingClientRect();
-            const containerWidth = containerRect.width;
-            const containerHeight = containerRect.height;
-            const selLeft = parseFloat($selection.css('left')) || 0;
-            const selTop = parseFloat($selection.css('top')) || 0;
-            const selWidth = parseFloat($selection.css('width')) || 0;
-            const selHeight = parseFloat($selection.css('height')) || 0;
-
-            // Clear the stored container.
-            this.regionSelection.$container = null;
-
-            if (selWidth < 20 || selHeight < 20) {
-                // Selection too small, ignore.
-                console.log('Selection too small:', selWidth, selHeight);
-                return;
-            }
-
-            // Calculate percentage-based region for circular swatch display.
-            // Center point as percentages.
-            const centerX = ((selLeft + selWidth / 2) / containerWidth * 100).toFixed(2);
-            const centerY = ((selTop + selHeight / 2) / containerHeight * 100).toFixed(2);
-            
-            // Calculate zoom based on the smaller dimension to ensure the selection fits in the circle.
-            const selectionSize = Math.min(selWidth, selHeight);
-            const zoom = ((containerWidth / selectionSize) * 100).toFixed(0);
-
+            // Calculate percentage-based region for background-position.
             const region = {
-                x: centerX,
-                y: centerY,
-                zoom: zoom,
-                // Store original selection for reference
-                selLeft: ((selLeft / containerWidth) * 100).toFixed(2),
-                selTop: ((selTop / containerHeight) * 100).toFixed(2),
-                selWidth: ((selWidth / containerWidth) * 100).toFixed(2),
-                selHeight: ((selHeight / containerHeight) * 100).toFixed(2)
+                x: (clickX / containerWidth * 100).toFixed(2),
+                y: (clickY / containerHeight * 100).toFixed(2),
+                zoom: (100 / this.swatchSizePercent * 100).toFixed(0)
             };
-
-            console.log('Region selected:', region);
 
             $('#eao-modal-texture-region').val(JSON.stringify(region));
 
             // Update preview swatch.
             const textureUrl = $('#eao-modal-texture-image-url').val();
-            console.log('Texture URL:', textureUrl);
-            
             if (textureUrl) {
-                const $previewSwatch = $('#eao-region-preview-swatch');
-                console.log('Preview swatch element:', $previewSwatch.length);
-                
-                $previewSwatch.css({
+                $('#eao-region-preview-swatch').css({
                     'background-image': 'url(' + textureUrl + ')',
                     'background-position': region.x + '% ' + region.y + '%',
                     'background-size': region.zoom + '%'
                 });
-                
-                console.log('Preview swatch updated');
             }
         },
 
@@ -803,19 +601,20 @@
                                 'background-size': region.zoom + '%'
                             });
 
-                            // Show selection box (approximate position).
+                            // Show selection circle at saved position.
                             setTimeout(function() {
                                 const $container = $('#eao-region-image-container');
                                 const containerWidth = $container.width();
                                 const containerHeight = $container.height();
-                                const selSize = containerWidth / (region.zoom / 100);
-                                const selLeft = (region.x / 100 * containerWidth) - selSize / 2;
-                                const selTop = (region.y / 100 * containerHeight) - selSize / 2;
+                                const selSize = containerWidth * (self.swatchSizePercent / 100);
+                                const halfSize = selSize / 2;
+                                const centerX = (region.x / 100) * containerWidth;
+                                const centerY = (region.y / 100) * containerHeight;
 
                                 $('#eao-region-selection').css({
                                     display: 'block',
-                                    left: Math.max(0, selLeft),
-                                    top: Math.max(0, selTop),
+                                    left: centerX - halfSize,
+                                    top: centerY - halfSize,
                                     width: selSize,
                                     height: selSize
                                 });
@@ -950,24 +749,17 @@
          * Build swatch style from color data.
          */
         buildSwatchStyle: function(data) {
-            if (data.type === 'texture' && data.textureImageUrl) {
-                // Show texture image - with region if selected, otherwise centered/cover
-                if (data.textureRegion) {
-                    try {
-                        const region = typeof data.textureRegion === 'string'
-                            ? JSON.parse(data.textureRegion)
-                            : data.textureRegion;
-                        return 'background-image: url(' + data.textureImageUrl + '); ' +
-                               'background-position: ' + region.x + '% ' + region.y + '%; ' +
-                               'background-size: ' + region.zoom + '%;';
-                    } catch (e) {
-                        // Fall through to default texture display
-                    }
+            if (data.type === 'texture' && data.textureImageUrl && data.textureRegion) {
+                try {
+                    const region = typeof data.textureRegion === 'string'
+                        ? JSON.parse(data.textureRegion)
+                        : data.textureRegion;
+                    return 'background-image: url(' + data.textureImageUrl + '); ' +
+                           'background-position: ' + region.x + '% ' + region.y + '%; ' +
+                           'background-size: ' + region.zoom + '%;';
+                } catch (e) {
+                    return 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);';
                 }
-                // Default: show texture centered and covering the swatch
-                return 'background-image: url(' + data.textureImageUrl + '); ' +
-                       'background-position: center; ' +
-                       'background-size: cover;';
             } else if (data.type === 'solid') {
                 return 'background-color: ' + data.colorValue + ';';
             }

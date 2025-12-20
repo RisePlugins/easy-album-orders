@@ -132,25 +132,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                                                     // Build swatch style.
                                                     $swatch_style = '';
-                                                    if ( 'texture' === $color['type'] && $texture_image_url ) {
-                                                        // Show texture - with region if selected, otherwise centered/cover.
-                                                        if ( $texture_region ) {
-                                                            $region = json_decode( $texture_region, true );
-                                                            if ( $region ) {
-                                                                $swatch_style = sprintf(
-                                                                    'background-image: url(%s); background-position: %s%% %s%%; background-size: %s%%;',
-                                                                    esc_url( $texture_image_url ),
-                                                                    esc_attr( $region['x'] ),
-                                                                    esc_attr( $region['y'] ),
-                                                                    esc_attr( $region['zoom'] )
-                                                                );
-                                                            }
-                                                        }
-                                                        // Default: show texture centered and covering the swatch.
-                                                        if ( empty( $swatch_style ) ) {
+                                                    if ( 'texture' === $color['type'] && $texture_image_url && $texture_region ) {
+                                                        $region = json_decode( $texture_region, true );
+                                                        if ( $region ) {
                                                             $swatch_style = sprintf(
-                                                                'background-image: url(%s); background-position: center; background-size: cover;',
-                                                                esc_url( $texture_image_url )
+                                                                'background-image: url(%s); background-position: %s%% %s%%; background-size: %s%%;',
+                                                                esc_url( $texture_image_url ),
+                                                                esc_attr( $region['x'] ),
+                                                                esc_attr( $region['y'] ),
+                                                                esc_attr( $region['zoom'] )
                                                             );
                                                         }
                                                     } elseif ( 'solid' === $color['type'] ) {
@@ -726,7 +716,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <!-- Region Selector -->
                 <div class="eao-field eao-region-selector-field" id="eao-region-selector-container" style="display: none;">
                     <label><?php esc_html_e( 'Select Swatch Region', 'easy-album-orders' ); ?></label>
-                    <p class="description"><?php esc_html_e( 'Click and drag on the image to select the area that will represent this color.', 'easy-album-orders' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Click on the image to place a circular selection. This area will be shown as the color swatch.', 'easy-album-orders' ); ?></p>
                     <div class="eao-region-selector">
                         <div class="eao-region-selector__image-container" id="eao-region-image-container">
                             <img id="eao-region-image" src="" alt="">
