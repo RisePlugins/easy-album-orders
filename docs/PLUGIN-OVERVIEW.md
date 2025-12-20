@@ -527,13 +527,14 @@ easy-album-orders/
 - [x] Responsive styling
 
 ### Phase 5: Advanced Features 🔄 IN PROGRESS
-- [ ] Email notifications (order confirmation, status updates)
+- [x] Email notifications (order confirmation, new order alert, shipped notification)
 - [ ] PDF generation for orders
 - [ ] Export orders to CSV with line-item details
 - [x] Design preview modal/lightbox (PDF proof viewer with slide/grid modes)
 - [x] Order notes (client and photographer notes implemented)
 - [ ] Communication system (threaded messages)
 - [x] Order history section (client can view past orders on front-end)
+- [ ] Cart reminder email (with cron scheduling)
 
 ### Phase 6: Polish 🔄 IN PROGRESS
 - [x] Security hardening (nonces, sanitization, validation)
