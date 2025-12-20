@@ -116,9 +116,9 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                                     <div class="eao-selection-card__name"><?php echo esc_html( $design['name'] ); ?></div>
                                     <div class="eao-selection-card__price"><?php echo esc_html( eao_format_price( $design['base_price'] ) ); ?></div>
                                     <?php if ( $pdf_url ) : ?>
-                                        <a href="<?php echo esc_url( $pdf_url ); ?>" target="_blank" class="eao-selection-card__link" onclick="event.stopPropagation();">
+                                        <button type="button" class="eao-selection-card__link eao-view-proof-btn" data-pdf-url="<?php echo esc_url( $pdf_url ); ?>" data-design-name="<?php echo esc_attr( $design['name'] ); ?>" onclick="event.stopPropagation();">
                                             <?php esc_html_e( 'View Proof', 'easy-album-orders' ); ?> →
-                                        </a>
+                                        </button>
                                     <?php endif; ?>
                                 </label>
                             <?php endforeach; ?>
@@ -460,6 +460,74 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                     <span class="eao-btn-text"><?php esc_html_e( 'Submit Order', 'easy-album-orders' ); ?></span>
                     <span class="eao-spinner" style="display: none;"></span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Proof Viewer Lightbox -->
+    <div class="eao-proof-viewer" id="eao-proof-viewer" style="display: none;">
+        <div class="eao-proof-viewer__backdrop"></div>
+        <div class="eao-proof-viewer__container">
+            <!-- Header -->
+            <div class="eao-proof-viewer__header">
+                <div class="eao-proof-viewer__title">
+                    <span class="dashicons dashicons-pdf"></span>
+                    <span id="eao-proof-viewer-title"><?php esc_html_e( 'Proof Viewer', 'easy-album-orders' ); ?></span>
+                </div>
+                <div class="eao-proof-viewer__controls">
+                    <div class="eao-proof-viewer__view-toggle">
+                        <button type="button" class="eao-proof-viewer__view-btn is-active" data-view="slide" title="<?php esc_attr_e( 'Slide View', 'easy-album-orders' ); ?>">
+                            <span class="dashicons dashicons-slides"></span>
+                        </button>
+                        <button type="button" class="eao-proof-viewer__view-btn" data-view="grid" title="<?php esc_attr_e( 'Grid View', 'easy-album-orders' ); ?>">
+                            <span class="dashicons dashicons-grid-view"></span>
+                        </button>
+                    </div>
+                    <button type="button" class="eao-proof-viewer__close" title="<?php esc_attr_e( 'Close', 'easy-album-orders' ); ?>">
+                        <span class="dashicons dashicons-no-alt"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="eao-proof-viewer__content">
+                <!-- Loading State -->
+                <div class="eao-proof-viewer__loading" id="eao-proof-loading">
+                    <div class="eao-proof-viewer__spinner"></div>
+                    <p><?php esc_html_e( 'Loading proof...', 'easy-album-orders' ); ?></p>
+                </div>
+
+                <!-- Slide View -->
+                <div class="eao-proof-viewer__slide-view" id="eao-proof-slide-view">
+                    <button type="button" class="eao-proof-viewer__nav eao-proof-viewer__nav--prev" id="eao-proof-prev" title="<?php esc_attr_e( 'Previous', 'easy-album-orders' ); ?>">
+                        <span class="dashicons dashicons-arrow-left-alt2"></span>
+                    </button>
+                    <div class="eao-proof-viewer__canvas-wrapper">
+                        <canvas id="eao-proof-canvas"></canvas>
+                    </div>
+                    <button type="button" class="eao-proof-viewer__nav eao-proof-viewer__nav--next" id="eao-proof-next" title="<?php esc_attr_e( 'Next', 'easy-album-orders' ); ?>">
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                    </button>
+                </div>
+
+                <!-- Grid View -->
+                <div class="eao-proof-viewer__grid-view" id="eao-proof-grid-view" style="display: none;">
+                    <div class="eao-proof-viewer__grid" id="eao-proof-grid">
+                        <!-- Grid thumbnails rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="eao-proof-viewer__footer">
+                <div class="eao-proof-viewer__pagination" id="eao-proof-pagination">
+                    <span class="eao-proof-viewer__page-info">
+                        <?php esc_html_e( 'Page', 'easy-album-orders' ); ?>
+                        <span id="eao-proof-current-page">1</span>
+                        <?php esc_html_e( 'of', 'easy-album-orders' ); ?>
+                        <span id="eao-proof-total-pages">1</span>
+                    </span>
+                </div>
             </div>
         </div>
     </div>

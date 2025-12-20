@@ -83,10 +83,19 @@ class EAO_Public {
             return;
         }
 
+        // Enqueue PDF.js library for proof viewer.
+        wp_enqueue_script(
+            'pdf-js',
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+            array(),
+            '3.11.174',
+            true
+        );
+
         wp_enqueue_script(
             $this->plugin_name . '-public',
             EAO_PLUGIN_URL . 'assets/js/public.js',
-            array( 'jquery' ),
+            array( 'jquery', 'pdf-js' ),
             $this->version,
             true
         );
@@ -116,6 +125,7 @@ class EAO_Public {
                     'symbol'   => isset( $general_settings['currency_symbol'] ) ? $general_settings['currency_symbol'] : '$',
                     'position' => isset( $general_settings['currency_position'] ) ? $general_settings['currency_position'] : 'before',
                 ),
+                'pdfWorkerUrl'     => 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
                 'i18n'             => array(
                     'addToCart'            => __( 'Add to Cart', 'easy-album-orders' ),
                     'updateCart'           => __( 'Update Cart', 'easy-album-orders' ),
@@ -144,6 +154,16 @@ class EAO_Public {
                     'invalidEmail'         => __( 'Please enter a valid email address.', 'easy-album-orders' ),
                     'processing'           => __( 'Processing...', 'easy-album-orders' ),
                     'submitOrder'          => __( 'Submit Order', 'easy-album-orders' ),
+                    'proofViewer'          => __( 'Proof Viewer', 'easy-album-orders' ),
+                    'page'                 => __( 'Page', 'easy-album-orders' ),
+                    'of'                   => __( 'of', 'easy-album-orders' ),
+                    'loading'              => __( 'Loading...', 'easy-album-orders' ),
+                    'loadingPdf'           => __( 'Loading proof...', 'easy-album-orders' ),
+                    'slideView'            => __( 'Slide View', 'easy-album-orders' ),
+                    'gridView'             => __( 'Grid View', 'easy-album-orders' ),
+                    'close'                => __( 'Close', 'easy-album-orders' ),
+                    'previous'             => __( 'Previous', 'easy-album-orders' ),
+                    'next'                 => __( 'Next', 'easy-album-orders' ),
                 ),
             )
         );

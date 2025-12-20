@@ -1148,9 +1148,368 @@
         }
     };
 
+    /**
+     * PDF Proof Viewer handler.
+     */
+    const EAOProofViewer = {
+        // PDF document instance.
+        pdfDoc: null,
+
+        // Current page number.
+        currentPage: 1,
+
+        // Total pages.
+        totalPages: 0,
+
+        // Current view mode: 'slide' or 'grid'.
+        viewMode: 'slide',
+
+        // Grid thumbnails cache.
+        gridThumbnails: [],
+
+        // Current PDF URL.
+        currentPdfUrl: null,
+
+        // Current design name.
+        currentDesignName: '',
+
+        /**
+         * Initialize the proof viewer.
+         */
+        init: function() {
+            // Only run if viewer exists.
+            if (!$('#eao-proof-viewer').length) {
+                return;
+            }
+
+            // Set PDF.js worker.
+            if (typeof pdfjsLib !== 'undefined' && eaoPublic.pdfWorkerUrl) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = eaoPublic.pdfWorkerUrl;
+            }
+
+            this.bindEvents();
+        },
+
+        /**
+         * Bind all event handlers.
+         */
+        bindEvents: function() {
+            const self = this;
+
+            // View proof buttons.
+            $(document).on('click', '.eao-view-proof-btn', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const pdfUrl = $(this).data('pdf-url');
+                const designName = $(this).data('design-name');
+
+                if (pdfUrl) {
+                    self.open(pdfUrl, designName);
+                }
+            });
+
+            // Close button.
+            $('.eao-proof-viewer__close, .eao-proof-viewer__backdrop').on('click', function() {
+                self.close();
+            });
+
+            // Navigation buttons.
+            $('#eao-proof-prev').on('click', function() {
+                self.goToPage(self.currentPage - 1);
+            });
+
+            $('#eao-proof-next').on('click', function() {
+                self.goToPage(self.currentPage + 1);
+            });
+
+            // View mode toggle.
+            $('.eao-proof-viewer__view-btn').on('click', function() {
+                const mode = $(this).data('view');
+                self.setViewMode(mode);
+            });
+
+            // Keyboard navigation.
+            $(document).on('keydown', function(e) {
+                if (!$('#eao-proof-viewer').is(':visible')) {
+                    return;
+                }
+
+                switch(e.key) {
+                    case 'Escape':
+                        self.close();
+                        break;
+                    case 'ArrowLeft':
+                        self.goToPage(self.currentPage - 1);
+                        break;
+                    case 'ArrowRight':
+                        self.goToPage(self.currentPage + 1);
+                        break;
+                    case 'Home':
+                        self.goToPage(1);
+                        break;
+                    case 'End':
+                        self.goToPage(self.totalPages);
+                        break;
+                }
+            });
+
+            // Grid item click.
+            $(document).on('click', '.eao-proof-viewer__grid-item', function() {
+                const pageNum = parseInt($(this).data('page'));
+                self.goToPage(pageNum);
+                self.setViewMode('slide');
+            });
+        },
+
+        /**
+         * Open the proof viewer with a PDF.
+         *
+         * @param {string} pdfUrl     URL of the PDF file.
+         * @param {string} designName Name of the design.
+         */
+        open: function(pdfUrl, designName) {
+            const self = this;
+
+            // Reset state.
+            this.currentPage = 1;
+            this.totalPages = 0;
+            this.pdfDoc = null;
+            this.gridThumbnails = [];
+            this.currentPdfUrl = pdfUrl;
+            this.currentDesignName = designName || '';
+
+            // Update title.
+            $('#eao-proof-viewer-title').text(designName || (eaoPublic.i18n?.proofViewer || 'Proof Viewer'));
+
+            // Show viewer and loading state.
+            $('#eao-proof-viewer').fadeIn(200);
+            $('body').css('overflow', 'hidden');
+
+            this.showLoading(true);
+            this.setViewMode('slide');
+
+            // Load PDF.
+            if (typeof pdfjsLib !== 'undefined') {
+                pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+                    self.pdfDoc = pdf;
+                    self.totalPages = pdf.numPages;
+                    self.updatePagination();
+                    self.showLoading(false);
+                    self.renderPage(1);
+                }).catch(function(error) {
+                    console.error('Error loading PDF:', error);
+                    self.showLoading(false);
+                    // Fallback: open PDF in new tab.
+                    window.open(pdfUrl, '_blank');
+                    self.close();
+                });
+            } else {
+                // PDF.js not loaded, open in new tab.
+                window.open(pdfUrl, '_blank');
+                this.close();
+            }
+        },
+
+        /**
+         * Close the proof viewer.
+         */
+        close: function() {
+            $('#eao-proof-viewer').fadeOut(200);
+            $('body').css('overflow', '');
+
+            // Clean up.
+            this.pdfDoc = null;
+            this.gridThumbnails = [];
+            $('#eao-proof-grid').empty();
+        },
+
+        /**
+         * Show or hide loading state.
+         *
+         * @param {boolean} show Whether to show loading.
+         */
+        showLoading: function(show) {
+            if (show) {
+                $('#eao-proof-loading').show();
+                $('#eao-proof-slide-view').hide();
+                $('#eao-proof-grid-view').hide();
+            } else {
+                $('#eao-proof-loading').hide();
+                if (this.viewMode === 'slide') {
+                    $('#eao-proof-slide-view').show();
+                } else {
+                    $('#eao-proof-grid-view').show();
+                }
+            }
+        },
+
+        /**
+         * Set the view mode.
+         *
+         * @param {string} mode 'slide' or 'grid'.
+         */
+        setViewMode: function(mode) {
+            this.viewMode = mode;
+
+            // Update toggle buttons.
+            $('.eao-proof-viewer__view-btn').removeClass('is-active');
+            $('.eao-proof-viewer__view-btn[data-view="' + mode + '"]').addClass('is-active');
+
+            // Show appropriate view.
+            if (mode === 'slide') {
+                $('#eao-proof-grid-view').hide();
+                $('#eao-proof-slide-view').show();
+                $('#eao-proof-pagination').show();
+            } else {
+                $('#eao-proof-slide-view').hide();
+                $('#eao-proof-grid-view').show();
+                $('#eao-proof-pagination').hide();
+
+                // Render grid if not already done.
+                if (this.gridThumbnails.length === 0 && this.pdfDoc) {
+                    this.renderGrid();
+                }
+            }
+        },
+
+        /**
+         * Go to a specific page.
+         *
+         * @param {number} pageNum Page number to go to.
+         */
+        goToPage: function(pageNum) {
+            if (pageNum < 1 || pageNum > this.totalPages || pageNum === this.currentPage) {
+                return;
+            }
+
+            this.currentPage = pageNum;
+            this.updatePagination();
+            this.renderPage(pageNum);
+        },
+
+        /**
+         * Update pagination display.
+         */
+        updatePagination: function() {
+            $('#eao-proof-current-page').text(this.currentPage);
+            $('#eao-proof-total-pages').text(this.totalPages);
+
+            // Update nav button states.
+            $('#eao-proof-prev').prop('disabled', this.currentPage <= 1);
+            $('#eao-proof-next').prop('disabled', this.currentPage >= this.totalPages);
+        },
+
+        /**
+         * Render a page to the main canvas.
+         *
+         * @param {number} pageNum Page number to render.
+         */
+        renderPage: function(pageNum) {
+            const self = this;
+
+            if (!this.pdfDoc) {
+                return;
+            }
+
+            this.pdfDoc.getPage(pageNum).then(function(page) {
+                const canvas = document.getElementById('eao-proof-canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Calculate scale to fit container.
+                const containerWidth = window.innerWidth - 180;
+                const containerHeight = window.innerHeight - 180;
+
+                const viewport = page.getViewport({ scale: 1 });
+                const scaleX = containerWidth / viewport.width;
+                const scaleY = containerHeight / viewport.height;
+                const scale = Math.min(scaleX, scaleY, 2); // Max scale of 2 for quality.
+
+                const scaledViewport = page.getViewport({ scale: scale });
+
+                canvas.width = scaledViewport.width;
+                canvas.height = scaledViewport.height;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: scaledViewport
+                };
+
+                page.render(renderContext);
+            });
+        },
+
+        /**
+         * Render the grid view with all pages as thumbnails.
+         */
+        renderGrid: function() {
+            const self = this;
+            const $grid = $('#eao-proof-grid');
+
+            $grid.empty();
+
+            if (!this.pdfDoc) {
+                return;
+            }
+
+            // Render each page as a thumbnail.
+            for (let i = 1; i <= this.totalPages; i++) {
+                (function(pageNum) {
+                    self.pdfDoc.getPage(pageNum).then(function(page) {
+                        const $item = $('<div class="eao-proof-viewer__grid-item" data-page="' + pageNum + '"></div>');
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Fixed thumbnail scale.
+                        const viewport = page.getViewport({ scale: 0.5 });
+
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+
+                        const renderContext = {
+                            canvasContext: ctx,
+                            viewport: viewport
+                        };
+
+                        page.render(renderContext).promise.then(function() {
+                            $item.append(canvas);
+
+                            const $overlay = $('<div class="eao-proof-viewer__grid-item-overlay">' +
+                                (eaoPublic.i18n?.page || 'Page') + ' ' + pageNum +
+                                '</div>');
+                            $item.append($overlay);
+
+                            // Insert in correct order.
+                            const $items = $grid.find('.eao-proof-viewer__grid-item');
+                            let inserted = false;
+
+                            $items.each(function() {
+                                if (parseInt($(this).data('page')) > pageNum) {
+                                    $(this).before($item);
+                                    inserted = true;
+                                    return false;
+                                }
+                            });
+
+                            if (!inserted) {
+                                $grid.append($item);
+                            }
+
+                            self.gridThumbnails.push({
+                                pageNum: pageNum,
+                                canvas: canvas
+                            });
+                        });
+                    });
+                })(i);
+            }
+        }
+    };
+
     // Initialize on document ready.
     $(document).ready(function() {
         EAOPublic.init();
+        EAOProofViewer.init();
     });
 
 })(jQuery);
