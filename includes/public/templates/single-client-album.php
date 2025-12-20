@@ -37,8 +37,9 @@ $sizes             = get_option( 'eao_sizes', array() );
 $engraving_options = get_option( 'eao_engraving_options', array() );
 $general_settings  = get_option( 'eao_general_settings', array() );
 
-// Get cart items for this album.
-$cart_items = EAO_Album_Order::get_cart_items( $album_id );
+// Cart items are loaded via JavaScript using browser-specific cart token.
+// This ensures each browser has its own cart (bride vs. parents, etc.).
+$cart_items = array();
 ?>
 
 <div class="eao-order-page" id="eao-order-page" data-album-id="<?php echo esc_attr( $album_id ); ?>">

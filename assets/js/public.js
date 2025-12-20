@@ -31,6 +31,9 @@
         // Selected address.
         selectedAddressId: 'new',
 
+        // Cart token for identifying this browser's cart.
+        cartToken: null,
+
         /**
          * Initialize public functionality.
          */
@@ -39,6 +42,9 @@
             if (!$('#eao-order-page').length) {
                 return;
             }
+
+            // Initialize cart token first.
+            this.initCartToken();
 
             this.bindDesignSelection();
             this.bindMaterialSelection();
@@ -49,6 +55,73 @@
             this.bindCartActions();
             this.bindCheckout();
             this.checkOrderComplete();
+
+            // Load cart with token.
+            this.refreshCart();
+        },
+
+        /**
+         * Initialize or retrieve cart token from localStorage.
+         * Each browser gets a unique token to keep carts separate.
+         */
+        initCartToken: function() {
+            const storageKey = 'eao_cart_token_' + eaoPublic.clientAlbumId;
+
+            // Try to get existing token.
+            let token = localStorage.getItem(storageKey);
+
+            // Generate new token if none exists.
+            if (!token) {
+                token = this.generateUUID();
+                localStorage.setItem(storageKey, token);
+            }
+
+            this.cartToken = token;
+        },
+
+        /**
+         * Generate a UUID v4.
+         *
+         * @return {string} UUID string.
+         */
+        generateUUID: function() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        },
+
+        /**
+         * Get the cart token.
+         *
+         * @return {string} Cart token.
+         */
+        getCartToken: function() {
+            return this.cartToken || '';
+        },
+
+        /**
+         * Refresh cart display from server.
+         */
+        refreshCart: function() {
+            const self = this;
+
+            $.ajax({
+                url: eaoPublic.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'eao_get_cart',
+                    nonce: eaoPublic.nonce,
+                    client_album_id: eaoPublic.clientAlbumId,
+                    cart_token: self.getCartToken()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        self.updateCart(response.data);
+                    }
+                }
+            });
         },
 
         /**
@@ -661,6 +734,7 @@
                     action: self.editingOrderId ? 'eao_update_cart_item' : 'eao_add_to_cart',
                     nonce: eaoPublic.nonce,
                     client_album_id: eaoPublic.clientAlbumId,
+                    cart_token: self.getCartToken(),
                     album_name: $('#eao-album-name').val(),
                     design_index: self.selections.design.index,
                     material_id: self.selections.material.id,
@@ -810,7 +884,8 @@
                         data: {
                             action: 'eao_remove_from_cart',
                             nonce: eaoPublic.nonce,
-                            order_id: orderId
+                            order_id: orderId,
+                            cart_token: self.getCartToken()
                         },
                         success: function(response) {
                             if (response.success) {
@@ -840,7 +915,8 @@
                 data: {
                     action: 'eao_get_order_for_edit',
                     nonce: eaoPublic.nonce,
-                    order_id: orderId
+                    order_id: orderId,
+                    cart_token: self.getCartToken()
                 },
                 success: function(response) {
                     if (response.success) {
@@ -1075,6 +1151,7 @@
                     action: 'eao_checkout',
                     nonce: eaoPublic.nonce,
                     client_album_id: eaoPublic.clientAlbumId,
+                    cart_token: self.getCartToken(),
                     customer_name: customerName,
                     customer_email: customerEmail,
                     customer_phone: $('#eao-customer-phone').val().trim(),

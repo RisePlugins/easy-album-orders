@@ -205,22 +205,33 @@ class EAO_Album_Order {
      *
      * @since 1.0.0
      *
-     * @param int $client_album_id The client album post ID.
+     * @param int    $client_album_id The client album post ID.
+     * @param string $cart_token      Optional. Cart token to filter by specific browser.
      * @return WP_Post[] Array of album order posts in cart.
      */
-    public static function get_cart_items( $client_album_id ) {
-        return self::get_all( array(
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key'   => '_eao_client_album_id',
-                    'value' => $client_album_id,
-                ),
-                array(
-                    'key'   => '_eao_order_status',
-                    'value' => self::STATUS_SUBMITTED,
-                ),
+    public static function get_cart_items( $client_album_id, $cart_token = '' ) {
+        $meta_query = array(
+            'relation' => 'AND',
+            array(
+                'key'   => '_eao_client_album_id',
+                'value' => $client_album_id,
             ),
+            array(
+                'key'   => '_eao_order_status',
+                'value' => self::STATUS_SUBMITTED,
+            ),
+        );
+
+        // If cart token provided, filter by it for browser-specific cart.
+        if ( ! empty( $cart_token ) ) {
+            $meta_query[] = array(
+                'key'   => '_eao_cart_token',
+                'value' => $cart_token,
+            );
+        }
+
+        return self::get_all( array(
+            'meta_query' => $meta_query,
         ) );
     }
 

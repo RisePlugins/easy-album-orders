@@ -189,11 +189,15 @@ class EAO_Ajax_Handler {
             wp_send_json_error( array( 'message' => __( 'Failed to create order.', 'easy-album-orders' ) ) );
         }
 
+        // Get cart token for browser identification.
+        $cart_token = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
+
         // Save order meta.
         update_post_meta( $order_id, '_eao_client_album_id', $client_album_id );
         update_post_meta( $order_id, '_eao_album_name', $album_name );
         update_post_meta( $order_id, '_eao_order_status', EAO_Album_Order::STATUS_SUBMITTED );
         update_post_meta( $order_id, '_eao_submission_date', current_time( 'mysql' ) );
+        update_post_meta( $order_id, '_eao_cart_token', $cart_token );
 
         // Design info.
         update_post_meta( $order_id, '_eao_design_index', $design_index );
@@ -237,9 +241,9 @@ class EAO_Ajax_Handler {
         update_post_meta( $order_id, '_eao_shipping_zip', $shipping_zip );
 
         // Get updated cart.
-        $cart_html  = $this->get_cart_html( $client_album_id );
-        $cart_total = $this->get_cart_total( $client_album_id );
-        $cart_count = count( EAO_Album_Order::get_cart_items( $client_album_id ) );
+        $cart_html  = $this->get_cart_html( $client_album_id, $cart_token );
+        $cart_total = $this->get_cart_total( $client_album_id, $cart_token );
+        $cart_count = count( EAO_Album_Order::get_cart_items( $client_album_id, $cart_token ) );
 
         wp_send_json_success( array(
             'message'    => __( 'Album added to cart!', 'easy-album-orders' ),
@@ -261,7 +265,8 @@ class EAO_Ajax_Handler {
             wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
         }
 
-        $order_id = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $order_id   = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $cart_token = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
 
         if ( ! $order_id ) {
             wp_send_json_error( array( 'message' => __( 'Invalid order.', 'easy-album-orders' ) ) );
@@ -276,6 +281,12 @@ class EAO_Ajax_Handler {
         $status = EAO_Album_Order::get_order_status( $order_id );
         if ( EAO_Album_Order::STATUS_SUBMITTED !== $status ) {
             wp_send_json_error( array( 'message' => __( 'This order can no longer be edited.', 'easy-album-orders' ) ) );
+        }
+
+        // Verify order belongs to this cart token.
+        $order_cart_token = get_post_meta( $order_id, '_eao_cart_token', true );
+        if ( $cart_token && $order_cart_token !== $cart_token ) {
+            wp_send_json_error( array( 'message' => __( 'You cannot edit this order.', 'easy-album-orders' ) ) );
         }
 
         // Get client album ID.
@@ -379,8 +390,8 @@ class EAO_Ajax_Handler {
         update_post_meta( $order_id, '_eao_shipping_zip', $shipping_zip );
 
         // Get updated cart.
-        $cart_html  = $this->get_cart_html( $client_album_id );
-        $cart_total = $this->get_cart_total( $client_album_id );
+        $cart_html  = $this->get_cart_html( $client_album_id, $cart_token );
+        $cart_total = $this->get_cart_total( $client_album_id, $cart_token );
 
         wp_send_json_success( array(
             'message'    => __( 'Album updated!', 'easy-album-orders' ),
@@ -400,7 +411,8 @@ class EAO_Ajax_Handler {
             wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
         }
 
-        $order_id = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $order_id   = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $cart_token = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
 
         if ( ! $order_id ) {
             wp_send_json_error( array( 'message' => __( 'Invalid order.', 'easy-album-orders' ) ) );
@@ -417,6 +429,12 @@ class EAO_Ajax_Handler {
             wp_send_json_error( array( 'message' => __( 'This order can no longer be removed.', 'easy-album-orders' ) ) );
         }
 
+        // Verify order belongs to this cart token.
+        $order_cart_token = get_post_meta( $order_id, '_eao_cart_token', true );
+        if ( $cart_token && $order_cart_token !== $cart_token ) {
+            wp_send_json_error( array( 'message' => __( 'You cannot remove this order.', 'easy-album-orders' ) ) );
+        }
+
         // Get client album ID before deletion.
         $client_album_id = get_post_meta( $order_id, '_eao_client_album_id', true );
 
@@ -424,9 +442,9 @@ class EAO_Ajax_Handler {
         wp_delete_post( $order_id, true );
 
         // Get updated cart.
-        $cart_html  = $this->get_cart_html( $client_album_id );
-        $cart_total = $this->get_cart_total( $client_album_id );
-        $cart_count = count( EAO_Album_Order::get_cart_items( $client_album_id ) );
+        $cart_html  = $this->get_cart_html( $client_album_id, $cart_token );
+        $cart_total = $this->get_cart_total( $client_album_id, $cart_token );
+        $cart_count = count( EAO_Album_Order::get_cart_items( $client_album_id, $cart_token ) );
 
         wp_send_json_success( array(
             'message'    => __( 'Album removed from cart.', 'easy-album-orders' ),
@@ -443,14 +461,15 @@ class EAO_Ajax_Handler {
      */
     public function get_cart() {
         $client_album_id = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+        $cart_token      = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
 
         if ( ! $client_album_id ) {
             wp_send_json_error( array( 'message' => __( 'Invalid album.', 'easy-album-orders' ) ) );
         }
 
-        $cart_html  = $this->get_cart_html( $client_album_id );
-        $cart_total = $this->get_cart_total( $client_album_id );
-        $cart_count = count( EAO_Album_Order::get_cart_items( $client_album_id ) );
+        $cart_html  = $this->get_cart_html( $client_album_id, $cart_token );
+        $cart_total = $this->get_cart_total( $client_album_id, $cart_token );
+        $cart_count = count( EAO_Album_Order::get_cart_items( $client_album_id, $cart_token ) );
 
         wp_send_json_success( array(
             'cart_html'  => $cart_html,
@@ -471,13 +490,14 @@ class EAO_Ajax_Handler {
         }
 
         $client_album_id = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+        $cart_token      = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
 
         if ( ! $client_album_id ) {
             wp_send_json_error( array( 'message' => __( 'Invalid album.', 'easy-album-orders' ) ) );
         }
 
-        // Get cart items.
-        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id );
+        // Get cart items for this browser's cart only.
+        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id, $cart_token );
 
         if ( empty( $cart_items ) ) {
             wp_send_json_error( array( 'message' => __( 'Your cart is empty.', 'easy-album-orders' ) ) );
@@ -532,7 +552,8 @@ class EAO_Ajax_Handler {
      * @since 1.0.0
      */
     public function get_order_for_edit() {
-        $order_id = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $order_id   = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $cart_token = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
 
         if ( ! $order_id ) {
             wp_send_json_error( array( 'message' => __( 'Invalid order.', 'easy-album-orders' ) ) );
@@ -541,6 +562,12 @@ class EAO_Ajax_Handler {
         $order = EAO_Album_Order::get( $order_id );
         if ( ! $order ) {
             wp_send_json_error( array( 'message' => __( 'Order not found.', 'easy-album-orders' ) ) );
+        }
+
+        // Verify order belongs to this cart token.
+        $order_cart_token = get_post_meta( $order_id, '_eao_cart_token', true );
+        if ( $cart_token && $order_cart_token !== $cart_token ) {
+            wp_send_json_error( array( 'message' => __( 'You cannot edit this order.', 'easy-album-orders' ) ) );
         }
 
         $status = EAO_Album_Order::get_order_status( $order_id );
@@ -576,11 +603,12 @@ class EAO_Ajax_Handler {
      *
      * @since 1.0.0
      *
-     * @param int $client_album_id The client album ID.
+     * @param int    $client_album_id The client album ID.
+     * @param string $cart_token      Optional. Cart token for browser identification.
      * @return string Cart HTML.
      */
-    private function get_cart_html( $client_album_id ) {
-        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id );
+    private function get_cart_html( $client_album_id, $cart_token = '' ) {
+        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id, $cart_token );
 
         if ( empty( $cart_items ) ) {
             return '<div class="eao-cart__empty" id="eao-cart-empty">
@@ -601,11 +629,12 @@ class EAO_Ajax_Handler {
      *
      * @since 1.0.0
      *
-     * @param int $client_album_id The client album ID.
+     * @param int    $client_album_id The client album ID.
+     * @param string $cart_token      Optional. Cart token for browser identification.
      * @return float Cart total.
      */
-    private function get_cart_total( $client_album_id ) {
-        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id );
+    private function get_cart_total( $client_album_id, $cart_token = '' ) {
+        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id, $cart_token );
         $total      = 0;
 
         foreach ( $cart_items as $item ) {
