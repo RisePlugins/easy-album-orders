@@ -104,10 +104,6 @@ class EAO_Admin_Menus {
 
         // Handle form submission.
         if ( isset( $_POST['eao_save_options'] ) && check_admin_referer( 'eao_album_options_nonce', 'eao_nonce' ) ) {
-            // Debug: Log submitted colors data.
-            if ( isset( $_POST['eao_materials'] ) ) {
-                error_log( 'EAO Debug - Submitted materials: ' . print_r( $_POST['eao_materials'], true ) );
-            }
             $this->save_album_options();
         }
 
@@ -116,9 +112,6 @@ class EAO_Admin_Menus {
         $sizes             = get_option( 'eao_sizes', array() );
         $engraving_options = get_option( 'eao_engraving_options', array() );
         $general_settings  = get_option( 'eao_general_settings', array() );
-
-        // Debug: Log loaded materials.
-        error_log( 'EAO Debug - Loaded materials: ' . print_r( $materials, true ) );
 
         // Include the view.
         include EAO_PLUGIN_DIR . 'includes/admin/views/album-options-page.php';
@@ -215,15 +208,15 @@ class EAO_Admin_Menus {
                     // Sanitize texture_region as JSON - strip slashes and validate.
                     $texture_region = '';
                     if ( ! empty( $color['texture_region'] ) ) {
-                        // Remove any accumulated slashes.
-                        $region_value = wp_unslash( $color['texture_region'] );
-                        // Keep stripping slashes until we get valid JSON or no more slashes.
-                        $max_attempts = 10;
-                        $attempt = 0;
-                        while ( $attempt < $max_attempts ) {
+                        // Remove any accumulated slashes (can have many layers from repeated saves).
+                        $region_value = $color['texture_region'];
+                        
+                        // Keep stripping slashes until we get valid JSON or no more changes.
+                        // Use a high limit to handle deeply corrupted data.
+                        for ( $attempt = 0; $attempt < 100; $attempt++ ) {
                             $decoded = json_decode( $region_value, true );
                             if ( $decoded !== null && isset( $decoded['x'] ) && isset( $decoded['y'] ) && isset( $decoded['zoom'] ) ) {
-                                // Valid JSON with expected structure.
+                                // Valid JSON with expected structure - re-encode cleanly.
                                 $texture_region = wp_json_encode( array(
                                     'x'    => sanitize_text_field( $decoded['x'] ),
                                     'y'    => sanitize_text_field( $decoded['y'] ),
@@ -234,11 +227,10 @@ class EAO_Admin_Menus {
                             // Try stripping more slashes.
                             $new_value = stripslashes( $region_value );
                             if ( $new_value === $region_value ) {
-                                // No more slashes to strip.
+                                // No more slashes to strip - data is unrecoverable.
                                 break;
                             }
                             $region_value = $new_value;
-                            $attempt++;
                         }
                     }
 
