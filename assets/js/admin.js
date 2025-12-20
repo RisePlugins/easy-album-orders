@@ -345,20 +345,25 @@
                 self.removePreviewImage();
             });
 
-            // Region selection mouse events - use event delegation on modal.
+            // Region selection mouse events.
             $modal.on('mousedown', '#eao-region-image-container', function(e) {
-                // Only start selection on left mouse button and not on existing selection.
-                if (e.which === 1 && !$(e.target).is('#eao-region-selection')) {
+                // Only start selection on left mouse button.
+                if (e.which === 1) {
                     self.startRegionSelection(e, $(this));
                 }
             });
 
-            $modal.on('mousemove', '#eao-region-selector', function(e) {
-                self.updateRegionSelection(e);
+            // Track mouse movement on document level so dragging outside container still works.
+            $(document).on('mousemove.eaoRegion', function(e) {
+                if (self.regionSelection.isSelecting) {
+                    self.updateRegionSelection(e);
+                }
             });
 
-            $(document).on('mouseup', function() {
-                self.endRegionSelection();
+            $(document).on('mouseup.eaoRegion', function() {
+                if (self.regionSelection.isSelecting) {
+                    self.endRegionSelection();
+                }
             });
 
             // Save color.
@@ -477,6 +482,11 @@
                 $container = $('#eao-region-image-container');
             }
             
+            if (!$container.length || !$container[0]) {
+                console.log('Container not found');
+                return;
+            }
+            
             const containerRect = $container[0].getBoundingClientRect();
             
             this.regionSelection.isSelecting = true;
@@ -484,12 +494,14 @@
             this.regionSelection.startX = e.clientX - containerRect.left;
             this.regionSelection.startY = e.clientY - containerRect.top;
 
+            console.log('Selection started at:', this.regionSelection.startX, this.regionSelection.startY);
+
             $('#eao-region-selection').css({
                 display: 'block',
-                left: this.regionSelection.startX,
-                top: this.regionSelection.startY,
-                width: 0,
-                height: 0
+                left: this.regionSelection.startX + 'px',
+                top: this.regionSelection.startY + 'px',
+                width: '0px',
+                height: '0px'
             });
 
             e.preventDefault();
@@ -499,12 +511,17 @@
          * Update region selection during drag.
          */
         updateRegionSelection: function(e) {
-            if (!this.regionSelection.isSelecting) {
+            if (!this.regionSelection.isSelecting || !this.regionSelection.$container) {
                 return;
             }
 
-            const $container = this.regionSelection.$container || $('#eao-region-image-container');
+            const $container = this.regionSelection.$container;
             const $selection = $('#eao-region-selection');
+            
+            if (!$container.length || !$container[0]) {
+                return;
+            }
+            
             const containerRect = $container[0].getBoundingClientRect();
             const containerWidth = containerRect.width;
             const containerHeight = containerRect.height;
@@ -523,10 +540,10 @@
             const height = Math.abs(currentY - this.regionSelection.startY);
 
             $selection.css({
-                left: left,
-                top: top,
-                width: width,
-                height: height
+                left: left + 'px',
+                top: top + 'px',
+                width: width + 'px',
+                height: height + 'px'
             });
         },
 
