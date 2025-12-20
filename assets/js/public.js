@@ -1177,26 +1177,17 @@
          * Initialize the proof viewer.
          */
         init: function() {
-            console.log('EAOProofViewer init called');
-
             // Only run if viewer exists.
             if (!$('#eao-proof-viewer').length) {
-                console.log('Proof viewer element not found');
                 return;
             }
 
             // Set PDF.js worker.
-            if (typeof pdfjsLib !== 'undefined') {
-                console.log('PDF.js loaded successfully');
-                if (eaoPublic && eaoPublic.pdfWorkerUrl) {
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = eaoPublic.pdfWorkerUrl;
-                }
-            } else {
-                console.warn('PDF.js library not loaded');
+            if (typeof pdfjsLib !== 'undefined' && eaoPublic && eaoPublic.pdfWorkerUrl) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = eaoPublic.pdfWorkerUrl;
             }
 
             this.bindEvents();
-            console.log('EAOProofViewer events bound');
         },
 
         /**
@@ -1215,15 +1206,11 @@
                 const pdfUrl = $btn.data('pdf-url') || $btn.attr('data-pdf-url');
                 const designName = $btn.data('design-name') || $btn.attr('data-design-name');
 
-                console.log('View Proof clicked:', { pdfUrl, designName });
-
                 if (pdfUrl) {
                     self.open(pdfUrl, designName);
-                } else {
-                    console.error('No PDF URL found on button');
                 }
 
-                return false; // Extra prevention for label click.
+                return false;
             });
 
             // Close button.
