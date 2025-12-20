@@ -490,8 +490,13 @@ class EAO_Ajax_Handler {
         $shipping_address = isset( $_POST['shipping_address'] ) ? sanitize_textarea_field( $_POST['shipping_address'] ) : '';
         $client_notes     = isset( $_POST['client_notes'] ) ? sanitize_textarea_field( $_POST['client_notes'] ) : '';
 
+        // Collect order IDs for email notification.
+        $order_ids = array();
+
         // Update all cart items to "ordered" status.
         foreach ( $cart_items as $item ) {
+            $order_ids[] = $item->ID;
+
             // Update status.
             EAO_Album_Order::update_status( $item->ID, EAO_Album_Order::STATUS_ORDERED );
 
@@ -501,6 +506,7 @@ class EAO_Ajax_Handler {
             update_post_meta( $item->ID, '_eao_customer_phone', $customer_phone );
             update_post_meta( $item->ID, '_eao_shipping_address', $shipping_address );
             update_post_meta( $item->ID, '_eao_client_notes', $client_notes );
+            update_post_meta( $item->ID, '_eao_order_date', current_time( 'mysql' ) );
         }
 
         /**
@@ -508,10 +514,10 @@ class EAO_Ajax_Handler {
          *
          * @since 1.0.0
          *
+         * @param array $order_ids       Array of order IDs.
          * @param int   $client_album_id The client album ID.
-         * @param array $cart_items      Array of order posts.
          */
-        do_action( 'eao_checkout_completed', $client_album_id, $cart_items );
+        do_action( 'eao_order_checkout_complete', $order_ids, $client_album_id );
 
         wp_send_json_success( array(
             'message'      => __( 'Order submitted successfully!', 'easy-album-orders' ),

@@ -98,6 +98,7 @@ class EAO_Plugin {
 
         // Core utilities.
         require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-helpers.php';
+        require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-email.php';
 
         $this->loader = new EAO_Loader();
     }
@@ -152,6 +153,10 @@ class EAO_Plugin {
 
         // AJAX handlers (hooks registered in constructor).
         new EAO_Ajax_Handler();
+
+        // Email notifications.
+        $email = new EAO_Email();
+        $email->init();
     }
 
     /**

@@ -300,6 +300,14 @@ class EAO_Album_Order {
             return false;
         }
 
+        // Get old status for comparison.
+        $old_status = self::get_order_status( $order_id );
+
+        // Don't do anything if status hasn't changed.
+        if ( $old_status === $status ) {
+            return true;
+        }
+
         self::update_meta( $order_id, 'order_status', $status );
 
         // Update timestamp based on status.
@@ -323,6 +331,17 @@ class EAO_Album_Order {
          * @param string $status   The new status.
          */
         do_action( 'eao_order_status_updated', $order_id, $status );
+
+        /**
+         * Fires after an order status changes with old and new status.
+         *
+         * @since 1.0.0
+         *
+         * @param int    $order_id   The order post ID.
+         * @param string $old_status The previous status.
+         * @param string $status     The new status.
+         */
+        do_action( 'eao_order_status_changed', $order_id, $old_status, $status );
 
         return true;
     }

@@ -154,6 +154,12 @@ class EAO_Admin_Menus {
             update_option( 'eao_general_settings', $general );
         }
 
+        // Sanitize and save email settings.
+        if ( isset( $_POST['eao_email_settings'] ) && is_array( $_POST['eao_email_settings'] ) ) {
+            $email = $this->sanitize_email_settings( $_POST['eao_email_settings'] );
+            update_option( 'eao_email_settings', $email );
+        }
+
         // Add success message.
         add_settings_error(
             'eao_messages',
@@ -295,6 +301,44 @@ class EAO_Admin_Menus {
                 : 'before',
             'email_notifications' => isset( $settings['email_notifications'] ) ? true : false,
             'admin_email'         => isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' ),
+        );
+    }
+
+    /**
+     * Sanitize email settings.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param array $settings Raw email settings.
+     * @return array Sanitized email settings.
+     */
+    private function sanitize_email_settings( $settings ) {
+        return array(
+            // Sender settings.
+            'from_name'                     => isset( $settings['from_name'] ) ? sanitize_text_field( $settings['from_name'] ) : '',
+            'from_email'                    => isset( $settings['from_email'] ) ? sanitize_email( $settings['from_email'] ) : '',
+
+            // Branding.
+            'logo_url'                      => isset( $settings['logo_url'] ) ? esc_url_raw( $settings['logo_url'] ) : '',
+            'accent_color'                  => isset( $settings['accent_color'] ) ? sanitize_hex_color( $settings['accent_color'] ) : '#e67e22',
+
+            // Order Confirmation.
+            'enable_order_confirmation'     => isset( $settings['enable_order_confirmation'] ) ? true : false,
+            'order_confirmation_subject'    => isset( $settings['order_confirmation_subject'] ) ? sanitize_text_field( $settings['order_confirmation_subject'] ) : '',
+
+            // New Order Alert.
+            'enable_new_order_alert'        => isset( $settings['enable_new_order_alert'] ) ? true : false,
+            'new_order_alert_subject'       => isset( $settings['new_order_alert_subject'] ) ? sanitize_text_field( $settings['new_order_alert_subject'] ) : '',
+
+            // Shipped Notification.
+            'enable_shipped_notification'   => isset( $settings['enable_shipped_notification'] ) ? true : false,
+            'shipped_notification_subject'  => isset( $settings['shipped_notification_subject'] ) ? sanitize_text_field( $settings['shipped_notification_subject'] ) : '',
+
+            // Cart Reminder.
+            'enable_cart_reminder'          => isset( $settings['enable_cart_reminder'] ) ? true : false,
+            'cart_reminder_days'            => isset( $settings['cart_reminder_days'] ) ? absint( $settings['cart_reminder_days'] ) : 3,
+            'cart_reminder_subject'         => isset( $settings['cart_reminder_subject'] ) ? sanitize_text_field( $settings['cart_reminder_subject'] ) : '',
         );
     }
 }
