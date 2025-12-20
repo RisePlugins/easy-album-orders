@@ -530,7 +530,7 @@ easy-album-orders/
 - [ ] Email notifications (order confirmation, status updates)
 - [ ] PDF generation for orders
 - [ ] Export orders to CSV with line-item details
-- [ ] Design preview modal/lightbox
+- [x] Design preview modal/lightbox (PDF proof viewer with slide/grid modes)
 - [x] Order notes (client and photographer notes implemented)
 - [ ] Communication system (threaded messages)
 - [x] Order history section (client can view past orders on front-end)
