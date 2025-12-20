@@ -457,89 +457,90 @@ easy-album-orders/
 
 ## Development Phases
 
-### Phase 1: Foundation
-- [ ] Set up plugin structure
-- [ ] Create main plugin file with headers
-- [ ] Implement activation/deactivation hooks
-- [ ] Create custom post types (Client Album, Album Orders)
-- [ ] Basic admin menu integration
-- [ ] Database tables for global settings (if needed)
+### Phase 1: Foundation ✅ COMPLETE
+- [x] Set up plugin structure
+- [x] Create main plugin file with headers
+- [x] Implement activation/deactivation hooks
+- [x] Create custom post types (Client Album, Album Orders)
+- [x] Basic admin menu integration
+- [x] Database tables for global settings (using WordPress options API)
 
-### Phase 2: Admin Interface - Menus & Global Settings
-- [ ] Register admin menus:
-  - [ ] Client Albums (parent with icon)
-  - [ ] Add New submenu
-  - [ ] Album Options submenu
-  - [ ] Album Orders (standalone with icon)
-- [ ] Album Options page structure (tabbed interface optional)
-- [ ] Materials management (repeater fields):
-  - [ ] Material name, image, upcharge
-  - [ ] Engraving toggle per material
-  - [ ] Size restrictions per material
-  - [ ] Color options (sub-repeater with solid/texture modes)
-  - [ ] Color/texture picker tool for texture swatches
-- [ ] Sizes management (repeater fields)
-- [ ] Engraving methods management (repeater fields):
-  - [ ] Method name, upcharge
-  - [ ] Character limits per method
-  - [ ] Font options per method
-- [ ] Email and general settings
+### Phase 2: Admin Interface - Menus & Global Settings ✅ COMPLETE
+- [x] Register admin menus:
+  - [x] Client Albums (parent with icon)
+  - [x] Add New submenu
+  - [x] Album Options submenu
+  - [x] Album Orders (standalone with icon)
+- [x] Album Options page structure (tabbed interface)
+- [x] Materials management (repeater fields):
+  - [x] Material name, image, upcharge
+  - [x] Engraving toggle per material
+  - [x] Size restrictions per material
+  - [x] Color options (sub-repeater with solid/texture modes)
+  - [x] Color/texture picker tool for texture swatches
+- [x] Sizes management (repeater fields)
+- [x] Engraving methods management (repeater fields):
+  - [x] Method name, upcharge
+  - [x] Character limits per method
+  - [x] Font options per method
+- [x] Email and general settings
 
-### Phase 3: Admin Interface - Client Albums & Orders
-- [ ] Client Album meta boxes:
-  - [ ] Client information fields
-  - [ ] Album designs repeater (upload PDF, pricing, credits)
-- [ ] Album Order meta boxes:
-  - [ ] All album configuration fields (editable)
-  - [ ] Customer information (editable)
-  - [ ] Status selector (Submitted, Ordered, Shipped)
-  - [ ] Date fields (submission, order, shipped)
-  - [ ] Notes (client and photographer)
-- [ ] Order management dashboard with status filters
-- [ ] Individual order edit page
+### Phase 3: Admin Interface - Client Albums & Orders ✅ COMPLETE
+- [x] Client Album meta boxes:
+  - [x] Client information fields
+  - [x] Album designs repeater (upload PDF, pricing, credits)
+- [x] Album Order meta boxes:
+  - [x] All album configuration fields (editable)
+  - [x] Customer information (editable)
+  - [x] Status selector (Submitted, Ordered, Shipped)
+  - [x] Date fields (submission, order, shipped)
+  - [x] Notes (client and photographer)
+- [x] Order management dashboard with status filters
+- [x] Individual order edit page
 
-### Phase 4: Front-End
-- [ ] Single-page order form (`/album/client-name/`)
-- [ ] Loom video embed
-- [ ] Fetch and display global materials, sizes, colors, engraving methods
-- [ ] Album design selector with PDF preview (from client album designs)
-- [ ] Material selector with images (from global settings)
-- [ ] Color/texture selector (solid colors and texture swatches)
-- [ ] Dynamic size filtering based on material restrictions
-- [ ] Conditional engraving fields:
-  - [ ] Show engraving options only if material allows
-  - [ ] Engraving method selector
-  - [ ] Dynamic character limits and fonts based on selected method
-- [ ] Real-time price calculator (base + upcharges - credits)
-- [ ] "Add to Cart" functionality:
-  - [ ] Creates album_order post with "submitted" status
-  - [ ] Stores all configuration and customer info
-- [ ] Cart widget on same page:
-  - [ ] Display submitted albums
-  - [ ] Edit submitted albums
-  - [ ] Remove submitted albums
-  - [ ] Show total price
-- [ ] Checkout button:
-  - [ ] Changes all submitted albums to "ordered" status
-  - [ ] Locks albums from client editing
-- [ ] Form validation (client-side and server-side)
-- [ ] Checkout confirmation
-- [ ] Responsive styling
+### Phase 4: Front-End ✅ COMPLETE
+- [x] Single-page order form (`/album/client-name/`)
+- [x] Loom video embed
+- [x] Fetch and display global materials, sizes, colors, engraving methods
+- [x] Album design selector with PDF preview (from client album designs)
+- [x] Material selector with images (from global settings)
+- [x] Color/texture selector (solid colors and texture swatches)
+- [x] Dynamic size filtering based on material restrictions
+- [x] Conditional engraving fields:
+  - [x] Show engraving options only if material allows
+  - [x] Engraving method selector
+  - [x] Dynamic character limits and fonts based on selected method
+- [x] Real-time price calculator (base + upcharges - credits)
+- [x] "Add to Cart" functionality:
+  - [x] Creates album_order post with "submitted" status
+  - [x] Stores all configuration and customer info
+- [x] Cart widget on same page:
+  - [x] Display submitted albums
+  - [x] Edit submitted albums
+  - [x] Remove submitted albums
+  - [x] Show total price
+- [x] Checkout button:
+  - [x] Changes all submitted albums to "ordered" status
+  - [x] Locks albums from client editing
+- [x] Form validation (client-side and server-side)
+- [x] Checkout confirmation
+- [x] Responsive styling
 
-### Phase 5: Advanced Features
+### Phase 5: Advanced Features 🔄 IN PROGRESS
 - [ ] Email notifications (order confirmation, status updates)
 - [ ] PDF generation for orders
 - [ ] Export orders to CSV with line-item details
 - [ ] Design preview modal/lightbox
-- [ ] Order notes and communication
-- [ ] Client portal (optional - view past orders)
+- [x] Order notes (client and photographer notes implemented)
+- [ ] Communication system (threaded messages)
+- [x] Order history section (client can view past orders on front-end)
 
-### Phase 6: Polish
-- [ ] Security hardening (nonces, sanitization, validation)
+### Phase 6: Polish 🔄 IN PROGRESS
+- [x] Security hardening (nonces, sanitization, validation)
 - [ ] Performance optimization
-- [ ] Internationalization (i18n)
-- [ ] Documentation
-- [ ] Testing
+- [x] Internationalization (i18n) - text domain used throughout
+- [ ] Documentation (user guide, developer docs)
+- [ ] Testing (unit tests, integration tests)
 
 ---
 
