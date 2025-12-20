@@ -438,7 +438,13 @@
                     height: 0
                 });
                 $('#eao-modal-texture-region').val('');
-                $('#eao-region-preview-swatch').css('background-image', 'none');
+                
+                // Show default preview (whole image centered).
+                $('#eao-region-preview-swatch').css({
+                    'background-image': 'url(' + attachment.url + ')',
+                    'background-position': 'center',
+                    'background-size': 'cover'
+                });
             });
         },
 
@@ -509,14 +515,11 @@
             const width = Math.abs(currentX - this.regionSelection.startX);
             const height = Math.abs(currentY - this.regionSelection.startY);
 
-            // Force square selection for better swatch appearance.
-            const size = Math.min(width, height);
-
             $selection.css({
                 left: left,
                 top: top,
-                width: size,
-                height: size
+                width: width,
+                height: height
             });
         },
 
@@ -532,7 +535,6 @@
 
             const $container = $('#eao-region-image-container');
             const $selection = $('#eao-region-selection');
-            const $image = $('#eao-region-image');
 
             const containerWidth = $container.width();
             const containerHeight = $container.height();
@@ -541,16 +543,29 @@
             const selWidth = parseFloat($selection.css('width'));
             const selHeight = parseFloat($selection.css('height'));
 
-            if (selWidth < 10 || selHeight < 10) {
+            if (selWidth < 20 || selHeight < 20) {
                 // Selection too small, ignore.
                 return;
             }
 
-            // Calculate percentage-based region.
+            // Calculate percentage-based region for circular swatch display.
+            // Center point as percentages.
+            const centerX = ((selLeft + selWidth / 2) / containerWidth * 100).toFixed(2);
+            const centerY = ((selTop + selHeight / 2) / containerHeight * 100).toFixed(2);
+            
+            // Calculate zoom based on the smaller dimension to ensure the selection fits in the circle.
+            const selectionSize = Math.min(selWidth, selHeight);
+            const zoom = ((containerWidth / selectionSize) * 100).toFixed(0);
+
             const region = {
-                x: ((selLeft + selWidth / 2) / containerWidth * 100).toFixed(2),
-                y: ((selTop + selHeight / 2) / containerHeight * 100).toFixed(2),
-                zoom: ((containerWidth / selWidth) * 100).toFixed(0)
+                x: centerX,
+                y: centerY,
+                zoom: zoom,
+                // Store original selection for reference
+                selLeft: ((selLeft / containerWidth) * 100).toFixed(2),
+                selTop: ((selTop / containerHeight) * 100).toFixed(2),
+                selWidth: ((selWidth / containerWidth) * 100).toFixed(2),
+                selHeight: ((selHeight / containerHeight) * 100).toFixed(2)
             };
 
             $('#eao-modal-texture-region').val(JSON.stringify(region));
@@ -814,17 +829,24 @@
          * Build swatch style from color data.
          */
         buildSwatchStyle: function(data) {
-            if (data.type === 'texture' && data.textureImageUrl && data.textureRegion) {
-                try {
-                    const region = typeof data.textureRegion === 'string'
-                        ? JSON.parse(data.textureRegion)
-                        : data.textureRegion;
-                    return 'background-image: url(' + data.textureImageUrl + '); ' +
-                           'background-position: ' + region.x + '% ' + region.y + '%; ' +
-                           'background-size: ' + region.zoom + '%;';
-                } catch (e) {
-                    return 'background: linear-gradient(135deg, #ddd 25%, #999 50%, #ddd 75%);';
+            if (data.type === 'texture' && data.textureImageUrl) {
+                // Show texture image - with region if selected, otherwise centered/cover
+                if (data.textureRegion) {
+                    try {
+                        const region = typeof data.textureRegion === 'string'
+                            ? JSON.parse(data.textureRegion)
+                            : data.textureRegion;
+                        return 'background-image: url(' + data.textureImageUrl + '); ' +
+                               'background-position: ' + region.x + '% ' + region.y + '%; ' +
+                               'background-size: ' + region.zoom + '%;';
+                    } catch (e) {
+                        // Fall through to default texture display
+                    }
                 }
+                // Default: show texture centered and covering the swatch
+                return 'background-image: url(' + data.textureImageUrl + '); ' +
+                       'background-position: center; ' +
+                       'background-size: cover;';
             } else if (data.type === 'solid') {
                 return 'background-color: ' + data.colorValue + ';';
             }

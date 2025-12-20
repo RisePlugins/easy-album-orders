@@ -132,15 +132,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                                                     // Build swatch style.
                                                     $swatch_style = '';
-                                                    if ( 'texture' === $color['type'] && $texture_image_url && $texture_region ) {
-                                                        $region = json_decode( $texture_region, true );
-                                                        if ( $region ) {
+                                                    if ( 'texture' === $color['type'] && $texture_image_url ) {
+                                                        // Show texture - with region if selected, otherwise centered/cover.
+                                                        if ( $texture_region ) {
+                                                            $region = json_decode( $texture_region, true );
+                                                            if ( $region ) {
+                                                                $swatch_style = sprintf(
+                                                                    'background-image: url(%s); background-position: %s%% %s%%; background-size: %s%%;',
+                                                                    esc_url( $texture_image_url ),
+                                                                    esc_attr( $region['x'] ),
+                                                                    esc_attr( $region['y'] ),
+                                                                    esc_attr( $region['zoom'] )
+                                                                );
+                                                            }
+                                                        }
+                                                        // Default: show texture centered and covering the swatch.
+                                                        if ( empty( $swatch_style ) ) {
                                                             $swatch_style = sprintf(
-                                                                'background-image: url(%s); background-position: %s%% %s%%; background-size: %s%%;',
-                                                                esc_url( $texture_image_url ),
-                                                                esc_attr( $region['x'] ),
-                                                                esc_attr( $region['y'] ),
-                                                                esc_attr( $region['zoom'] )
+                                                                'background-image: url(%s); background-position: center; background-size: cover;',
+                                                                esc_url( $texture_image_url )
                                                             );
                                                         }
                                                     } elseif ( 'solid' === $color['type'] ) {
