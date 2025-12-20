@@ -54,6 +54,245 @@ class EAO_Email {
 
         // Set HTML content type for emails.
         add_filter( 'wp_mail_content_type', array( $this, 'set_html_content_type' ) );
+
+        // AJAX handler for email preview.
+        add_action( 'wp_ajax_eao_preview_email', array( $this, 'ajax_preview_email' ) );
+    }
+
+    /**
+     * AJAX handler for email preview.
+     *
+     * @since 1.0.0
+     */
+    public function ajax_preview_email() {
+        check_ajax_referer( 'eao_admin_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Unauthorized access.', 'easy-album-orders' ) );
+        }
+
+        $email_type = isset( $_POST['email_type'] ) ? sanitize_text_field( $_POST['email_type'] ) : '';
+
+        if ( empty( $email_type ) ) {
+            wp_send_json_error( __( 'Invalid email type.', 'easy-album-orders' ) );
+        }
+
+        // Refresh settings in case they changed.
+        $this->settings = get_option( 'eao_email_settings', array() );
+
+        // Generate preview with sample data.
+        $preview = $this->generate_email_preview( $email_type );
+
+        if ( ! $preview ) {
+            wp_send_json_error( __( 'Unknown email type.', 'easy-album-orders' ) );
+        }
+
+        wp_send_json_success( $preview );
+    }
+
+    /**
+     * Generate email preview with sample data.
+     *
+     * @since 1.0.0
+     *
+     * @param string $email_type The type of email to preview.
+     * @return array|false Preview data or false if invalid type.
+     */
+    private function generate_email_preview( $email_type ) {
+        // Sample data for previews.
+        $sample_customer_name  = 'Sarah Johnson';
+        $sample_customer_email = 'sarah.johnson@example.com';
+        $sample_customer_phone = '(555) 123-4567';
+        $sample_album_title    = 'Johnson Wedding Album';
+
+        // Sample order data.
+        $sample_orders = array(
+            array(
+                'id'                => 12345,
+                'order_number'      => 'EAO-12345',
+                'album_name'        => 'Our Wedding Day',
+                'design_name'       => '30-Page Layflat Album',
+                'material_name'     => 'Italian Leather',
+                'material_color'    => 'Burgundy',
+                'size_name'         => '12x12',
+                'engraving_text'    => 'Sarah & Michael • 06.15.2024',
+                'engraving_font'    => 'Elegant Script',
+                'engraving_method'  => 'Gold Foil Stamp',
+                'base_price'        => 500.00,
+                'material_upcharge' => 150.00,
+                'size_upcharge'     => 75.00,
+                'engraving_upcharge'=> 49.00,
+                'applied_credits'   => 100.00,
+                'total'             => 674.00,
+                'shipping_name'     => 'Sarah Johnson',
+                'shipping_address1' => '123 Maple Street',
+                'shipping_address2' => 'Apt 4B',
+                'shipping_city'     => 'Portland',
+                'shipping_state'    => 'OR',
+                'shipping_zip'      => '97201',
+            ),
+            array(
+                'id'                => 12346,
+                'order_number'      => 'EAO-12346',
+                'album_name'        => 'Parent Album - Mom & Dad',
+                'design_name'       => '20-Page Classic Album',
+                'material_name'     => 'Linen',
+                'material_color'    => 'Ivory',
+                'size_name'         => '10x10',
+                'engraving_text'    => '',
+                'engraving_font'    => '',
+                'engraving_method'  => '',
+                'base_price'        => 350.00,
+                'material_upcharge' => 0.00,
+                'size_upcharge'     => 0.00,
+                'engraving_upcharge'=> 0.00,
+                'applied_credits'   => 0.00,
+                'total'             => 350.00,
+                'shipping_name'     => 'Robert Johnson',
+                'shipping_address1' => '456 Oak Avenue',
+                'shipping_address2' => '',
+                'shipping_city'     => 'Seattle',
+                'shipping_state'    => 'WA',
+                'shipping_zip'      => '98101',
+            ),
+        );
+
+        $sample_total = 1024.00;
+
+        switch ( $email_type ) {
+            case 'order_confirmation':
+                $subject = $this->get_setting( 'order_confirmation_subject', __( 'Your Album Order Confirmation', 'easy-album-orders' ) );
+                $subject = $this->replace_placeholders( $subject, array(
+                    'customer_name' => $sample_customer_name,
+                    'album_title'   => $sample_album_title,
+                ) );
+                $html = $this->get_order_confirmation_template( $sample_orders, $sample_total, $sample_customer_name, $sample_album_title );
+                break;
+
+            case 'new_order_alert':
+                $subject = $this->get_setting( 'new_order_alert_subject', __( 'New Album Order Received', 'easy-album-orders' ) );
+                $subject = $this->replace_placeholders( $subject, array(
+                    'customer_name' => $sample_customer_name,
+                    'album_title'   => $sample_album_title,
+                ) );
+                $admin_url = admin_url( 'edit.php?post_type=album_order' );
+                $html = $this->get_new_order_alert_template( $sample_orders, $sample_total, $sample_customer_name, $sample_customer_email, $sample_customer_phone, $sample_album_title, $admin_url );
+                break;
+
+            case 'shipped_notification':
+                $subject = $this->get_setting( 'shipped_notification_subject', __( 'Your Album Has Shipped!', 'easy-album-orders' ) );
+                $subject = $this->replace_placeholders( $subject, array(
+                    'customer_name' => $sample_customer_name,
+                    'album_name'    => $sample_orders[0]['album_name'],
+                ) );
+                $html = $this->get_shipped_notification_template(
+                    $sample_orders[0],
+                    $sample_customer_name,
+                    'USPS1234567890',
+                    'USPS Priority Mail',
+                    'https://tools.usps.com/go/TrackConfirmAction?tLabels=USPS1234567890'
+                );
+                break;
+
+            case 'cart_reminder':
+                $subject = $this->get_setting( 'cart_reminder_subject', __( 'Don\'t forget your album order!', 'easy-album-orders' ) );
+                $subject = $this->replace_placeholders( $subject, array(
+                    'customer_name' => $sample_customer_name,
+                    'album_title'   => $sample_album_title,
+                ) );
+                $html = $this->get_cart_reminder_template( array( $sample_orders[0] ), 674.00, $sample_customer_name, 'https://example.com/album/johnson-wedding/' );
+                break;
+
+            default:
+                return false;
+        }
+
+        return array(
+            'subject' => $subject,
+            'html'    => $html,
+        );
+    }
+
+    /**
+     * Get cart reminder email template.
+     *
+     * @since 1.0.0
+     *
+     * @param array  $orders        Orders data (items in cart).
+     * @param float  $total         Total price.
+     * @param string $customer_name Customer name.
+     * @param string $album_url     URL to the album order page.
+     * @return string HTML email.
+     */
+    private function get_cart_reminder_template( $orders, $total, $customer_name, $album_url ) {
+        $accent_color = $this->get_setting( 'accent_color', '#e67e22' );
+
+        ob_start();
+        ?>
+        <h2 style="margin: 0 0 20px; color: #2c3e50; font-size: 24px;">Don't Forget Your Album!</h2>
+        <p style="margin: 0 0 20px; color: #495057; font-size: 16px; line-height: 1.6;">
+            Hi <?php echo esc_html( $customer_name ); ?>,
+        </p>
+        <p style="margin: 0 0 30px; color: #495057; font-size: 16px; line-height: 1.6;">
+            We noticed you have <?php echo count( $orders ) === 1 ? 'an album' : 'some albums'; ?> waiting in your cart. Your selections look amazing! Complete your order to bring your memories to life.
+        </p>
+
+        <!-- Cart Items -->
+        <?php foreach ( $orders as $order ) : ?>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                <tr>
+                    <td style="padding: 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <p style="margin: 0 0 10px; color: #2c3e50; font-size: 16px; font-weight: 600;"><?php echo esc_html( $order['album_name'] ); ?></p>
+                                    <p style="margin: 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
+                                        <?php echo esc_html( $order['design_name'] ); ?> • 
+                                        <?php echo esc_html( $order['material_name'] ); ?>
+                                        <?php if ( $order['material_color'] ) : ?>(<?php echo esc_html( $order['material_color'] ); ?>)<?php endif; ?> • 
+                                        <?php echo esc_html( $order['size_name'] ); ?>
+                                    </p>
+                                </td>
+                                <td style="vertical-align: top; text-align: right; width: 100px;">
+                                    <p style="margin: 0; color: <?php echo esc_attr( $accent_color ); ?>; font-size: 16px; font-weight: 600;"><?php echo esc_html( eao_format_price( $order['total'] ) ); ?></p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        <?php endforeach; ?>
+
+        <!-- Cart Total -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #2c3e50; border-radius: 8px; margin-bottom: 30px;">
+            <tr>
+                <td style="padding: 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td style="color: #ffffff; font-size: 18px;">Cart Total:</td>
+                            <td style="color: #ffffff; font-size: 24px; font-weight: 700; text-align: right;"><?php echo esc_html( eao_format_price( $total ) ); ?></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!-- CTA Button -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td align="center">
+                    <a href="<?php echo esc_url( $album_url ); ?>" style="display: inline-block; padding: 16px 40px; background-color: <?php echo esc_attr( $accent_color ); ?>; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 18px; font-weight: 600;">Complete Your Order</a>
+                </td>
+            </tr>
+        </table>
+
+        <p style="margin: 30px 0 0; color: #6c757d; font-size: 14px; line-height: 1.6; text-align: center;">
+            If you have any questions or need help, feel free to reply to this email. We're here to help!
+        </p>
+        <?php
+        $content = ob_get_clean();
+
+        return $this->get_email_template( $content, __( 'Complete Your Album Order', 'easy-album-orders' ) );
     }
 
     /**

@@ -361,10 +361,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </h3>
                     <div class="eao-settings-card__body">
                         <p class="eao-settings-card__description"><?php esc_html_e( 'Sent to the customer when they complete checkout.', 'easy-album-orders' ); ?></p>
-                        <label class="eao-toggle eao-toggle--block">
-                            <input type="checkbox" name="eao_email_settings[enable_order_confirmation]" value="1" <?php checked( ! isset( $email_settings['enable_order_confirmation'] ) || ! empty( $email_settings['enable_order_confirmation'] ) ); ?>>
-                            <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
-                        </label>
+                        <div class="eao-email-settings-row">
+                            <label class="eao-toggle eao-toggle--block">
+                                <input type="checkbox" name="eao_email_settings[enable_order_confirmation]" value="1" <?php checked( ! isset( $email_settings['enable_order_confirmation'] ) || ! empty( $email_settings['enable_order_confirmation'] ) ); ?>>
+                                <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
+                            </label>
+                            <button type="button" class="button eao-email-preview-btn" data-email-type="order_confirmation">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php esc_html_e( 'Preview Email', 'easy-album-orders' ); ?>
+                            </button>
+                        </div>
                         <div class="eao-field">
                             <label><?php esc_html_e( 'Subject Line', 'easy-album-orders' ); ?></label>
                             <input type="text" name="eao_email_settings[order_confirmation_subject]" value="<?php echo esc_attr( isset( $email_settings['order_confirmation_subject'] ) ? $email_settings['order_confirmation_subject'] : __( 'Your Album Order Confirmation', 'easy-album-orders' ) ); ?>">
@@ -382,10 +388,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </h3>
                     <div class="eao-settings-card__body">
                         <p class="eao-settings-card__description"><?php esc_html_e( 'Sent to you when a customer places an order.', 'easy-album-orders' ); ?></p>
-                        <label class="eao-toggle eao-toggle--block">
-                            <input type="checkbox" name="eao_email_settings[enable_new_order_alert]" value="1" <?php checked( ! isset( $email_settings['enable_new_order_alert'] ) || ! empty( $email_settings['enable_new_order_alert'] ) ); ?>>
-                            <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
-                        </label>
+                        <div class="eao-email-settings-row">
+                            <label class="eao-toggle eao-toggle--block">
+                                <input type="checkbox" name="eao_email_settings[enable_new_order_alert]" value="1" <?php checked( ! isset( $email_settings['enable_new_order_alert'] ) || ! empty( $email_settings['enable_new_order_alert'] ) ); ?>>
+                                <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
+                            </label>
+                            <button type="button" class="button eao-email-preview-btn" data-email-type="new_order_alert">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php esc_html_e( 'Preview Email', 'easy-album-orders' ); ?>
+                            </button>
+                        </div>
                         <div class="eao-field">
                             <label><?php esc_html_e( 'Subject Line', 'easy-album-orders' ); ?></label>
                             <input type="text" name="eao_email_settings[new_order_alert_subject]" value="<?php echo esc_attr( isset( $email_settings['new_order_alert_subject'] ) ? $email_settings['new_order_alert_subject'] : __( 'New Album Order Received', 'easy-album-orders' ) ); ?>">
@@ -403,10 +415,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </h3>
                     <div class="eao-settings-card__body">
                         <p class="eao-settings-card__description"><?php esc_html_e( 'Sent to the customer when you mark an album as shipped.', 'easy-album-orders' ); ?></p>
-                        <label class="eao-toggle eao-toggle--block">
-                            <input type="checkbox" name="eao_email_settings[enable_shipped_notification]" value="1" <?php checked( ! isset( $email_settings['enable_shipped_notification'] ) || ! empty( $email_settings['enable_shipped_notification'] ) ); ?>>
-                            <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
-                        </label>
+                        <div class="eao-email-settings-row">
+                            <label class="eao-toggle eao-toggle--block">
+                                <input type="checkbox" name="eao_email_settings[enable_shipped_notification]" value="1" <?php checked( ! isset( $email_settings['enable_shipped_notification'] ) || ! empty( $email_settings['enable_shipped_notification'] ) ); ?>>
+                                <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
+                            </label>
+                            <button type="button" class="button eao-email-preview-btn" data-email-type="shipped_notification">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php esc_html_e( 'Preview Email', 'easy-album-orders' ); ?>
+                            </button>
+                        </div>
                         <div class="eao-field">
                             <label><?php esc_html_e( 'Subject Line', 'easy-album-orders' ); ?></label>
                             <input type="text" name="eao_email_settings[shipped_notification_subject]" value="<?php echo esc_attr( isset( $email_settings['shipped_notification_subject'] ) ? $email_settings['shipped_notification_subject'] : __( 'Your Album Has Shipped!', 'easy-album-orders' ) ); ?>">
@@ -424,10 +442,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </h3>
                     <div class="eao-settings-card__body">
                         <p class="eao-settings-card__description"><?php esc_html_e( 'Sent when a customer has items in their cart but hasn\'t checked out.', 'easy-album-orders' ); ?></p>
-                        <label class="eao-toggle eao-toggle--block">
-                            <input type="checkbox" name="eao_email_settings[enable_cart_reminder]" value="1" <?php checked( ! empty( $email_settings['enable_cart_reminder'] ) ); ?>>
-                            <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
-                        </label>
+                        <div class="eao-email-settings-row">
+                            <label class="eao-toggle eao-toggle--block">
+                                <input type="checkbox" name="eao_email_settings[enable_cart_reminder]" value="1" <?php checked( ! empty( $email_settings['enable_cart_reminder'] ) ); ?>>
+                                <span class="eao-toggle__label"><?php esc_html_e( 'Enable this email', 'easy-album-orders' ); ?></span>
+                            </label>
+                            <button type="button" class="button eao-email-preview-btn" data-email-type="cart_reminder">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php esc_html_e( 'Preview Email', 'easy-album-orders' ); ?>
+                            </button>
+                        </div>
                         <div class="eao-field">
                             <label><?php esc_html_e( 'Send reminder after (days)', 'easy-album-orders' ); ?></label>
                             <input type="number" name="eao_email_settings[cart_reminder_days]" value="<?php echo esc_attr( isset( $email_settings['cart_reminder_days'] ) ? $email_settings['cart_reminder_days'] : '3' ); ?>" min="1" max="30" style="width: 80px;">
@@ -708,3 +732,28 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
     </div>
 </script>
+
+<!-- Email Preview Modal -->
+<div id="eao-email-preview-modal" class="eao-modal eao-modal--large" style="display: none;">
+    <div class="eao-modal__backdrop"></div>
+    <div class="eao-modal__content eao-modal__content--email-preview">
+        <div class="eao-modal__header">
+            <h3 id="eao-email-preview-title"><?php esc_html_e( 'Email Preview', 'easy-album-orders' ); ?></h3>
+            <button type="button" class="eao-modal__close">
+                <span class="dashicons dashicons-no-alt"></span>
+            </button>
+        </div>
+        <div class="eao-modal__body">
+            <div class="eao-email-preview-info">
+                <p><strong><?php esc_html_e( 'Subject:', 'easy-album-orders' ); ?></strong> <span id="eao-email-preview-subject"></span></p>
+                <p class="description"><?php esc_html_e( 'This preview uses sample data. Actual emails will contain real order information.', 'easy-album-orders' ); ?></p>
+            </div>
+            <div class="eao-email-preview-frame-container">
+                <iframe id="eao-email-preview-frame" title="<?php esc_attr_e( 'Email Preview', 'easy-album-orders' ); ?>"></iframe>
+            </div>
+        </div>
+        <div class="eao-modal__footer">
+            <button type="button" class="button eao-modal__close"><?php esc_html_e( 'Close', 'easy-album-orders' ); ?></button>
+        </div>
+    </div>
+</div>

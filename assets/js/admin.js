@@ -33,6 +33,7 @@
             this.bindDesignRepeater();
             this.bindCopyLink();
             this.bindLegacyRepeaters();
+            this.bindEmailPreview();
         },
 
         /**
@@ -656,6 +657,95 @@
                     const name = $(this).attr('name');
                     $(this).attr('name', name.replace(/eao_designs\[\d+\]/, 'eao_designs[' + index + ']'));
                 });
+            });
+        },
+
+        /**
+         * Bind email preview functionality.
+         */
+        bindEmailPreview: function() {
+            const self = this;
+            const $modal = $('#eao-email-preview-modal');
+
+            // Preview button click.
+            $(document).on('click', '.eao-email-preview-btn', function() {
+                const emailType = $(this).data('email-type');
+                self.loadEmailPreview(emailType);
+            });
+
+            // Close modal.
+            $modal.on('click', '.eao-modal__backdrop, .eao-modal__close', function() {
+                self.closeEmailPreviewModal();
+            });
+
+            // Handle Escape key.
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && $modal.is(':visible')) {
+                    self.closeEmailPreviewModal();
+                }
+            });
+        },
+
+        /**
+         * Load email preview via AJAX.
+         *
+         * @param {string} emailType The type of email to preview.
+         */
+        loadEmailPreview: function(emailType) {
+            const $modal = $('#eao-email-preview-modal');
+            const $frame = $('#eao-email-preview-frame');
+            const $title = $('#eao-email-preview-title');
+            const $subject = $('#eao-email-preview-subject');
+
+            // Set title based on email type.
+            const titles = {
+                'order_confirmation': eaoAdmin.emailTitles?.order_confirmation || 'Order Confirmation Email',
+                'new_order_alert': eaoAdmin.emailTitles?.new_order_alert || 'New Order Alert Email',
+                'shipped_notification': eaoAdmin.emailTitles?.shipped_notification || 'Shipped Notification Email',
+                'cart_reminder': eaoAdmin.emailTitles?.cart_reminder || 'Cart Reminder Email'
+            };
+            $title.text(titles[emailType] || 'Email Preview');
+
+            // Show loading state.
+            $modal.fadeIn(150);
+            $frame.attr('srcdoc', '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:sans-serif;color:#666;"><p>Loading preview...</p></div>');
+            $subject.text('Loading...');
+
+            // Fetch preview via AJAX.
+            $.ajax({
+                url: eaoAdmin.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'eao_preview_email',
+                    nonce: eaoAdmin.nonce,
+                    email_type: emailType
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $subject.text(response.data.subject);
+                        $frame.attr('srcdoc', response.data.html);
+                    } else {
+                        $frame.attr('srcdoc', '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:sans-serif;color:#c00;"><p>Error loading preview: ' + (response.data || 'Unknown error') + '</p></div>');
+                        $subject.text('Error');
+                    }
+                },
+                error: function() {
+                    $frame.attr('srcdoc', '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:sans-serif;color:#c00;"><p>Failed to load preview. Please try again.</p></div>');
+                    $subject.text('Error');
+                }
+            });
+        },
+
+        /**
+         * Close the email preview modal.
+         */
+        closeEmailPreviewModal: function() {
+            const $modal = $('#eao-email-preview-modal');
+            const $frame = $('#eao-email-preview-frame');
+
+            $modal.fadeOut(150, function() {
+                // Clear iframe to stop any loading.
+                $frame.attr('srcdoc', '');
             });
         }
     };
