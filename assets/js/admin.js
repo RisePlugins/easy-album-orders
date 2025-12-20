@@ -34,6 +34,7 @@
             this.bindCopyLink();
             this.bindLegacyRepeaters();
             this.bindEmailPreview();
+            this.bindCartReminderSend();
         },
 
         /**
@@ -746,6 +747,56 @@
             $modal.fadeOut(150, function() {
                 // Clear iframe to stop any loading.
                 $frame.attr('srcdoc', '');
+            });
+        },
+
+        /**
+         * Bind cart reminder manual send functionality.
+         */
+        bindCartReminderSend: function() {
+            const $btn = $('#eao-send-reminders-now');
+            const $status = $('.eao-send-reminders-status');
+
+            if (!$btn.length) {
+                return;
+            }
+
+            $btn.on('click', function() {
+                const $button = $(this);
+                const originalText = $button.html();
+
+                // Disable button and show loading.
+                $button.prop('disabled', true).html(
+                    '<span class="dashicons dashicons-update spin"></span> ' + 
+                    (eaoAdmin.sendingReminders || 'Sending...')
+                );
+                $status.removeClass('success error').text('');
+
+                // Send AJAX request.
+                $.ajax({
+                    url: eaoAdmin.ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'eao_send_cart_reminders',
+                        nonce: eaoAdmin.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $status.addClass('success').text(response.data.message);
+                            // Hide button after successful send.
+                            setTimeout(function() {
+                                $button.fadeOut();
+                            }, 2000);
+                        } else {
+                            $status.addClass('error').text(response.data || 'Error sending reminders');
+                            $button.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function() {
+                        $status.addClass('error').text('Failed to send reminders. Please try again.');
+                        $button.prop('disabled', false).html(originalText);
+                    }
+                });
             });
         }
     };

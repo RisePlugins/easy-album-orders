@@ -50,6 +50,7 @@ class EAO_Deactivator {
         // Clear any scheduled events that the plugin may have created.
         wp_clear_scheduled_hook( 'eao_daily_cleanup' );
         wp_clear_scheduled_hook( 'eao_send_notifications' );
+        wp_clear_scheduled_hook( 'eao_cart_reminder_check' );
     }
 
     /**

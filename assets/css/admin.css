@@ -1972,3 +1972,94 @@
     background: #f8f9fa;
     text-align: right;
 }
+
+/* ==========================================================================
+   Cron Status Styles
+   ========================================================================== */
+
+.eao-cron-status {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--eao-border-light);
+}
+
+.eao-cron-status h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--eao-text);
+}
+
+.eao-cron-status__info {
+    margin-bottom: 16px;
+}
+
+.eao-cron-status__info p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--eao-text-light);
+}
+
+.eao-cron-status__info p:last-child {
+    margin-bottom: 0;
+}
+
+.eao-cron-status__info .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.eao-cron-status__pending {
+    color: var(--eao-primary) !important;
+    font-weight: 500;
+}
+
+.eao-cron-status__none {
+    color: #46b450 !important;
+}
+
+.eao-send-reminders-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.eao-send-reminders-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.eao-send-reminders-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.eao-send-reminders-status {
+    display: inline-block;
+    margin-left: 12px;
+    font-size: 13px;
+    color: var(--eao-text-light);
+}
+
+.eao-send-reminders-status.success {
+    color: #46b450;
+}
+
+.eao-send-reminders-status.error {
+    color: #dc3232;
+}
+
+/* Spinning animation for loading state */
+@keyframes eao-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.dashicons.spin {
+    animation: eao-spin 1s linear infinite;
+}

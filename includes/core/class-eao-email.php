@@ -57,6 +57,218 @@ class EAO_Email {
 
         // AJAX handler for email preview.
         add_action( 'wp_ajax_eao_preview_email', array( $this, 'ajax_preview_email' ) );
+
+        // AJAX handler for manual cart reminder send.
+        add_action( 'wp_ajax_eao_send_cart_reminders', array( $this, 'ajax_send_cart_reminders' ) );
+
+        // Cart reminder cron job.
+        add_action( 'eao_cart_reminder_check', array( $this, 'process_cart_reminders' ) );
+
+        // Ensure cron is scheduled (in case activation didn't run properly).
+        $this->maybe_schedule_cart_reminder_cron();
+    }
+
+    /**
+     * Ensure the cart reminder cron is scheduled.
+     *
+     * @since 1.0.0
+     */
+    private function maybe_schedule_cart_reminder_cron() {
+        if ( ! wp_next_scheduled( 'eao_cart_reminder_check' ) ) {
+            wp_schedule_event( time(), 'daily', 'eao_cart_reminder_check' );
+        }
+    }
+
+    /**
+     * Process cart reminders.
+     *
+     * Finds orders with 'submitted' status that are older than the configured
+     * number of days and sends reminder emails.
+     *
+     * @since 1.0.0
+     */
+    public function process_cart_reminders() {
+        // Check if cart reminders are enabled.
+        if ( ! $this->is_email_enabled( 'cart_reminder' ) ) {
+            return;
+        }
+
+        // Get reminder delay days (default 3).
+        $days = absint( $this->get_setting( 'cart_reminder_days', 3 ) );
+        if ( $days < 1 ) {
+            $days = 3;
+        }
+
+        // Calculate the date threshold.
+        $date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+
+        // Query for submitted orders older than the threshold.
+        $args = array(
+            'post_type'      => 'album_order',
+            'post_status'    => 'publish',
+            'posts_per_page' => 50, // Process in batches.
+            'meta_query'     => array(
+                'relation' => 'AND',
+                array(
+                    'key'     => '_eao_order_status',
+                    'value'   => 'submitted',
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_eao_cart_reminder_sent',
+                    'compare' => 'NOT EXISTS', // Only orders that haven't received a reminder.
+                ),
+            ),
+            'date_query'     => array(
+                array(
+                    'before' => $date_threshold,
+                ),
+            ),
+        );
+
+        $orders = get_posts( $args );
+
+        if ( empty( $orders ) ) {
+            return;
+        }
+
+        // Group orders by customer email and client album.
+        $grouped_orders = array();
+
+        foreach ( $orders as $order ) {
+            $customer_email  = get_post_meta( $order->ID, '_eao_customer_email', true );
+            $client_album_id = get_post_meta( $order->ID, '_eao_client_album_id', true );
+
+            if ( empty( $customer_email ) || ! is_email( $customer_email ) ) {
+                continue;
+            }
+
+            $key = $customer_email . '_' . $client_album_id;
+
+            if ( ! isset( $grouped_orders[ $key ] ) ) {
+                $grouped_orders[ $key ] = array(
+                    'customer_email'  => $customer_email,
+                    'client_album_id' => $client_album_id,
+                    'order_ids'       => array(),
+                );
+            }
+
+            $grouped_orders[ $key ]['order_ids'][] = $order->ID;
+        }
+
+        // Send reminders for each group.
+        foreach ( $grouped_orders as $group ) {
+            $this->send_cart_reminder( $group['order_ids'], $group['client_album_id'], $group['customer_email'] );
+        }
+    }
+
+    /**
+     * Send cart reminder email.
+     *
+     * @since 1.0.0
+     *
+     * @param array  $order_ids       Array of order IDs in the cart.
+     * @param int    $client_album_id Client album ID.
+     * @param string $customer_email  Customer email address.
+     */
+    public function send_cart_reminder( $order_ids, $client_album_id, $customer_email ) {
+        if ( empty( $order_ids ) || empty( $customer_email ) ) {
+            return;
+        }
+
+        // Get customer name from the first order.
+        $first_order_id = $order_ids[0];
+        $customer_name  = get_post_meta( $first_order_id, '_eao_customer_name', true );
+
+        if ( empty( $customer_name ) ) {
+            $customer_name = __( 'there', 'easy-album-orders' ); // Fallback.
+        }
+
+        // Build order data.
+        $orders_data = $this->get_orders_data( $order_ids );
+        $total       = $this->calculate_orders_total( $order_ids );
+
+        // Get client album URL.
+        $album_url = get_permalink( $client_album_id );
+
+        // Get client album title.
+        $album_title = get_the_title( $client_album_id );
+
+        // Build email content.
+        $subject = $this->get_setting( 'cart_reminder_subject', __( 'Don\'t forget your album order!', 'easy-album-orders' ) );
+        $subject = $this->replace_placeholders( $subject, array(
+            'customer_name' => $customer_name,
+            'album_title'   => $album_title,
+        ) );
+
+        $body = $this->get_cart_reminder_template( $orders_data, $total, $customer_name, $album_url );
+
+        // Send email.
+        $sent = wp_mail( $customer_email, $subject, $body, $this->get_headers() );
+
+        // Mark orders as having received a reminder (to prevent duplicate sends).
+        if ( $sent ) {
+            foreach ( $order_ids as $order_id ) {
+                update_post_meta( $order_id, '_eao_cart_reminder_sent', current_time( 'mysql' ) );
+            }
+        }
+    }
+
+    /**
+     * AJAX handler for manually sending cart reminders.
+     *
+     * @since 1.0.0
+     */
+    public function ajax_send_cart_reminders() {
+        check_ajax_referer( 'eao_admin_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Unauthorized access.', 'easy-album-orders' ) );
+        }
+
+        // Temporarily enable cart reminders for this run.
+        $this->settings['enable_cart_reminder'] = true;
+
+        // Process reminders.
+        $this->process_cart_reminders();
+
+        // Count how many were sent.
+        $days           = absint( $this->get_setting( 'cart_reminder_days', 3 ) );
+        $date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+
+        // Check if any orders still need reminders (shouldn't be any after successful send).
+        $remaining_args = array(
+            'post_type'      => 'album_order',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                'relation' => 'AND',
+                array(
+                    'key'     => '_eao_order_status',
+                    'value'   => 'submitted',
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_eao_cart_reminder_sent',
+                    'compare' => 'NOT EXISTS',
+                ),
+            ),
+            'date_query'     => array(
+                array(
+                    'before' => $date_threshold,
+                ),
+            ),
+        );
+        $remaining = count( get_posts( $remaining_args ) );
+
+        if ( 0 === $remaining ) {
+            wp_send_json_success( array(
+                'message' => __( 'Cart reminders sent successfully!', 'easy-album-orders' ),
+            ) );
+        } else {
+            wp_send_json_error( __( 'Some reminders could not be sent. Check email settings.', 'easy-album-orders' ) );
+        }
     }
 
     /**

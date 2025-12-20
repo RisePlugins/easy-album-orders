@@ -27,6 +27,7 @@ class EAO_Activator {
      * - Create necessary database tables
      * - Set default options
      * - Register custom post types and flush rewrite rules
+     * - Schedule cron events
      *
      * @since 1.0.0
      */
@@ -40,11 +41,27 @@ class EAO_Activator {
         // Register post types to flush rewrite rules.
         self::register_post_types();
 
+        // Schedule cron events.
+        self::schedule_cron_events();
+
         // Flush rewrite rules.
         flush_rewrite_rules();
 
         // Set activation flag for admin notice.
         set_transient( 'eao_activation_notice', true, 30 );
+    }
+
+    /**
+     * Schedule cron events.
+     *
+     * @since  1.0.0
+     * @access private
+     */
+    private static function schedule_cron_events() {
+        // Schedule cart reminder check (runs daily).
+        if ( ! wp_next_scheduled( 'eao_cart_reminder_check' ) ) {
+            wp_schedule_event( time(), 'daily', 'eao_cart_reminder_check' );
+        }
     }
 
     /**

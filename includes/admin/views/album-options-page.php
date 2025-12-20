@@ -434,6 +434,40 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
 
                 <!-- Cart Reminder Email -->
+                <?php
+                $next_scheduled = wp_next_scheduled( 'eao_cart_reminder_check' );
+                $pending_count  = 0;
+                $days_setting   = isset( $email_settings['cart_reminder_days'] ) ? absint( $email_settings['cart_reminder_days'] ) : 3;
+                
+                // Count pending reminders.
+                if ( ! empty( $email_settings['enable_cart_reminder'] ) ) {
+                    $date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days_setting} days" ) );
+                    $pending_args   = array(
+                        'post_type'      => 'album_order',
+                        'post_status'    => 'publish',
+                        'posts_per_page' => -1,
+                        'fields'         => 'ids',
+                        'meta_query'     => array(
+                            'relation' => 'AND',
+                            array(
+                                'key'     => '_eao_order_status',
+                                'value'   => 'submitted',
+                                'compare' => '=',
+                            ),
+                            array(
+                                'key'     => '_eao_cart_reminder_sent',
+                                'compare' => 'NOT EXISTS',
+                            ),
+                        ),
+                        'date_query'     => array(
+                            array(
+                                'before' => $date_threshold,
+                            ),
+                        ),
+                    );
+                    $pending_count = count( get_posts( $pending_args ) );
+                }
+                ?>
                 <div class="eao-settings-card eao-settings-card--full">
                     <h3>
                         <span class="dashicons dashicons-clock"></span>
@@ -454,13 +488,63 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
                         <div class="eao-field">
                             <label><?php esc_html_e( 'Send reminder after (days)', 'easy-album-orders' ); ?></label>
-                            <input type="number" name="eao_email_settings[cart_reminder_days]" value="<?php echo esc_attr( isset( $email_settings['cart_reminder_days'] ) ? $email_settings['cart_reminder_days'] : '3' ); ?>" min="1" max="30" style="width: 80px;">
+                            <input type="number" name="eao_email_settings[cart_reminder_days]" value="<?php echo esc_attr( $days_setting ); ?>" min="1" max="30" style="width: 80px;">
                             <p class="description"><?php esc_html_e( 'Number of days to wait before sending a reminder.', 'easy-album-orders' ); ?></p>
                         </div>
                         <div class="eao-field">
                             <label><?php esc_html_e( 'Subject Line', 'easy-album-orders' ); ?></label>
                             <input type="text" name="eao_email_settings[cart_reminder_subject]" value="<?php echo esc_attr( isset( $email_settings['cart_reminder_subject'] ) ? $email_settings['cart_reminder_subject'] : __( 'Don\'t forget your album order!', 'easy-album-orders' ) ); ?>">
                             <p class="description"><?php esc_html_e( 'Available placeholders: {customer_name}, {album_title}', 'easy-album-orders' ); ?></p>
+                        </div>
+
+                        <!-- Cron Status -->
+                        <div class="eao-cron-status">
+                            <h4><?php esc_html_e( 'Automated Reminders', 'easy-album-orders' ); ?></h4>
+                            <div class="eao-cron-status__info">
+                                <?php if ( $next_scheduled ) : ?>
+                                    <p>
+                                        <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
+                                        <?php
+                                        printf(
+                                            /* translators: %s: next run time */
+                                            esc_html__( 'Next automatic check: %s', 'easy-album-orders' ),
+                                            '<strong>' . esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next_scheduled + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) . '</strong>'
+                                        );
+                                        ?>
+                                    </p>
+                                <?php else : ?>
+                                    <p>
+                                        <span class="dashicons dashicons-warning" style="color: #dc3232;"></span>
+                                        <?php esc_html_e( 'Cron not scheduled. Try deactivating and reactivating the plugin.', 'easy-album-orders' ); ?>
+                                    </p>
+                                <?php endif; ?>
+
+                                <?php if ( $pending_count > 0 ) : ?>
+                                    <p class="eao-cron-status__pending">
+                                        <span class="dashicons dashicons-email"></span>
+                                        <?php
+                                        printf(
+                                            /* translators: %d: number of pending reminders */
+                                            esc_html( _n( '%d cart item eligible for reminder', '%d cart items eligible for reminders', $pending_count, 'easy-album-orders' ) ),
+                                            esc_html( $pending_count )
+                                        );
+                                        ?>
+                                    </p>
+                                <?php elseif ( ! empty( $email_settings['enable_cart_reminder'] ) ) : ?>
+                                    <p class="eao-cron-status__none">
+                                        <span class="dashicons dashicons-yes"></span>
+                                        <?php esc_html_e( 'No pending cart reminders at this time.', 'easy-album-orders' ); ?>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if ( $pending_count > 0 ) : ?>
+                                <button type="button" class="button button-secondary eao-send-reminders-btn" id="eao-send-reminders-now">
+                                    <span class="dashicons dashicons-email-alt"></span>
+                                    <?php esc_html_e( 'Send Reminders Now', 'easy-album-orders' ); ?>
+                                </button>
+                                <span class="eao-send-reminders-status"></span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

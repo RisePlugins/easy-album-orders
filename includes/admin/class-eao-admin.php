@@ -125,12 +125,13 @@ class EAO_Admin {
                 'pdfMediaButton' => __( 'Use this PDF', 'easy-album-orders' ),
                 'addColor'       => __( 'Add Color', 'easy-album-orders' ),
                 'editColor'      => __( 'Edit Color', 'easy-album-orders' ),
-                'emailTitles'    => array(
+                'emailTitles'      => array(
                     'order_confirmation'   => __( 'Order Confirmation Email', 'easy-album-orders' ),
                     'new_order_alert'      => __( 'New Order Alert Email', 'easy-album-orders' ),
                     'shipped_notification' => __( 'Shipped Notification Email', 'easy-album-orders' ),
                     'cart_reminder'        => __( 'Cart Reminder Email', 'easy-album-orders' ),
                 ),
+                'sendingReminders' => __( 'Sending...', 'easy-album-orders' ),
             )
         );
     }
