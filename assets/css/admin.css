@@ -1105,6 +1105,7 @@
     justify-content: space-between;
     padding: var(--eao-space-md) var(--eao-space-lg);
     border-bottom: var(--eao-border);
+    flex-shrink: 0;
 }
 
 .eao-modal__header h3 {
@@ -1146,6 +1147,7 @@
     background: var(--eao-gray-50);
     border-top: var(--eao-border);
     border-radius: 0 0 var(--eao-radius-xl) var(--eao-radius-xl);
+    flex-shrink: 0;
 }
 
 /* Color Picker in Modal */
@@ -2070,6 +2072,15 @@
 
 .eao-modal--medium .eao-modal__content {
     max-width: 550px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.eao-modal--medium .eao-modal__body {
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(90vh - 140px); /* Account for header and footer */
 }
 
 /* ==========================================================================
