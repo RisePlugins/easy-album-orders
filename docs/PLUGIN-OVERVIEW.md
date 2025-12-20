@@ -534,7 +534,7 @@ easy-album-orders/
 - [x] Order notes (client and photographer notes implemented)
 - [ ] Communication system (threaded messages)
 - [x] Order history section (client can view past orders on front-end)
-- [ ] Cart reminder email (with cron scheduling)
+- [x] Cart reminder email (with cron scheduling)
 
 ### Phase 6: Polish 🔄 IN PROGRESS
 - [x] Security hardening (nonces, sanitization, validation)
