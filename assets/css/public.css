@@ -304,14 +304,139 @@
 }
 
 /* ==========================================================================
-   Color Swatches
+   Color Cards (Preview Image with Swatch Overlay)
    ========================================================================== */
 
 .eao-color-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
 }
+
+.eao-color-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--eao-white);
+    border: 2px solid var(--eao-border);
+    border-radius: var(--eao-radius);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    overflow: hidden;
+}
+
+.eao-color-card:hover {
+    border-color: var(--eao-primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--eao-shadow);
+}
+
+.eao-color-card.is-selected {
+    border-color: var(--eao-accent);
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+}
+
+.eao-color-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Preview container with swatch overlay */
+.eao-color-card__preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--eao-bg);
+}
+
+.eao-color-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Swatch circle overlay in bottom right */
+.eao-color-card__swatch {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid var(--eao-white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    background-size: cover;
+    background-position: center;
+}
+
+/* Fallback for colors without preview image */
+.eao-color-card__swatch-only {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Color name */
+.eao-color-card__name {
+    display: block;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--eao-text);
+    background: var(--eao-white);
+    border-top: 1px solid var(--eao-border-light);
+}
+
+/* Selected state enhancements */
+.eao-color-card.is-selected .eao-color-card__name {
+    color: var(--eao-accent);
+    font-weight: 600;
+}
+
+.eao-color-card.is-selected .eao-color-card__swatch {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 2px var(--eao-accent);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .eao-color-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+    }
+
+    .eao-color-card__swatch {
+        width: 30px;
+        height: 30px;
+        bottom: 6px;
+        right: 6px;
+    }
+
+    .eao-color-card__name {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .eao-color-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .eao-color-card__swatch {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* ==========================================================================
+   Legacy Color Swatches (for backwards compatibility)
+   ========================================================================== */
 
 .eao-color-swatch {
     width: 50px;

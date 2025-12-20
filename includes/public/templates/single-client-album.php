@@ -135,8 +135,25 @@ $cart_items = array();
                             <?php foreach ( $materials as $index => $material ) : ?>
                                 <?php
                                 $material_image = ! empty( $material['image_id'] ) ? wp_get_attachment_image_url( $material['image_id'], 'thumbnail' ) : '';
-                                $colors_json    = ! empty( $material['colors'] ) ? wp_json_encode( $material['colors'] ) : '[]';
-                                $restricted     = ! empty( $material['restricted_sizes'] ) ? wp_json_encode( $material['restricted_sizes'] ) : '[]';
+
+                                // Add URLs to colors for front-end use.
+                                $colors_with_urls = array();
+                                if ( ! empty( $material['colors'] ) && is_array( $material['colors'] ) ) {
+                                    foreach ( $material['colors'] as $color ) {
+                                        // Add texture URL if available.
+                                        if ( ! empty( $color['texture_image_id'] ) ) {
+                                            $color['texture_url'] = wp_get_attachment_url( $color['texture_image_id'] );
+                                        }
+                                        // Add preview image URL if available.
+                                        if ( ! empty( $color['preview_image_id'] ) ) {
+                                            $color['preview_image_url'] = wp_get_attachment_image_url( $color['preview_image_id'], 'medium' );
+                                        }
+                                        $colors_with_urls[] = $color;
+                                    }
+                                }
+                                $colors_json = wp_json_encode( $colors_with_urls );
+
+                                $restricted = ! empty( $material['restricted_sizes'] ) ? wp_json_encode( $material['restricted_sizes'] ) : '[]';
                                 ?>
                                 <label class="eao-selection-card eao-material-card" 
                                        data-material-id="<?php echo esc_attr( $material['id'] ); ?>"

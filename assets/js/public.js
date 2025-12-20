@@ -223,38 +223,89 @@
                 return;
             }
 
-            // Build color swatches.
+            // Build color cards with preview images.
             let html = '';
             self.selections.material.colors.forEach(function(color) {
-                const style = color.type === 'texture' && color.texture_id
-                    ? 'background-image: url(' + (color.texture_url || '') + ');'
-                    : 'background-color: ' + (color.color_value || '#ccc') + ';';
+                // Build swatch style (for the overlay circle).
+                let swatchStyle = '';
+                if (color.type === 'texture' && color.texture_image_id) {
+                    // Use texture region if available.
+                    if (color.texture_region) {
+                        let region;
+                        try {
+                            region = typeof color.texture_region === 'string' 
+                                ? JSON.parse(color.texture_region) 
+                                : color.texture_region;
+                        } catch (e) {
+                            region = null;
+                        }
+                        if (region && color.texture_url) {
+                            swatchStyle = 'background-image: url(' + color.texture_url + '); ' +
+                                'background-position: ' + region.x + '% ' + region.y + '%; ' +
+                                'background-size: ' + region.zoom + '%;';
+                        } else if (color.texture_url) {
+                            swatchStyle = 'background-image: url(' + color.texture_url + '); background-size: cover;';
+                        }
+                    } else if (color.texture_url) {
+                        swatchStyle = 'background-image: url(' + color.texture_url + '); background-size: cover;';
+                    }
+                } else {
+                    swatchStyle = 'background-color: ' + (color.color_value || '#ccc') + ';';
+                }
 
-                html += '<label class="eao-color-swatch" data-color-id="' + color.id + '" data-color-name="' + color.name + '" style="' + style + '">';
+                // Check if color has preview image.
+                const hasPreview = color.preview_image_url && color.preview_image_url.length > 0;
+
+                html += '<label class="eao-color-card' + (hasPreview ? ' eao-color-card--has-preview' : '') + '" ';
+                html += 'data-color-id="' + color.id + '" data-color-name="' + self.escapeHtml(color.name) + '">';
                 html += '<input type="radio" name="color_selection" value="' + color.id + '">';
-                html += '<span class="eao-color-swatch__tooltip">' + color.name + '</span>';
+
+                if (hasPreview) {
+                    // Show preview image with swatch overlay.
+                    html += '<div class="eao-color-card__preview">';
+                    html += '<img src="' + color.preview_image_url + '" alt="' + self.escapeHtml(color.name) + '" class="eao-color-card__image">';
+                    html += '<div class="eao-color-card__swatch" style="' + swatchStyle + '"></div>';
+                    html += '</div>';
+                } else {
+                    // Fallback: show just the swatch circle.
+                    html += '<div class="eao-color-card__swatch-only" style="' + swatchStyle + '"></div>';
+                }
+
+                html += '<span class="eao-color-card__name">' + self.escapeHtml(color.name) + '</span>';
                 html += '</label>';
             });
 
             $grid.html(html);
             $section.show();
 
-            // Bind color swatch clicks.
-            $grid.find('.eao-color-swatch').on('click', function() {
-                const $swatch = $(this);
+            // Bind color card clicks.
+            $grid.find('.eao-color-card').on('click', function() {
+                const $card = $(this);
 
-                $('.eao-color-swatch').removeClass('is-selected');
-                $swatch.addClass('is-selected');
-                $swatch.find('input').prop('checked', true);
+                $('.eao-color-card').removeClass('is-selected');
+                $card.addClass('is-selected');
+                $card.find('input').prop('checked', true);
 
                 self.selections.color = {
-                    id: $swatch.data('color-id'),
-                    name: $swatch.data('color-name')
+                    id: $card.data('color-id'),
+                    name: $card.data('color-name')
                 };
 
                 $('#eao-color-id').val(self.selections.color.id);
                 $('#eao-color-name').val(self.selections.color.name);
             });
+        },
+
+        /**
+         * Escape HTML for safe insertion.
+         *
+         * @param {string} text The text to escape.
+         * @return {string} Escaped text.
+         */
+        escapeHtml: function(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         },
 
         /**
@@ -814,7 +865,7 @@
 
             // Clear UI.
             $('.eao-selection-card').removeClass('is-selected');
-            $('.eao-color-swatch').removeClass('is-selected');
+            $('.eao-color-card').removeClass('is-selected');
             $('#eao-color-section').hide();
             $('#eao-engraving-section').hide();
             $('#eao-engraving-fields').hide();
@@ -954,9 +1005,9 @@
                 // Wait for colors to render, then select color.
                 setTimeout(function() {
                     if (data.color_id) {
-                        const $colorSwatch = $('.eao-color-swatch[data-color-id="' + data.color_id + '"]');
-                        if ($colorSwatch.length) {
-                            $colorSwatch.trigger('click');
+                        const $colorCard = $('.eao-color-card[data-color-id="' + data.color_id + '"]');
+                        if ($colorCard.length) {
+                            $colorCard.trigger('click');
                         }
                     }
                 }, 100);
