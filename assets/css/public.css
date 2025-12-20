@@ -725,9 +725,34 @@
     font-size: 0.8rem;
     color: var(--eao-accent);
     text-decoration: none;
+    position: relative;
+    z-index: 10;
+    cursor: pointer;
 }
 
 .eao-selection-card__link:hover {
+    text-decoration: underline;
+}
+
+/* View Proof Button */
+.eao-view-proof-btn {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    margin-top: 8px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    color: var(--eao-accent);
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 4px;
+}
+
+.eao-view-proof-btn:hover {
+    color: var(--eao-accent-hover);
+    background: rgba(230, 126, 34, 0.1);
     text-decoration: underline;
 }
 
@@ -1694,16 +1719,6 @@
     font-weight: 600;
 }
 
-/* View Proof Button Styling */
-.eao-view-proof-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

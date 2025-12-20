@@ -116,9 +116,9 @@ $cart_items = EAO_Album_Order::get_cart_items( $album_id );
                                     <div class="eao-selection-card__name"><?php echo esc_html( $design['name'] ); ?></div>
                                     <div class="eao-selection-card__price"><?php echo esc_html( eao_format_price( $design['base_price'] ) ); ?></div>
                                     <?php if ( $pdf_url ) : ?>
-                                        <button type="button" class="eao-selection-card__link eao-view-proof-btn" data-pdf-url="<?php echo esc_url( $pdf_url ); ?>" data-design-name="<?php echo esc_attr( $design['name'] ); ?>" onclick="event.stopPropagation();">
+                                        <a href="#" class="eao-selection-card__link eao-view-proof-btn" data-pdf-url="<?php echo esc_url( $pdf_url ); ?>" data-design-name="<?php echo esc_attr( $design['name'] ); ?>">
                                             <?php esc_html_e( 'View Proof', 'easy-album-orders' ); ?> →
-                                        </button>
+                                        </a>
                                     <?php endif; ?>
                                 </label>
                             <?php endforeach; ?>
