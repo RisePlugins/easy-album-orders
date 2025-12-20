@@ -345,24 +345,96 @@
                 self.removePreviewImage();
             });
 
-            // Region selection mouse events.
+            // Region selection - bind mousedown on the container.
             $modal.on('mousedown', '#eao-region-image-container', function(e) {
                 // Only start selection on left mouse button.
                 if (e.which === 1) {
-                    self.startRegionSelection(e, $(this));
-                }
-            });
-
-            // Track mouse movement on document level so dragging outside container still works.
-            $(document).on('mousemove', function(e) {
-                if (self.regionSelection && self.regionSelection.isSelecting) {
-                    self.updateRegionSelection(e);
-                }
-            });
-
-            $(document).on('mouseup', function() {
-                if (self.regionSelection && self.regionSelection.isSelecting) {
-                    self.endRegionSelection();
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const $container = $(this);
+                    const containerRect = this.getBoundingClientRect();
+                    const startX = e.clientX - containerRect.left;
+                    const startY = e.clientY - containerRect.top;
+                    
+                    console.log('Mousedown at:', startX.toFixed(0), startY.toFixed(0));
+                    
+                    const $selection = $('#eao-region-selection');
+                    $selection.css({
+                        display: 'block',
+                        left: startX + 'px',
+                        top: startY + 'px',
+                        width: '0px',
+                        height: '0px'
+                    });
+                    
+                    // Bind mousemove and mouseup to document during drag.
+                    const onMouseMove = function(moveEvent) {
+                        const rect = $container[0].getBoundingClientRect();
+                        let currentX = moveEvent.clientX - rect.left;
+                        let currentY = moveEvent.clientY - rect.top;
+                        
+                        // Constrain to bounds.
+                        currentX = Math.max(0, Math.min(currentX, rect.width));
+                        currentY = Math.max(0, Math.min(currentY, rect.height));
+                        
+                        const left = Math.min(startX, currentX);
+                        const top = Math.min(startY, currentY);
+                        const width = Math.abs(currentX - startX);
+                        const height = Math.abs(currentY - startY);
+                        
+                        $selection.css({
+                            left: left + 'px',
+                            top: top + 'px',
+                            width: width + 'px',
+                            height: height + 'px'
+                        });
+                    };
+                    
+                    const onMouseUp = function() {
+                        // Unbind the handlers.
+                        $(document).off('mousemove.eaoSelect');
+                        $(document).off('mouseup.eaoSelect');
+                        
+                        // Get final selection size.
+                        const selWidth = parseFloat($selection.css('width')) || 0;
+                        const selHeight = parseFloat($selection.css('height')) || 0;
+                        
+                        console.log('Selection size:', selWidth.toFixed(0), 'x', selHeight.toFixed(0));
+                        
+                        if (selWidth < 20 || selHeight < 20) {
+                            console.log('Selection too small, ignoring');
+                            return;
+                        }
+                        
+                        // Calculate region.
+                        const rect = $container[0].getBoundingClientRect();
+                        const selLeft = parseFloat($selection.css('left')) || 0;
+                        const selTop = parseFloat($selection.css('top')) || 0;
+                        
+                        const centerX = ((selLeft + selWidth / 2) / rect.width * 100).toFixed(2);
+                        const centerY = ((selTop + selHeight / 2) / rect.height * 100).toFixed(2);
+                        const zoom = ((rect.width / Math.min(selWidth, selHeight)) * 100).toFixed(0);
+                        
+                        const region = { x: centerX, y: centerY, zoom: zoom };
+                        console.log('Region:', region);
+                        
+                        $('#eao-modal-texture-region').val(JSON.stringify(region));
+                        
+                        // Update preview swatch.
+                        const textureUrl = $('#eao-modal-texture-image-url').val();
+                        if (textureUrl) {
+                            $('#eao-region-preview-swatch').css({
+                                'background-image': 'url(' + textureUrl + ')',
+                                'background-position': region.x + '% ' + region.y + '%',
+                                'background-size': region.zoom + '%'
+                            });
+                            console.log('Preview updated');
+                        }
+                    };
+                    
+                    $(document).on('mousemove.eaoSelect', onMouseMove);
+                    $(document).on('mouseup.eaoSelect', onMouseUp);
                 }
             });
 
