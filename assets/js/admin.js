@@ -806,6 +806,19 @@
         },
 
         /**
+         * HTML-escape a string for use in attributes.
+         */
+        escapeAttr: function(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        },
+
+        /**
          * Add a new color swatch.
          */
         addColorSwatch: function(data) {
@@ -826,10 +839,13 @@
                 colorValue: data.colorValue,
                 textureImageId: data.textureImageId || '',
                 textureImageUrl: data.textureImageUrl || '',
-                textureRegion: data.textureRegion || '',
+                textureRegion: this.escapeAttr(data.textureRegion || ''),
                 previewImageId: data.previewImageId || '',
                 swatchStyle: swatchStyle
             }));
+
+            // Set the texture region value properly (jQuery handles escaping).
+            $newSwatch.find('.eao-color-texture-region-input').val(data.textureRegion || '');
 
             // Insert before the add button.
             $colorsGrid.find('.eao-color-swatch--add').before($newSwatch);

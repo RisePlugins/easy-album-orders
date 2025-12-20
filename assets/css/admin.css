@@ -2323,9 +2323,3 @@
     color: #fff;
 }
 
-/* Color swatch circle with texture background */
-.eao-color-swatch__circle {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
