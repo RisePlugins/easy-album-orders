@@ -345,12 +345,15 @@
                 self.removePreviewImage();
             });
 
-            // Region selection mouse events.
-            $(document).on('mousedown', '#eao-region-image-container', function(e) {
-                self.startRegionSelection(e);
+            // Region selection mouse events - use event delegation on modal.
+            $modal.on('mousedown', '#eao-region-image-container', function(e) {
+                // Only start selection on left mouse button and not on existing selection.
+                if (e.which === 1 && !$(e.target).is('#eao-region-selection')) {
+                    self.startRegionSelection(e, $(this));
+                }
             });
 
-            $(document).on('mousemove', function(e) {
+            $modal.on('mousemove', '#eao-region-selector', function(e) {
                 self.updateRegionSelection(e);
             });
 
@@ -469,13 +472,17 @@
         /**
          * Start region selection.
          */
-        startRegionSelection: function(e) {
-            const $container = $('#eao-region-image-container');
-            const offset = $container.offset();
-
+        startRegionSelection: function(e, $container) {
+            if (!$container) {
+                $container = $('#eao-region-image-container');
+            }
+            
+            const containerRect = $container[0].getBoundingClientRect();
+            
             this.regionSelection.isSelecting = true;
-            this.regionSelection.startX = e.pageX - offset.left;
-            this.regionSelection.startY = e.pageY - offset.top;
+            this.regionSelection.$container = $container;
+            this.regionSelection.startX = e.clientX - containerRect.left;
+            this.regionSelection.startY = e.clientY - containerRect.top;
 
             $('#eao-region-selection').css({
                 display: 'block',
@@ -496,14 +503,14 @@
                 return;
             }
 
-            const $container = $('#eao-region-image-container');
+            const $container = this.regionSelection.$container || $('#eao-region-image-container');
             const $selection = $('#eao-region-selection');
-            const offset = $container.offset();
-            const containerWidth = $container.width();
-            const containerHeight = $container.height();
+            const containerRect = $container[0].getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
 
-            let currentX = e.pageX - offset.left;
-            let currentY = e.pageY - offset.top;
+            let currentX = e.clientX - containerRect.left;
+            let currentY = e.clientY - containerRect.top;
 
             // Constrain to container bounds.
             currentX = Math.max(0, Math.min(currentX, containerWidth));
@@ -533,18 +540,23 @@
 
             this.regionSelection.isSelecting = false;
 
-            const $container = $('#eao-region-image-container');
+            const $container = this.regionSelection.$container || $('#eao-region-image-container');
             const $selection = $('#eao-region-selection');
 
-            const containerWidth = $container.width();
-            const containerHeight = $container.height();
-            const selLeft = parseFloat($selection.css('left'));
-            const selTop = parseFloat($selection.css('top'));
-            const selWidth = parseFloat($selection.css('width'));
-            const selHeight = parseFloat($selection.css('height'));
+            const containerRect = $container[0].getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
+            const selLeft = parseFloat($selection.css('left')) || 0;
+            const selTop = parseFloat($selection.css('top')) || 0;
+            const selWidth = parseFloat($selection.css('width')) || 0;
+            const selHeight = parseFloat($selection.css('height')) || 0;
+
+            // Clear the stored container.
+            this.regionSelection.$container = null;
 
             if (selWidth < 20 || selHeight < 20) {
                 // Selection too small, ignore.
+                console.log('Selection too small:', selWidth, selHeight);
                 return;
             }
 
@@ -568,16 +580,25 @@
                 selHeight: ((selHeight / containerHeight) * 100).toFixed(2)
             };
 
+            console.log('Region selected:', region);
+
             $('#eao-modal-texture-region').val(JSON.stringify(region));
 
             // Update preview swatch.
             const textureUrl = $('#eao-modal-texture-image-url').val();
+            console.log('Texture URL:', textureUrl);
+            
             if (textureUrl) {
-                $('#eao-region-preview-swatch').css({
+                const $previewSwatch = $('#eao-region-preview-swatch');
+                console.log('Preview swatch element:', $previewSwatch.length);
+                
+                $previewSwatch.css({
                     'background-image': 'url(' + textureUrl + ')',
                     'background-position': region.x + '% ' + region.y + '%',
                     'background-size': region.zoom + '%'
                 });
+                
+                console.log('Preview swatch updated');
             }
         },
 
