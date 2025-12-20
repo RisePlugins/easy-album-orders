@@ -354,14 +354,14 @@
             });
 
             // Track mouse movement on document level so dragging outside container still works.
-            $(document).on('mousemove.eaoRegion', function(e) {
-                if (self.regionSelection.isSelecting) {
+            $(document).on('mousemove', function(e) {
+                if (self.regionSelection && self.regionSelection.isSelecting) {
                     self.updateRegionSelection(e);
                 }
             });
 
-            $(document).on('mouseup.eaoRegion', function() {
-                if (self.regionSelection.isSelecting) {
+            $(document).on('mouseup', function() {
+                if (self.regionSelection && self.regionSelection.isSelecting) {
                     self.endRegionSelection();
                 }
             });
@@ -511,7 +511,12 @@
          * Update region selection during drag.
          */
         updateRegionSelection: function(e) {
-            if (!this.regionSelection.isSelecting || !this.regionSelection.$container) {
+            if (!this.regionSelection || !this.regionSelection.isSelecting) {
+                return;
+            }
+            
+            if (!this.regionSelection.$container) {
+                console.log('No container stored');
                 return;
             }
 
@@ -519,6 +524,7 @@
             const $selection = $('#eao-region-selection');
             
             if (!$container.length || !$container[0]) {
+                console.log('Container element not found');
                 return;
             }
             
@@ -538,6 +544,11 @@
             const top = Math.min(this.regionSelection.startY, currentY);
             const width = Math.abs(currentX - this.regionSelection.startX);
             const height = Math.abs(currentY - this.regionSelection.startY);
+
+            // Log occasionally to avoid flooding console
+            if (Math.random() < 0.1) {
+                console.log('Updating selection:', width.toFixed(0), 'x', height.toFixed(0));
+            }
 
             $selection.css({
                 left: left + 'px',
