@@ -307,6 +307,7 @@ class EAO_Admin_Menus {
                 'character_limit' => isset( $option['character_limit'] ) ? absint( $option['character_limit'] ) : 0,
                 'fonts'           => isset( $option['fonts'] ) ? sanitize_textarea_field( $option['fonts'] ) : '',
                 'description'     => isset( $option['description'] ) ? sanitize_textarea_field( $option['description'] ) : '',
+                'image_id'        => isset( $option['image_id'] ) ? absint( $option['image_id'] ) : 0,
             );
         }
 
