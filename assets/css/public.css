@@ -891,8 +891,9 @@
    Engraving Cards
    ========================================================================== */
 
+/* Match standard selection grid for consistent 4-column layout */
 .eao-engraving-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 .eao-engraving-card {
