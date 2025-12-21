@@ -2134,6 +2134,7 @@
 .eao-album-orders-page .wp-list-table .check-column {
     vertical-align: middle;
     text-align: center;
+    padding: 0;
 }
 
 .eao-album-orders-page .wp-list-table .check-column input[type="checkbox"] {
