@@ -687,10 +687,32 @@
                     if (response.success) {
                         // Add the new address card.
                         self.addAddressCard(response.data.address);
-
-                        if (callback) {
-                            callback();
-                        }
+                        
+                        // Uncheck the save address checkbox since it's now saved.
+                        $('#eao-save-address').prop('checked', false);
+                        
+                        // Show success message briefly.
+                        self.showMessage('success', eaoPublic.i18n?.addressSaved || 'Address saved!');
+                    } else {
+                        // Show error message to user.
+                        const errorMsg = response.data?.message || (eaoPublic.i18n?.addressSaveFailed || 'Could not save address. Your order will still be processed.');
+                        self.showMessage('error', errorMsg);
+                        console.error('Failed to save address:', errorMsg);
+                    }
+                    
+                    // Always proceed with the callback (order submission).
+                    if (callback) {
+                        callback();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Show error message to user.
+                    self.showMessage('error', eaoPublic.i18n?.addressSaveFailed || 'Could not save address. Your order will still be processed.');
+                    console.error('AJAX error saving address:', error);
+                    
+                    // Still proceed with the callback so order can be submitted.
+                    if (callback) {
+                        callback();
                     }
                 }
             });
@@ -702,28 +724,37 @@
          * @param {Object} address Address data.
          */
         addAddressCard: function(address) {
+            const self = this;
             const $grid = $('#eao-address-grid');
-            const addressJson = JSON.stringify(address).replace(/"/g, '&quot;');
+            
+            // Safely encode JSON for HTML attribute (escape both double and single quotes).
+            const addressJson = JSON.stringify(address)
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
 
-            let addressHtml = address.address1;
+            // Build address HTML with proper escaping.
+            let addressHtml = self.escapeHtml(address.address1);
             if (address.address2) {
-                addressHtml += '<br>' + address.address2;
+                addressHtml += '<br>' + self.escapeHtml(address.address2);
             }
-            addressHtml += '<br>' + address.city + ', ' + address.state + ' ' + address.zip;
+            addressHtml += '<br>' + self.escapeHtml(address.city) + ', ' + self.escapeHtml(address.state) + ' ' + self.escapeHtml(address.zip);
 
             const $card = $(`
                 <div class="eao-address-card" 
-                     data-address-id="${address.id}"
+                     data-address-id="${self.escapeHtml(address.id)}"
                      data-address='${addressJson}'>
                     <button type="button" class="eao-address-card__delete" title="${eaoPublic.i18n?.deleteAddress || 'Delete address'}">
                         <span class="dashicons dashicons-no-alt"></span>
                     </button>
-                    <div class="eao-address-card__name">${address.name}</div>
+                    <div class="eao-address-card__name">${self.escapeHtml(address.name)}</div>
                     <div class="eao-address-card__address">${addressHtml}</div>
                 </div>
             `);
 
             $grid.append($card);
+            
+            // Store the address data in jQuery data cache for reliable retrieval.
+            $card.data('address', address);
         },
 
         /**
