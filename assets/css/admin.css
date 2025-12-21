@@ -2133,12 +2133,18 @@
 /* Column Checkbox */
 .eao-album-orders-page .wp-list-table .check-column {
     padding: 16px 12px;
+    text-align: center;
+}
+
+.eao-album-orders-page .wp-list-table .check-column input[type="checkbox"] {
+    margin: 0;
 }
 
 .eao-album-orders-page .wp-list-table thead .check-column {
     padding: 12px;
     background: var(--eao-gray-50);
     border-bottom: var(--eao-border);
+    text-align: center;
 }
 
 /* ==========================================================================
