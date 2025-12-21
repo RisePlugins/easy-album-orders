@@ -172,8 +172,6 @@ $cart_items = array();
                                     <div class="eao-selection-card__name"><?php echo esc_html( $material['name'] ); ?></div>
                                     <?php if ( $material['upcharge'] > 0 ) : ?>
                                         <div class="eao-selection-card__price">+ <?php echo esc_html( eao_format_price( $material['upcharge'] ) ); ?></div>
-                                    <?php else : ?>
-                                        <div class="eao-selection-card__price eao-selection-card__price--included"><?php esc_html_e( 'Included', 'easy-album-orders' ); ?></div>
                                     <?php endif; ?>
                                 </label>
                             <?php endforeach; ?>
@@ -197,18 +195,22 @@ $cart_items = array();
                         <h2 class="eao-form__section-title"><?php esc_html_e( 'Select Size', 'easy-album-orders' ); ?></h2>
                         <div class="eao-selection-grid eao-sizes-grid" id="eao-sizes-grid">
                             <?php foreach ( $sizes as $size ) : ?>
+                                <?php
+                                $size_image = ! empty( $size['image_id'] ) ? wp_get_attachment_image_url( $size['image_id'], 'medium' ) : '';
+                                ?>
                                 <label class="eao-selection-card eao-size-card" 
                                        data-size-id="<?php echo esc_attr( $size['id'] ); ?>"
                                        data-upcharge="<?php echo esc_attr( $size['upcharge'] ); ?>">
                                     <input type="radio" name="size_id" value="<?php echo esc_attr( $size['id'] ); ?>" required>
+                                    <?php if ( $size_image ) : ?>
+                                        <img src="<?php echo esc_url( $size_image ); ?>" alt="<?php echo esc_attr( $size['name'] ); ?>" class="eao-selection-card__image">
+                                    <?php endif; ?>
                                     <div class="eao-selection-card__name"><?php echo esc_html( $size['name'] ); ?></div>
                                     <?php if ( ! empty( $size['dimensions'] ) ) : ?>
                                         <div class="eao-selection-card__dimensions"><?php echo esc_html( $size['dimensions'] ); ?></div>
                                     <?php endif; ?>
                                     <?php if ( $size['upcharge'] > 0 ) : ?>
                                         <div class="eao-selection-card__price">+ <?php echo esc_html( eao_format_price( $size['upcharge'] ) ); ?></div>
-                                    <?php else : ?>
-                                        <div class="eao-selection-card__price eao-selection-card__price--included"><?php esc_html_e( 'Included', 'easy-album-orders' ); ?></div>
                                     <?php endif; ?>
                                 </label>
                             <?php endforeach; ?>
