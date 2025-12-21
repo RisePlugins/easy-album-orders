@@ -2089,6 +2089,8 @@
 
 .eao-album-orders-page .wp-list-table thead .check-column {
     padding: 12px;
+    background: var(--eao-gray-50);
+    border-bottom: var(--eao-border);
 }
 
 /* ==========================================================================
