@@ -1207,6 +1207,13 @@
     flex-shrink: 0;
 }
 
+.eao-modal__footer .eao-modal__close {
+    width: auto;
+    height: auto;
+    border-radius: var(--eao-radius);
+    background: transparent;
+}
+
 /* Color Picker in Modal */
 .eao-color-picker-wrap {
     display: flex;
