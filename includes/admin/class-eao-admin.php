@@ -67,48 +67,8 @@ class EAO_Admin {
         // AJAX handlers.
         add_action( 'wp_ajax_eao_get_attachment_url', array( $this, 'ajax_get_attachment_url' ) );
 
-        // Row action handlers.
-        add_action( 'admin_action_eao_mark_shipped', array( $this, 'handle_mark_shipped' ) );
-
         // Admin notices for status updates.
         add_action( 'admin_notices', array( $this, 'status_update_notices' ) );
-    }
-
-    /**
-     * Handle marking an order as "shipped".
-     *
-     * @since 1.0.0
-     */
-    public function handle_mark_shipped() {
-        $order_id = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0;
-
-        if ( ! $order_id ) {
-            wp_die( esc_html__( 'Invalid order ID.', 'easy-album-orders' ) );
-        }
-
-        // Verify nonce.
-        check_admin_referer( 'eao_mark_shipped_' . $order_id );
-
-        // Check permissions.
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_die( esc_html__( 'You do not have permission to perform this action.', 'easy-album-orders' ) );
-        }
-
-        // Update status.
-        $result = EAO_Album_Order::update_status( $order_id, EAO_Album_Order::STATUS_SHIPPED );
-
-        // Redirect back with message.
-        $redirect_url = add_query_arg(
-            array(
-                'post_type'       => 'album_order',
-                'eao_status_updated' => $result ? 'shipped' : 'error',
-                'order_id'        => $order_id,
-            ),
-            admin_url( 'edit.php' )
-        );
-
-        wp_safe_redirect( $redirect_url );
-        exit;
     }
 
     /**

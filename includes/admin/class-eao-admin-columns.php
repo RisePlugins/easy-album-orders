@@ -452,8 +452,6 @@ class EAO_Admin_Columns {
             return $actions;
         }
 
-        $status = EAO_Album_Order::get_order_status( $post->ID );
-
         // Remove default edit link - we'll add our own.
         unset( $actions['inline hide-if-no-js'] ); // Remove Quick Edit.
 
@@ -466,25 +464,6 @@ class EAO_Admin_Columns {
             get_edit_post_link( $post->ID ),
             esc_html__( 'View', 'easy-album-orders' )
         );
-
-        // Status actions based on current status.
-        if ( 'ordered' === $status ) {
-            // Can mark as shipped.
-            $custom_actions['mark_shipped'] = sprintf(
-                '<a href="%s" class="eao-action-shipped">%s</a>',
-                wp_nonce_url(
-                    add_query_arg(
-                        array(
-                            'action'   => 'eao_mark_shipped',
-                            'order_id' => $post->ID,
-                        ),
-                        admin_url( 'admin.php' )
-                    ),
-                    'eao_mark_shipped_' . $post->ID
-                ),
-                esc_html__( 'Mark Shipped', 'easy-album-orders' )
-            );
-        }
 
         // Trash - keep at end.
         if ( isset( $actions['trash'] ) ) {
