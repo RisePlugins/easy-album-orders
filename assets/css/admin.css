@@ -2943,31 +2943,35 @@
 }
 
 /* ==========================================================================
-   Album Order Edit Page
+   Album Order & Client Album Edit Pages - Shared Postbox Styles
    ========================================================================== */
 
 /* Page Body Class */
-.post-type-album_order .postbox {
+.post-type-album_order .postbox,
+.post-type-client_album .postbox {
     border: var(--eao-border);
     border-radius: var(--eao-radius-lg);
     box-shadow: var(--eao-shadow-sm);
 }
 
-.post-type-album_order .postbox .postbox-header {
+.post-type-album_order .postbox .postbox-header,
+.post-type-client_album .postbox .postbox-header {
     padding: var(--eao-space-md);
     border-bottom: var(--eao-border);
     border-radius: var(--eao-radius-lg) var(--eao-radius-lg) 0 0;
     background: var(--eao-gray-50);
 }
 
-.post-type-album_order .postbox .postbox-header h2 {
+.post-type-album_order .postbox .postbox-header h2,
+.post-type-client_album .postbox .postbox-header h2 {
     font-size: var(--eao-font-md);
     font-weight: 600;
     color: var(--eao-gray-800);
     padding: 0 !important;
 }
 
-.post-type-album_order .postbox .inside {
+.post-type-album_order .postbox .inside,
+.post-type-client_album .postbox .inside {
     padding: var(--eao-space-md);
 }
 
