@@ -2954,7 +2954,9 @@
 }
 
 .post-type-album_order .postbox .postbox-header {
+    padding: var(--eao-space-md) var(--eao-space-lg);
     border-bottom: var(--eao-border);
+    border-radius: var(--eao-radius-lg) var(--eao-radius-lg) 0 0;
     background: var(--eao-gray-50);
 }
 
@@ -2962,6 +2964,7 @@
     font-size: var(--eao-font-md);
     font-weight: 600;
     color: var(--eao-gray-800);
+    padding: 0;
 }
 
 .post-type-album_order .postbox .inside {
