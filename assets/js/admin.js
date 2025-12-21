@@ -35,6 +35,7 @@
             this.bindLegacyRepeaters();
             this.bindEmailPreview();
             this.bindCartReminderSend();
+            this.reorganizeAlbumOrdersTable();
         },
 
         /**
@@ -1197,6 +1198,38 @@
                     }
                 });
             });
+        },
+
+        /**
+         * Reorganize Album Orders list table layout.
+         * Moves search box inside tablenav for better UX.
+         */
+        reorganizeAlbumOrdersTable: function() {
+            // Only run on album_order list page.
+            if (!$('body').hasClass('eao-album-orders-page')) {
+                return;
+            }
+
+            const $searchBox = $('.search-box');
+            const $tablenavTop = $('.tablenav.top');
+
+            if (!$searchBox.length || !$tablenavTop.length) {
+                return;
+            }
+
+            // Move search box inside tablenav, after tablenav-pages.
+            const $tablenavPages = $tablenavTop.find('.tablenav-pages');
+            
+            if ($tablenavPages.length) {
+                // Insert after pagination.
+                $searchBox.insertAfter($tablenavPages);
+            } else {
+                // Insert at end of tablenav.
+                $tablenavTop.append($searchBox);
+            }
+
+            // Add class for styling.
+            $searchBox.addClass('eao-search-box-inline');
         }
     };
 

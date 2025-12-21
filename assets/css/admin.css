@@ -2015,6 +2015,20 @@
     margin: var(--eao-space-md) 0;
 }
 
+.eao-album-orders-page .tablenav.top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--eao-space-md);
+}
+
+.eao-album-orders-page .tablenav .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    padding: 0;
+}
+
 .eao-album-orders-page .tablenav select {
     min-width: 160px;
     padding: 6px 10px;
@@ -2036,22 +2050,42 @@
     border-radius: var(--eao-radius-md);
 }
 
-/* Search Box */
+/* Pagination in tablenav */
+.eao-album-orders-page .tablenav .tablenav-pages {
+    margin-left: auto;
+    float: none;
+}
+
+/* Search Box - Inline in tablenav */
 .eao-album-orders-page .search-box {
-    margin-bottom: var(--eao-space-md);
+    float: none;
+    margin: 0;
+}
+
+.eao-album-orders-page .search-box.eao-search-box-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
 }
 
 .eao-album-orders-page .search-box input[type="search"] {
-    padding: 8px 12px;
+    padding: 6px 12px;
     font-size: var(--eao-font-sm);
     border: 1px solid var(--eao-gray-300);
     border-radius: var(--eao-radius-md);
+    width: 200px;
 }
 
 .eao-album-orders-page .search-box input[type="search"]:focus {
     border-color: var(--eao-primary);
     outline: none;
     box-shadow: 0 0 0 2px rgba(56, 88, 233, 0.1);
+}
+
+.eao-album-orders-page .search-box #search-submit {
+    padding: 6px 14px;
+    font-size: var(--eao-font-sm);
+    border-radius: var(--eao-radius-md);
 }
 
 /* Bulk Actions */
