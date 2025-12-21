@@ -51,6 +51,9 @@ class EAO_Admin_Columns {
 
         // Add body class for our styling.
         add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+
+        // Default hidden columns.
+        add_filter( 'default_hidden_columns', array( $this, 'album_order_default_hidden_columns' ), 10, 2 );
     }
 
     /**
@@ -73,6 +76,23 @@ class EAO_Admin_Columns {
         }
 
         return $classes;
+    }
+
+    /**
+     * Set default hidden columns for Album Orders list table.
+     *
+     * @since 1.0.0
+     *
+     * @param array     $hidden Array of hidden columns.
+     * @param WP_Screen $screen The current screen object.
+     * @return array Modified hidden columns.
+     */
+    public function album_order_default_hidden_columns( $hidden, $screen ) {
+        if ( 'edit-album_order' === $screen->id ) {
+            $hidden[] = 'date';
+        }
+
+        return $hidden;
     }
 
     /**
