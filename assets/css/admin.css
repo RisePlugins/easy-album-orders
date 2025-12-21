@@ -1783,7 +1783,7 @@
    ========================================================================== */
 
 .column-order_number {
-    width: 100px;
+    width: 120px;
 }
 
 .column-order_status {
@@ -1791,7 +1791,7 @@
 }
 
 .column-total {
-    width: 80px;
+    width: 100px;
 }
 
 .column-designs,
@@ -1803,6 +1803,494 @@
 
 .column-link {
     width: 100px;
+}
+
+/* ==========================================================================
+   Album Orders List Page
+   ========================================================================== */
+
+/* Status Views (Tabs) */
+.eao-album-orders-page .subsubsub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--eao-space-xs);
+    margin: 0 0 var(--eao-space-md);
+    padding: var(--eao-space-sm) 0;
+    border-bottom: var(--eao-border);
+    list-style: none;
+    float: none;
+}
+
+.eao-album-orders-page .subsubsub li {
+    margin: 0;
+    padding: 0;
+}
+
+.eao-album-orders-page .subsubsub li::after {
+    content: none;
+}
+
+.eao-album-orders-page .subsubsub a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-gray-600);
+    background: transparent;
+    border: none;
+    border-radius: var(--eao-radius-md);
+    text-decoration: none;
+    transition: all var(--eao-transition);
+}
+
+.eao-album-orders-page .subsubsub a:hover {
+    color: var(--eao-gray-800);
+    background: var(--eao-gray-100);
+}
+
+.eao-album-orders-page .subsubsub a.current {
+    color: var(--eao-primary);
+    background: var(--eao-primary-light);
+    font-weight: 600;
+}
+
+.eao-album-orders-page .subsubsub a .count {
+    color: inherit;
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+/* Status-specific colors for views */
+.eao-album-orders-page .subsubsub a.eao-view-submitted.current {
+    color: #92400e;
+    background: var(--eao-warning-light);
+}
+
+.eao-album-orders-page .subsubsub a.eao-view-ordered.current {
+    color: #1e40af;
+    background: #dbeafe;
+}
+
+.eao-album-orders-page .subsubsub a.eao-view-shipped.current {
+    color: #065f46;
+    background: var(--eao-success-light);
+}
+
+/* Table Improvements */
+.eao-album-orders-page .wp-list-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-lg);
+    overflow: hidden;
+    margin-top: var(--eao-space-md);
+}
+
+.eao-album-orders-page .wp-list-table thead th {
+    background: var(--eao-gray-50);
+    border-bottom: var(--eao-border);
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--eao-gray-500);
+    padding: 12px 16px;
+}
+
+.eao-album-orders-page .wp-list-table thead th a {
+    color: var(--eao-gray-500);
+}
+
+.eao-album-orders-page .wp-list-table thead th a:hover {
+    color: var(--eao-primary);
+}
+
+.eao-album-orders-page .wp-list-table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--eao-gray-100);
+}
+
+.eao-album-orders-page .wp-list-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.eao-album-orders-page .wp-list-table tbody tr:hover td {
+    background: var(--eao-gray-50);
+}
+
+/* Order Number Column */
+.eao-album-orders-page .column-order_number strong {
+    font-size: var(--eao-font-md);
+    color: var(--eao-gray-800);
+}
+
+.eao-album-orders-page .column-order_number a {
+    text-decoration: none;
+    color: var(--eao-primary);
+}
+
+.eao-album-orders-page .column-order_number a:hover {
+    text-decoration: underline;
+}
+
+/* Album Name Column */
+.eao-album-orders-page .column-album_name {
+    font-weight: 500;
+    color: var(--eao-gray-800);
+}
+
+/* Customer Column */
+.eao-album-orders-page .column-customer {
+    line-height: 1.4;
+}
+
+.eao-album-orders-page .column-customer small {
+    display: block;
+    margin-top: 2px;
+}
+
+.eao-album-orders-page .column-customer small a {
+    color: var(--eao-gray-500);
+    text-decoration: none;
+    font-size: var(--eao-font-xs);
+}
+
+.eao-album-orders-page .column-customer small a:hover {
+    color: var(--eao-primary);
+}
+
+/* Configuration Column */
+.eao-album-orders-page .column-configuration {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-600);
+}
+
+/* Total Column */
+.eao-album-orders-page .column-total strong {
+    font-size: var(--eao-font-md);
+    color: var(--eao-gray-800);
+}
+
+/* Row Actions */
+.eao-album-orders-page .row-actions {
+    padding-top: 6px;
+}
+
+.eao-album-orders-page .row-actions a {
+    color: var(--eao-gray-500);
+    font-size: var(--eao-font-xs);
+}
+
+.eao-album-orders-page .row-actions a:hover {
+    color: var(--eao-primary);
+}
+
+.eao-album-orders-page .row-actions .eao-action-ordered {
+    color: #1e40af;
+}
+
+.eao-album-orders-page .row-actions .eao-action-ordered:hover {
+    color: #1e3a8a;
+    text-decoration: underline;
+}
+
+.eao-album-orders-page .row-actions .eao-action-shipped {
+    color: var(--eao-success);
+}
+
+.eao-album-orders-page .row-actions .eao-action-shipped:hover {
+    color: #047857;
+    text-decoration: underline;
+}
+
+.eao-album-orders-page .row-actions .trash a {
+    color: var(--eao-error);
+}
+
+/* Tablenav (filters area) */
+.eao-album-orders-page .tablenav {
+    margin: var(--eao-space-md) 0;
+}
+
+.eao-album-orders-page .tablenav select {
+    min-width: 160px;
+    padding: 6px 10px;
+    font-size: var(--eao-font-sm);
+    border: 1px solid var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+    background: #fff;
+}
+
+.eao-album-orders-page .tablenav select:focus {
+    border-color: var(--eao-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(56, 88, 233, 0.1);
+}
+
+.eao-album-orders-page .tablenav .button {
+    padding: 6px 14px;
+    font-size: var(--eao-font-sm);
+    border-radius: var(--eao-radius-md);
+}
+
+/* Search Box */
+.eao-album-orders-page .search-box {
+    margin-bottom: var(--eao-space-md);
+}
+
+.eao-album-orders-page .search-box input[type="search"] {
+    padding: 8px 12px;
+    font-size: var(--eao-font-sm);
+    border: 1px solid var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+}
+
+.eao-album-orders-page .search-box input[type="search"]:focus {
+    border-color: var(--eao-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(56, 88, 233, 0.1);
+}
+
+/* Bulk Actions */
+.eao-album-orders-page .bulkactions select {
+    min-width: 140px;
+}
+
+/* Pagination */
+.eao-album-orders-page .tablenav-pages {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-600);
+}
+
+.eao-album-orders-page .tablenav-pages .button {
+    min-width: 30px;
+    height: 30px;
+    padding: 0;
+    line-height: 28px;
+    text-align: center;
+}
+
+/* Empty State */
+.eao-album-orders-page .no-items td {
+    padding: var(--eao-space-2xl) var(--eao-space-lg);
+    text-align: center;
+    color: var(--eao-gray-500);
+    font-size: var(--eao-font-md);
+    background: var(--eao-gray-50);
+}
+
+/* Column Checkbox */
+.eao-album-orders-page .wp-list-table .check-column {
+    padding: 16px 12px;
+}
+
+.eao-album-orders-page .wp-list-table thead .check-column {
+    padding: 12px;
+}
+
+/* ==========================================================================
+   Client Albums List Page
+   ========================================================================== */
+
+.eao-client-albums-page .wp-list-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-lg);
+    overflow: hidden;
+}
+
+.eao-client-albums-page .wp-list-table thead th {
+    background: var(--eao-gray-50);
+    border-bottom: var(--eao-border);
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--eao-gray-500);
+    padding: 12px 16px;
+}
+
+.eao-client-albums-page .wp-list-table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--eao-gray-100);
+}
+
+.eao-client-albums-page .wp-list-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.eao-client-albums-page .wp-list-table tbody tr:hover td {
+    background: var(--eao-gray-50);
+}
+
+.eao-client-albums-page .column-client_name small {
+    display: block;
+    margin-top: 2px;
+    color: var(--eao-gray-500);
+    font-size: var(--eao-font-xs);
+}
+
+.eao-client-albums-page .column-credits span {
+    color: var(--eao-success);
+    font-weight: 500;
+}
+
+.eao-client-albums-page .column-orders a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    background: var(--eao-primary-light);
+    color: var(--eao-primary);
+    border-radius: var(--eao-radius-full);
+    font-weight: 600;
+    font-size: var(--eao-font-sm);
+    text-decoration: none;
+    transition: all var(--eao-transition);
+}
+
+.eao-client-albums-page .column-orders a:hover {
+    background: var(--eao-primary);
+    color: #fff;
+}
+
+.eao-client-albums-page .column-link .button {
+    padding: 4px 12px;
+    font-size: var(--eao-font-xs);
+}
+
+/* ==========================================================================
+   Album Order Column Content Styles
+   ========================================================================== */
+
+/* Order Number Column */
+.eao-order-link {
+    text-decoration: none;
+}
+
+.eao-order-number {
+    display: block;
+    font-size: var(--eao-font-md);
+    color: var(--eao-primary);
+    font-weight: 600;
+}
+
+.eao-order-link:hover .eao-order-number {
+    text-decoration: underline;
+}
+
+.eao-order-date {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--eao-font-xs);
+    color: var(--eao-gray-500);
+    font-weight: 400;
+}
+
+/* Album Name Column */
+.eao-album-name {
+    display: block;
+    font-weight: 500;
+    color: var(--eao-gray-800);
+}
+
+.eao-album-design {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--eao-font-xs);
+    color: var(--eao-gray-500);
+}
+
+/* Client Album Column */
+.eao-client-album-link {
+    color: var(--eao-gray-700);
+    text-decoration: none;
+}
+
+.eao-client-album-link:hover {
+    color: var(--eao-primary);
+    text-decoration: underline;
+}
+
+/* Customer Column */
+.eao-customer-name {
+    display: block;
+    font-weight: 500;
+    color: var(--eao-gray-800);
+}
+
+.eao-customer-email {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--eao-font-xs);
+    color: var(--eao-gray-500);
+    text-decoration: none;
+}
+
+.eao-customer-email:hover {
+    color: var(--eao-primary);
+    text-decoration: underline;
+}
+
+/* Configuration Column */
+.eao-config-line {
+    display: block;
+}
+
+.eao-config-material {
+    font-weight: 500;
+    color: var(--eao-gray-700);
+}
+
+.eao-config-color {
+    font-weight: 400;
+    color: var(--eao-gray-500);
+}
+
+.eao-config-size {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--eao-font-xs);
+    color: var(--eao-gray-500);
+}
+
+.eao-config-engraving {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--eao-primary);
+    background: var(--eao-primary-light);
+    border-radius: var(--eao-radius-full);
+}
+
+/* Total Column */
+.eao-total-amount {
+    display: block;
+    font-size: var(--eao-font-md);
+    font-weight: 600;
+    color: var(--eao-gray-800);
+}
+
+.eao-total-credit {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--eao-font-xs);
+    color: var(--eao-success);
+    font-weight: 500;
+}
+
+/* Empty State */
+.eao-empty {
+    color: var(--eao-gray-400);
 }
 
 /* ==========================================================================

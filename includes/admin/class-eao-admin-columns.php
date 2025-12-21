@@ -36,12 +36,43 @@ class EAO_Admin_Columns {
         add_action( 'manage_album_order_posts_custom_column', array( $this, 'album_order_column_content' ), 10, 2 );
         add_filter( 'manage_edit-album_order_sortable_columns', array( $this, 'album_order_sortable_columns' ) );
 
+        // Album Order status views (tabs).
+        add_filter( 'views_edit-album_order', array( $this, 'album_order_views' ) );
+
+        // Album Order row actions.
+        add_filter( 'post_row_actions', array( $this, 'album_order_row_actions' ), 10, 2 );
+
         // Album Order filters.
         add_action( 'restrict_manage_posts', array( $this, 'album_order_filters' ) );
         add_filter( 'parse_query', array( $this, 'filter_album_orders' ) );
 
         // Sorting.
         add_action( 'pre_get_posts', array( $this, 'sort_columns' ) );
+
+        // Add body class for our styling.
+        add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+    }
+
+    /**
+     * Add body class for album order pages.
+     *
+     * @since 1.0.0
+     *
+     * @param string $classes Existing body classes.
+     * @return string Modified body classes.
+     */
+    public function admin_body_class( $classes ) {
+        global $post_type;
+
+        if ( 'album_order' === $post_type ) {
+            $classes .= ' eao-album-orders-page';
+        }
+
+        if ( 'client_album' === $post_type ) {
+            $classes .= ' eao-client-albums-page';
+        }
+
+        return $classes;
     }
 
     /**
@@ -185,13 +216,35 @@ class EAO_Admin_Columns {
         switch ( $column ) {
             case 'order_number':
                 $order_number = EAO_Helpers::generate_order_number( $post_id );
-                $edit_link = get_edit_post_link( $post_id );
-                echo '<a href="' . esc_url( $edit_link ) . '"><strong>' . esc_html( $order_number ) . '</strong></a>';
+                $edit_link    = get_edit_post_link( $post_id );
+                $status       = EAO_Album_Order::get_order_status( $post_id );
+                
+                echo '<a href="' . esc_url( $edit_link ) . '" class="eao-order-link">';
+                echo '<strong class="eao-order-number">' . esc_html( $order_number ) . '</strong>';
+                echo '</a>';
+                
+                // Show order date for ordered/shipped.
+                if ( in_array( $status, array( 'ordered', 'shipped' ), true ) ) {
+                    $order_date = get_post_meta( $post_id, '_eao_order_date', true );
+                    if ( $order_date ) {
+                        echo '<span class="eao-order-date">' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $order_date ) ) ) . '</span>';
+                    }
+                }
                 break;
 
             case 'album_name':
-                $name = get_post_meta( $post_id, '_eao_album_name', true );
-                echo esc_html( $name ? $name : '—' );
+                $name        = get_post_meta( $post_id, '_eao_album_name', true );
+                $design_name = get_post_meta( $post_id, '_eao_design_name', true );
+                
+                if ( $name ) {
+                    echo '<span class="eao-album-name">' . esc_html( $name ) . '</span>';
+                } else {
+                    echo '<span class="eao-empty">—</span>';
+                }
+                
+                if ( $design_name ) {
+                    echo '<span class="eao-album-design">' . esc_html( $design_name ) . '</span>';
+                }
                 break;
 
             case 'client_album':
@@ -199,22 +252,32 @@ class EAO_Admin_Columns {
                 if ( $client_album_id ) {
                     $client_album = get_post( $client_album_id );
                     if ( $client_album ) {
-                        $edit_link = get_edit_post_link( $client_album_id );
-                        echo '<a href="' . esc_url( $edit_link ) . '">' . esc_html( $client_album->post_title ) . '</a>';
+                        $edit_link   = get_edit_post_link( $client_album_id );
+                        $client_name = get_post_meta( $client_album_id, '_eao_client_name', true );
+                        echo '<a href="' . esc_url( $edit_link ) . '" class="eao-client-album-link">';
+                        echo esc_html( $client_name ? $client_name : $client_album->post_title );
+                        echo '</a>';
                     } else {
-                        echo '—';
+                        echo '<span class="eao-empty">—</span>';
                     }
                 } else {
-                    echo '—';
+                    echo '<span class="eao-empty">—</span>';
                 }
                 break;
 
             case 'customer':
                 $name  = get_post_meta( $post_id, '_eao_customer_name', true );
                 $email = get_post_meta( $post_id, '_eao_customer_email', true );
-                echo esc_html( $name ? $name : '—' );
+                $phone = get_post_meta( $post_id, '_eao_customer_phone', true );
+                
+                if ( $name ) {
+                    echo '<span class="eao-customer-name">' . esc_html( $name ) . '</span>';
+                } else {
+                    echo '<span class="eao-empty">—</span>';
+                }
+                
                 if ( $email ) {
-                    echo '<br><small><a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a></small>';
+                    echo '<a href="mailto:' . esc_attr( $email ) . '" class="eao-customer-email">' . esc_html( $email ) . '</a>';
                 }
                 break;
 
@@ -222,21 +285,40 @@ class EAO_Admin_Columns {
                 $material = get_post_meta( $post_id, '_eao_material_name', true );
                 $color    = get_post_meta( $post_id, '_eao_material_color', true );
                 $size     = get_post_meta( $post_id, '_eao_size_name', true );
+                $engraving_text = get_post_meta( $post_id, '_eao_engraving_text', true );
 
-                $parts = array();
-                if ( $material ) {
-                    $parts[] = $material . ( $color ? ' (' . $color . ')' : '' );
+                if ( $material || $size ) {
+                    echo '<span class="eao-config-line">';
+                    if ( $material ) {
+                        echo '<span class="eao-config-material">' . esc_html( $material );
+                        if ( $color ) {
+                            echo ' <span class="eao-config-color">(' . esc_html( $color ) . ')</span>';
+                        }
+                        echo '</span>';
+                    }
+                    echo '</span>';
+                    
+                    if ( $size ) {
+                        echo '<span class="eao-config-size">' . esc_html( $size ) . '</span>';
+                    }
+                    
+                    if ( $engraving_text ) {
+                        echo '<span class="eao-config-engraving" title="' . esc_attr( $engraving_text ) . '">✦ Engraved</span>';
+                    }
+                } else {
+                    echo '<span class="eao-empty">—</span>';
                 }
-                if ( $size ) {
-                    $parts[] = $size;
-                }
-
-                echo esc_html( ! empty( $parts ) ? implode( ', ', $parts ) : '—' );
                 break;
 
             case 'total':
-                $total = EAO_Album_Order::calculate_total( $post_id );
-                echo '<strong>' . esc_html( eao_format_price( $total ) ) . '</strong>';
+                $total          = EAO_Album_Order::calculate_total( $post_id );
+                $applied_credits = floatval( get_post_meta( $post_id, '_eao_applied_credits', true ) );
+                
+                echo '<span class="eao-total-amount">' . esc_html( eao_format_price( $total ) ) . '</span>';
+                
+                if ( $applied_credits > 0 ) {
+                    echo '<span class="eao-total-credit">-' . esc_html( eao_format_price( $applied_credits ) ) . ' credit</span>';
+                }
                 break;
 
             case 'order_status':
@@ -263,6 +345,179 @@ class EAO_Admin_Columns {
         $columns['total']        = 'total';
         $columns['order_status'] = 'order_status';
         return $columns;
+    }
+
+    /**
+     * Add status views (tabs) to Album Order list table.
+     *
+     * @since 1.0.0
+     *
+     * @param array $views Existing views.
+     * @return array Modified views.
+     */
+    public function album_order_views( $views ) {
+        global $wpdb;
+
+        // Get counts for each status.
+        $counts = array(
+            'all'       => 0,
+            'submitted' => 0,
+            'ordered'   => 0,
+            'shipped'   => 0,
+        );
+
+        // Get total count.
+        $counts['all'] = wp_count_posts( 'album_order' )->publish;
+
+        // Get status counts.
+        $status_counts = $wpdb->get_results(
+            "SELECT pm.meta_value as status, COUNT(*) as count 
+             FROM {$wpdb->postmeta} pm 
+             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
+             WHERE pm.meta_key = '_eao_order_status' 
+             AND p.post_type = 'album_order' 
+             AND p.post_status = 'publish' 
+             GROUP BY pm.meta_value"
+        );
+
+        if ( $status_counts ) {
+            foreach ( $status_counts as $row ) {
+                if ( isset( $counts[ $row->status ] ) ) {
+                    $counts[ $row->status ] = intval( $row->count );
+                }
+            }
+        }
+
+        // Get current filter.
+        $current_status = isset( $_GET['order_status'] ) ? sanitize_key( $_GET['order_status'] ) : '';
+        $base_url       = admin_url( 'edit.php?post_type=album_order' );
+
+        // Build views.
+        $new_views = array();
+
+        // All orders.
+        $class = empty( $current_status ) ? 'current' : '';
+        $new_views['all'] = sprintf(
+            '<a href="%s" class="%s">%s <span class="count">(%s)</span></a>',
+            esc_url( $base_url ),
+            esc_attr( $class ),
+            esc_html__( 'All', 'easy-album-orders' ),
+            number_format_i18n( $counts['all'] )
+        );
+
+        // Submitted (In Cart).
+        $class = ( 'submitted' === $current_status ) ? 'current' : '';
+        $new_views['submitted'] = sprintf(
+            '<a href="%s" class="%s eao-view-submitted">%s <span class="count">(%s)</span></a>',
+            esc_url( add_query_arg( 'order_status', 'submitted', $base_url ) ),
+            esc_attr( $class ),
+            esc_html__( 'In Cart', 'easy-album-orders' ),
+            number_format_i18n( $counts['submitted'] )
+        );
+
+        // Ordered.
+        $class = ( 'ordered' === $current_status ) ? 'current' : '';
+        $new_views['ordered'] = sprintf(
+            '<a href="%s" class="%s eao-view-ordered">%s <span class="count">(%s)</span></a>',
+            esc_url( add_query_arg( 'order_status', 'ordered', $base_url ) ),
+            esc_attr( $class ),
+            esc_html__( 'Ordered', 'easy-album-orders' ),
+            number_format_i18n( $counts['ordered'] )
+        );
+
+        // Shipped.
+        $class = ( 'shipped' === $current_status ) ? 'current' : '';
+        $new_views['shipped'] = sprintf(
+            '<a href="%s" class="%s eao-view-shipped">%s <span class="count">(%s)</span></a>',
+            esc_url( add_query_arg( 'order_status', 'shipped', $base_url ) ),
+            esc_attr( $class ),
+            esc_html__( 'Shipped', 'easy-album-orders' ),
+            number_format_i18n( $counts['shipped'] )
+        );
+
+        return $new_views;
+    }
+
+    /**
+     * Add custom row actions for Album Orders.
+     *
+     * @since 1.0.0
+     *
+     * @param array   $actions Existing row actions.
+     * @param WP_Post $post    The post object.
+     * @return array Modified row actions.
+     */
+    public function album_order_row_actions( $actions, $post ) {
+        if ( 'album_order' !== $post->post_type ) {
+            return $actions;
+        }
+
+        $status = EAO_Album_Order::get_order_status( $post->ID );
+
+        // Remove default edit link - we'll add our own.
+        unset( $actions['inline hide-if-no-js'] ); // Remove Quick Edit.
+
+        // Build custom actions.
+        $custom_actions = array();
+
+        // View/Edit - always available.
+        $custom_actions['edit'] = sprintf(
+            '<a href="%s">%s</a>',
+            get_edit_post_link( $post->ID ),
+            esc_html__( 'View', 'easy-album-orders' )
+        );
+
+        // Status actions based on current status.
+        if ( 'submitted' === $status ) {
+            // Can mark as ordered.
+            $custom_actions['mark_ordered'] = sprintf(
+                '<a href="%s" class="eao-action-ordered">%s</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        array(
+                            'action'   => 'eao_mark_ordered',
+                            'order_id' => $post->ID,
+                        ),
+                        admin_url( 'admin.php' )
+                    ),
+                    'eao_mark_ordered_' . $post->ID
+                ),
+                esc_html__( 'Mark Ordered', 'easy-album-orders' )
+            );
+        } elseif ( 'ordered' === $status ) {
+            // Can mark as shipped.
+            $custom_actions['mark_shipped'] = sprintf(
+                '<a href="%s" class="eao-action-shipped">%s</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        array(
+                            'action'   => 'eao_mark_shipped',
+                            'order_id' => $post->ID,
+                        ),
+                        admin_url( 'admin.php' )
+                    ),
+                    'eao_mark_shipped_' . $post->ID
+                ),
+                esc_html__( 'Mark Shipped', 'easy-album-orders' )
+            );
+        }
+
+        // View client album link.
+        $client_album_id = get_post_meta( $post->ID, '_eao_client_album_id', true );
+        if ( $client_album_id ) {
+            $custom_actions['view_client'] = sprintf(
+                '<a href="%s">%s</a>',
+                get_edit_post_link( $client_album_id ),
+                esc_html__( 'Client Album', 'easy-album-orders' )
+            );
+        }
+
+        // Trash - keep at end.
+        if ( isset( $actions['trash'] ) ) {
+            $custom_actions['trash'] = $actions['trash'];
+        }
+
+        return $custom_actions;
     }
 
     /**
