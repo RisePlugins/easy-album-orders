@@ -313,13 +313,8 @@ $cart_items = array();
                     <h2 class="eao-form__section-title"><?php esc_html_e( 'Shipping Address', 'easy-album-orders' ); ?></h2>
                     <p class="eao-field__help" style="margin-bottom: 20px;"><?php esc_html_e( 'Each album can be shipped to a different address. For example, ship a parents album directly to them!', 'easy-album-orders' ); ?></p>
                     
-                    <?php
-                    // Get saved addresses for this client album.
-                    $saved_addresses = get_post_meta( $album_id, '_eao_saved_addresses', true );
-                    $saved_addresses = is_array( $saved_addresses ) ? $saved_addresses : array();
-                    ?>
-
                     <!-- Saved Address Selector -->
+                    <!-- Addresses are loaded from localStorage (browser-specific) via JavaScript -->
                     <div class="eao-address-selector" id="eao-address-selector">
                         <div class="eao-address-selector__grid" id="eao-address-grid">
                             <!-- Add New Address Card -->
@@ -329,24 +324,7 @@ $cart_items = array();
                                 </div>
                                 <div class="eao-address-card__label"><?php esc_html_e( 'New Address', 'easy-album-orders' ); ?></div>
                             </div>
-
-                            <?php foreach ( $saved_addresses as $address ) : ?>
-                                <div class="eao-address-card" 
-                                     data-address-id="<?php echo esc_attr( $address['id'] ); ?>"
-                                     data-address='<?php echo esc_attr( wp_json_encode( $address ) ); ?>'>
-                                    <button type="button" class="eao-address-card__delete" title="<?php esc_attr_e( 'Delete address', 'easy-album-orders' ); ?>">
-                                        <span class="dashicons dashicons-no-alt"></span>
-                                    </button>
-                                    <div class="eao-address-card__name"><?php echo esc_html( $address['name'] ); ?></div>
-                                    <div class="eao-address-card__address">
-                                        <?php echo esc_html( $address['address1'] ); ?>
-                                        <?php if ( ! empty( $address['address2'] ) ) : ?>
-                                            <br><?php echo esc_html( $address['address2'] ); ?>
-                                        <?php endif; ?>
-                                        <br><?php echo esc_html( $address['city'] . ', ' . $address['state'] . ' ' . $address['zip'] ); ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+                            <!-- Saved address cards rendered by JavaScript from localStorage -->
                         </div>
                     </div>
 
@@ -382,10 +360,10 @@ $cart_items = array();
                             </div>
                         </div>
 
-                        <!-- Save Address Checkbox -->
+                        <!-- Save Address Checkbox (checked by default) -->
                         <div class="eao-field eao-field--checkbox" id="eao-save-address-field">
                             <label class="eao-checkbox">
-                                <input type="checkbox" id="eao-save-address" name="save_address" value="1">
+                                <input type="checkbox" id="eao-save-address" name="save_address" value="1" checked>
                                 <span class="eao-checkbox__label"><?php esc_html_e( 'Save this address for future orders', 'easy-album-orders' ); ?></span>
                             </label>
                         </div>

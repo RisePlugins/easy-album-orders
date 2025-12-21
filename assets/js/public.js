@@ -56,6 +56,9 @@
             this.bindCheckout();
             this.checkOrderComplete();
 
+            // Load saved addresses from localStorage (browser-specific).
+            this.loadSavedAddresses();
+
             // Load cart with token.
             this.refreshCart();
         },
@@ -99,6 +102,57 @@
          */
         getCartToken: function() {
             return this.cartToken || '';
+        },
+
+        /**
+         * Get the localStorage key for saved addresses.
+         * Uses cart token to make addresses browser-specific.
+         *
+         * @return {string} Storage key.
+         */
+        getAddressStorageKey: function() {
+            return 'eao_saved_addresses_' + eaoPublic.clientAlbumId + '_' + this.getCartToken();
+        },
+
+        /**
+         * Get saved addresses from localStorage.
+         *
+         * @return {Array} Array of saved addresses.
+         */
+        getSavedAddresses: function() {
+            try {
+                const stored = localStorage.getItem(this.getAddressStorageKey());
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error('Error reading saved addresses:', e);
+                return [];
+            }
+        },
+
+        /**
+         * Save addresses to localStorage.
+         *
+         * @param {Array} addresses Array of address objects.
+         */
+        setSavedAddresses: function(addresses) {
+            try {
+                localStorage.setItem(this.getAddressStorageKey(), JSON.stringify(addresses));
+            } catch (e) {
+                console.error('Error saving addresses:', e);
+            }
+        },
+
+        /**
+         * Load saved addresses from localStorage and render them.
+         */
+        loadSavedAddresses: function() {
+            const self = this;
+            const addresses = this.getSavedAddresses();
+
+            // Render each saved address card.
+            addresses.forEach(function(address) {
+                self.addAddressCard(address);
+            });
         },
 
         /**
@@ -624,11 +678,12 @@
             $('#eao-shipping-city').val('');
             $('#eao-shipping-state').val('');
             $('#eao-shipping-zip').val('');
-            $('#eao-save-address').prop('checked', false);
+            // Re-check save address checkbox (checked by default).
+            $('#eao-save-address').prop('checked', true);
         },
 
         /**
-         * Delete a saved address.
+         * Delete a saved address from localStorage (browser-specific).
          *
          * @param {string} addressId The address ID to delete.
          * @param {jQuery} $card     The card element.
@@ -636,86 +691,76 @@
         deleteAddress: function(addressId, $card) {
             const self = this;
 
-            $.ajax({
-                url: eaoPublic.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'eao_delete_address',
-                    nonce: eaoPublic.nonce,
-                    client_album_id: eaoPublic.clientAlbumId,
-                    address_id: addressId
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Remove the card.
-                        $card.fadeOut(200, function() {
-                            $(this).remove();
+            try {
+                // Get existing addresses and filter out the deleted one.
+                let addresses = self.getSavedAddresses();
+                addresses = addresses.filter(function(addr) {
+                    return addr.id !== addressId;
+                });
+                self.setSavedAddresses(addresses);
 
-                            // If the deleted card was selected, select "New Address".
-                            if (self.selectedAddressId === addressId) {
-                                $('.eao-address-card--new').trigger('click');
-                            }
-                        });
+                // Remove the card from UI.
+                $card.fadeOut(200, function() {
+                    $(this).remove();
+
+                    // If the deleted card was selected, select "New Address".
+                    if (self.selectedAddressId === addressId) {
+                        $('.eao-address-card--new').trigger('click');
                     }
-                }
-            });
+                });
+            } catch (e) {
+                console.error('Error deleting address from localStorage:', e);
+            }
         },
 
         /**
-         * Save a new address.
+         * Save a new address to localStorage (browser-specific).
          *
          * @param {Function} callback Callback after save.
          */
         saveAddress: function(callback) {
             const self = this;
 
-            $.ajax({
-                url: eaoPublic.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'eao_save_address',
-                    nonce: eaoPublic.nonce,
-                    client_album_id: eaoPublic.clientAlbumId,
-                    shipping_name: $('#eao-shipping-name').val(),
-                    shipping_address1: $('#eao-shipping-address1').val(),
-                    shipping_address2: $('#eao-shipping-address2').val(),
-                    shipping_city: $('#eao-shipping-city').val(),
-                    shipping_state: $('#eao-shipping-state').val(),
-                    shipping_zip: $('#eao-shipping-zip').val()
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Add the new address card.
-                        self.addAddressCard(response.data.address);
-                        
-                        // Uncheck the save address checkbox since it's now saved.
-                        $('#eao-save-address').prop('checked', false);
-                        
-                        // Show success message briefly.
-                        self.showMessage('success', eaoPublic.i18n?.addressSaved || 'Address saved!');
-                    } else {
-                        // Show error message to user.
-                        const errorMsg = response.data?.message || (eaoPublic.i18n?.addressSaveFailed || 'Could not save address. Your order will still be processed.');
-                        self.showMessage('error', errorMsg);
-                        console.error('Failed to save address:', errorMsg);
-                    }
-                    
-                    // Always proceed with the callback (order submission).
-                    if (callback) {
-                        callback();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Show error message to user.
-                    self.showMessage('error', eaoPublic.i18n?.addressSaveFailed || 'Could not save address. Your order will still be processed.');
-                    console.error('AJAX error saving address:', error);
-                    
-                    // Still proceed with the callback so order can be submitted.
-                    if (callback) {
-                        callback();
-                    }
+            // Create address object.
+            const address = {
+                id: 'addr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                name: $('#eao-shipping-name').val().trim(),
+                address1: $('#eao-shipping-address1').val().trim(),
+                address2: $('#eao-shipping-address2').val().trim(),
+                city: $('#eao-shipping-city').val().trim(),
+                state: $('#eao-shipping-state').val().trim(),
+                zip: $('#eao-shipping-zip').val().trim()
+            };
+
+            // Validate required fields.
+            if (!address.name || !address.address1 || !address.city || !address.state || !address.zip) {
+                // Skip saving but proceed with order.
+                if (callback) {
+                    callback();
                 }
-            });
+                return;
+            }
+
+            try {
+                // Get existing addresses and add the new one.
+                const addresses = self.getSavedAddresses();
+                addresses.push(address);
+                self.setSavedAddresses(addresses);
+
+                // Add the address card to the UI.
+                self.addAddressCard(address);
+
+                // Uncheck the save address checkbox since it's now saved.
+                $('#eao-save-address').prop('checked', false);
+
+            } catch (e) {
+                console.error('Error saving address to localStorage:', e);
+            }
+
+            // Proceed with the callback (order submission).
+            if (callback) {
+                callback();
+            }
         },
 
         /**
