@@ -3138,11 +3138,6 @@
 
 /* Price Breakdown Table */
 .eao-price-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.eao-price-table__body {
     padding: var(--eao-space-md) var(--eao-space-lg);
 }
 
@@ -3150,7 +3145,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--eao-space-sm) var(--eao-space-lg);
+    padding: var(--eao-space-sm) 0;
     border-bottom: 1px solid var(--eao-gray-100);
 }
 
@@ -3180,8 +3175,10 @@
 
 .eao-price-row--credit {
     background: var(--eao-success-light);
-    margin: 0 calc(var(--eao-space-lg) * -1);
-    padding: var(--eao-space-sm) var(--eao-space-lg);
+    border-radius: var(--eao-radius-md);
+    margin: var(--eao-space-xs) 0;
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    border-bottom: none;
 }
 
 .eao-price-row--credit .eao-price-row__label,
@@ -3197,9 +3194,9 @@
 
 .eao-price-row--total {
     background: var(--eao-gray-50);
-    margin: 0 calc(var(--eao-space-lg) * -1);
+    border-radius: var(--eao-radius-md);
+    margin-top: var(--eao-space-sm);
     padding: var(--eao-space-md) var(--eao-space-lg);
-    border-top: var(--eao-border);
 }
 
 .eao-price-row--total .eao-price-row__label {
