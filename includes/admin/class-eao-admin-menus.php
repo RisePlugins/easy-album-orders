@@ -356,21 +356,45 @@ class EAO_Admin_Menus {
 
             // Order Confirmation.
             'enable_order_confirmation'     => isset( $settings['enable_order_confirmation'] ) ? true : false,
-            'order_confirmation_subject'    => isset( $settings['order_confirmation_subject'] ) ? sanitize_text_field( $settings['order_confirmation_subject'] ) : '',
+            'order_confirmation_subject'    => isset( $settings['order_confirmation_subject'] ) ? sanitize_text_field( $this->clean_subject_line( $settings['order_confirmation_subject'] ) ) : '',
 
             // New Order Alert.
             'enable_new_order_alert'        => isset( $settings['enable_new_order_alert'] ) ? true : false,
-            'new_order_alert_subject'       => isset( $settings['new_order_alert_subject'] ) ? sanitize_text_field( $settings['new_order_alert_subject'] ) : '',
+            'new_order_alert_subject'       => isset( $settings['new_order_alert_subject'] ) ? sanitize_text_field( $this->clean_subject_line( $settings['new_order_alert_subject'] ) ) : '',
 
             // Shipped Notification.
             'enable_shipped_notification'   => isset( $settings['enable_shipped_notification'] ) ? true : false,
-            'shipped_notification_subject'  => isset( $settings['shipped_notification_subject'] ) ? sanitize_text_field( $settings['shipped_notification_subject'] ) : '',
+            'shipped_notification_subject'  => isset( $settings['shipped_notification_subject'] ) ? sanitize_text_field( $this->clean_subject_line( $settings['shipped_notification_subject'] ) ) : '',
 
             // Cart Reminder.
             'enable_cart_reminder'          => isset( $settings['enable_cart_reminder'] ) ? true : false,
             'cart_reminder_days'            => isset( $settings['cart_reminder_days'] ) ? absint( $settings['cart_reminder_days'] ) : 3,
-            'cart_reminder_subject'         => isset( $settings['cart_reminder_subject'] ) ? sanitize_text_field( $settings['cart_reminder_subject'] ) : '',
+            'cart_reminder_subject'         => isset( $settings['cart_reminder_subject'] ) ? sanitize_text_field( $this->clean_subject_line( $settings['cart_reminder_subject'] ) ) : '',
         );
+    }
+
+    /**
+     * Clean subject line by stripping accumulated backslashes.
+     *
+     * Fixes a bug where backslashes could accumulate before apostrophes
+     * and quotes through repeated form saves.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $subject Raw subject line value.
+     * @return string Cleaned subject line.
+     */
+    private function clean_subject_line( $subject ) {
+        // Strip any accumulated backslashes (can be deeply nested from bug).
+        // Keep stripping until no more changes occur.
+        $previous = '';
+        $cleaned  = $subject;
+        while ( $cleaned !== $previous ) {
+            $previous = $cleaned;
+            $cleaned  = stripslashes( $cleaned );
+        }
+        return $cleaned;
     }
 }
 
