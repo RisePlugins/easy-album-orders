@@ -2942,3 +2942,491 @@
     color: #fff;
 }
 
+/* ==========================================================================
+   Album Order Edit Page
+   ========================================================================== */
+
+/* Page Body Class */
+.post-type-album_order .postbox {
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-lg);
+    box-shadow: var(--eao-shadow-sm);
+}
+
+.post-type-album_order .postbox .postbox-header {
+    border-bottom: var(--eao-border);
+    background: var(--eao-gray-50);
+}
+
+.post-type-album_order .postbox .postbox-header h2 {
+    font-size: var(--eao-font-md);
+    font-weight: 600;
+    color: var(--eao-gray-800);
+}
+
+.post-type-album_order .postbox .inside {
+    padding: var(--eao-space-md);
+}
+
+/* Hide default title box for album orders */
+.post-type-album_order #titlediv {
+    display: none;
+}
+
+/* ==========================================================================
+   Order Status Meta Box (Sidebar)
+   ========================================================================== */
+
+#eao_order_status .inside {
+    padding: var(--eao-space-md);
+}
+
+.eao-status-select {
+    width: 100%;
+    padding: var(--eao-space-sm) 12px;
+    font-size: var(--eao-font-md);
+    font-weight: 500;
+    border: 1px solid var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+    background: #fff;
+    cursor: pointer;
+    transition: border-color var(--eao-transition), box-shadow var(--eao-transition);
+}
+
+.eao-status-select:focus {
+    outline: none;
+    border-color: var(--eao-primary);
+    box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.1);
+}
+
+.eao-status-dates {
+    margin-top: var(--eao-space-md);
+    padding-top: var(--eao-space-md);
+    border-top: 1px dashed var(--eao-gray-200);
+}
+
+.eao-status-dates__item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--eao-space-sm) 0;
+}
+
+.eao-status-dates__item:first-child {
+    padding-top: 0;
+}
+
+.eao-status-dates__item:not(:last-child) {
+    border-bottom: 1px solid var(--eao-gray-100);
+}
+
+.eao-status-dates__label {
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--eao-gray-500);
+    margin-bottom: 2px;
+}
+
+.eao-status-dates__value {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-700);
+}
+
+/* Status indicator colors */
+.eao-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--eao-radius-full);
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.eao-status-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.eao-status-indicator--submitted {
+    background: var(--eao-warning-light);
+    color: #92400e;
+}
+
+.eao-status-indicator--submitted::before {
+    background: var(--eao-warning);
+}
+
+.eao-status-indicator--ordered {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.eao-status-indicator--ordered::before {
+    background: #3b82f6;
+}
+
+.eao-status-indicator--shipped {
+    background: var(--eao-success-light);
+    color: #065f46;
+}
+
+.eao-status-indicator--shipped::before {
+    background: var(--eao-success);
+}
+
+/* ==========================================================================
+   Order Summary Meta Box
+   ========================================================================== */
+
+#eao_order_summary .inside {
+    padding: 0;
+}
+
+.eao-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--eao-space-md);
+    padding: var(--eao-space-lg);
+    background: linear-gradient(135deg, var(--eao-gray-50) 0%, #fff 100%);
+    border-bottom: var(--eao-border);
+}
+
+.eao-order-header__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.eao-order-header__number {
+    font-size: var(--eao-font-lg);
+    font-weight: 700;
+    color: var(--eao-gray-900);
+    letter-spacing: -0.01em;
+}
+
+.eao-order-header__album {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-500);
+}
+
+.eao-order-header__total {
+    text-align: right;
+}
+
+.eao-order-header__total-label {
+    font-size: var(--eao-font-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--eao-gray-500);
+    margin-bottom: 2px;
+}
+
+.eao-order-header__total-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--eao-primary);
+    letter-spacing: -0.02em;
+}
+
+/* Price Breakdown Table */
+.eao-price-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.eao-price-table__body {
+    padding: var(--eao-space-md) var(--eao-space-lg);
+}
+
+.eao-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--eao-space-sm) var(--eao-space-lg);
+    border-bottom: 1px solid var(--eao-gray-100);
+}
+
+.eao-price-row:last-child {
+    border-bottom: none;
+}
+
+.eao-price-row__label {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-600);
+}
+
+.eao-price-row__value {
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-gray-700);
+}
+
+.eao-price-row--upcharge .eao-price-row__value {
+    color: var(--eao-gray-600);
+}
+
+.eao-price-row--upcharge .eao-price-row__value::before {
+    content: '+';
+    margin-right: 2px;
+}
+
+.eao-price-row--credit {
+    background: var(--eao-success-light);
+    margin: 0 calc(var(--eao-space-lg) * -1);
+    padding: var(--eao-space-sm) var(--eao-space-lg);
+}
+
+.eao-price-row--credit .eao-price-row__label,
+.eao-price-row--credit .eao-price-row__value {
+    color: var(--eao-success);
+    font-weight: 500;
+}
+
+.eao-price-row--credit .eao-price-row__value::before {
+    content: '−';
+    margin-right: 2px;
+}
+
+.eao-price-row--total {
+    background: var(--eao-gray-50);
+    margin: 0 calc(var(--eao-space-lg) * -1);
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    border-top: var(--eao-border);
+}
+
+.eao-price-row--total .eao-price-row__label {
+    font-size: var(--eao-font-md);
+    font-weight: 600;
+    color: var(--eao-gray-800);
+}
+
+.eao-price-row--total .eao-price-row__value {
+    font-size: var(--eao-font-lg);
+    font-weight: 700;
+    color: var(--eao-gray-900);
+}
+
+/* ==========================================================================
+   Album Configuration Meta Box
+   ========================================================================== */
+
+#eao_album_details .inside {
+    padding: var(--eao-space-lg);
+}
+
+.eao-config-section {
+    margin-bottom: var(--eao-space-lg);
+    padding-bottom: var(--eao-space-lg);
+    border-bottom: 1px dashed var(--eao-gray-200);
+}
+
+.eao-config-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.eao-config-section__title {
+    font-size: var(--eao-font-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--eao-gray-500);
+    margin: 0 0 var(--eao-space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+}
+
+.eao-config-section__title .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--eao-gray-400);
+}
+
+/* ==========================================================================
+   Customer Information Meta Box
+   ========================================================================== */
+
+#eao_customer_info .inside {
+    padding: var(--eao-space-md);
+}
+
+/* Override inline styles - already have styles in admin.css */
+
+/* ==========================================================================
+   Order Notes Meta Box
+   ========================================================================== */
+
+#eao_order_notes .inside {
+    padding: var(--eao-space-lg);
+}
+
+.eao-notes-section {
+    margin-bottom: var(--eao-space-lg);
+}
+
+.eao-notes-section:last-child {
+    margin-bottom: 0;
+}
+
+.eao-notes-section__label {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    font-size: var(--eao-font-sm);
+    font-weight: 600;
+    color: var(--eao-gray-700);
+    margin-bottom: var(--eao-space-sm);
+}
+
+.eao-notes-section__label .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--eao-gray-400);
+}
+
+.eao-notes-section__label--internal {
+    color: var(--eao-warning);
+}
+
+.eao-notes-section__label--internal .dashicons {
+    color: var(--eao-warning);
+}
+
+.eao-notes-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: var(--eao-space-sm) 12px;
+    font-size: var(--eao-font-md);
+    line-height: 1.5;
+    color: var(--eao-gray-700);
+    background: #fff;
+    border: 1px solid var(--eao-gray-300);
+    border-radius: var(--eao-radius-md);
+    resize: vertical;
+    transition: border-color var(--eao-transition), box-shadow var(--eao-transition);
+}
+
+.eao-notes-textarea:focus {
+    outline: none;
+    border-color: var(--eao-primary);
+    box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.1);
+}
+
+.eao-notes-textarea--readonly {
+    background: var(--eao-gray-50);
+    color: var(--eao-gray-600);
+    cursor: default;
+}
+
+.eao-notes-help {
+    margin-top: var(--eao-space-xs);
+    font-size: var(--eao-font-xs);
+    color: var(--eao-gray-400);
+}
+
+/* ==========================================================================
+   Related Client Album Meta Box (Sidebar)
+   ========================================================================== */
+
+#eao_related_album .inside {
+    padding: var(--eao-space-md);
+}
+
+.eao-related-album {
+    text-align: center;
+}
+
+.eao-related-album__title {
+    font-size: var(--eao-font-md);
+    font-weight: 600;
+    color: var(--eao-gray-800);
+    margin: 0 0 var(--eao-space-md);
+}
+
+.eao-related-album__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-sm);
+}
+
+.eao-related-album__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--eao-space-xs);
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-primary);
+    text-decoration: none;
+    background: var(--eao-primary-light);
+    border-radius: var(--eao-radius-md);
+    transition: all var(--eao-transition);
+}
+
+.eao-related-album__link:hover {
+    background: var(--eao-primary);
+    color: #fff;
+}
+
+.eao-related-album__link .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.eao-related-album__external {
+    font-size: var(--eao-font-xs);
+    color: var(--eao-gray-500);
+    text-decoration: none;
+}
+
+.eao-related-album__external:hover {
+    color: var(--eao-primary);
+    text-decoration: underline;
+}
+
+.eao-related-album--empty {
+    padding: var(--eao-space-lg);
+    background: var(--eao-gray-50);
+    border-radius: var(--eao-radius-md);
+}
+
+.eao-related-album--empty p {
+    margin: 0;
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-500);
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Customer Info - Address Field Widths
+   ========================================================================== */
+
+.eao-field--city {
+    flex: 2;
+    min-width: 120px;
+}
+
+.eao-field--state {
+    flex: 1;
+    min-width: 60px;
+}
+
+.eao-field--zip {
+    flex: 1;
+    min-width: 80px;
+}
+

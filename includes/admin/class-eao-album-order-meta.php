@@ -118,8 +118,8 @@ class EAO_Album_Order_Meta {
         ?>
         <div class="eao-meta-box">
             <div class="eao-field">
-                <label for="eao_order_status"><?php esc_html_e( 'Current Status', 'easy-album-orders' ); ?></label>
-                <select id="eao_order_status" name="eao_order_status" style="width: 100%;">
+                <label for="eao_order_status"><?php esc_html_e( 'Current status', 'easy-album-orders' ); ?></label>
+                <select id="eao_order_status" name="eao_order_status" class="eao-status-select">
                     <?php foreach ( $statuses as $value => $label ) : ?>
                         <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $status, $value ); ?>>
                             <?php echo esc_html( $label ); ?>
@@ -128,22 +128,30 @@ class EAO_Album_Order_Meta {
                 </select>
             </div>
 
-            <div class="eao-status-dates" style="margin-top: 15px; font-size: 12px; color: #666;">
+            <?php if ( $submitted_date || $ordered_date || $shipped_date ) : ?>
+            <div class="eao-status-dates">
                 <?php if ( $submitted_date ) : ?>
-                    <p><strong><?php esc_html_e( 'Submitted:', 'easy-album-orders' ); ?></strong><br>
-                    <?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $submitted_date ) ) ); ?></p>
+                    <div class="eao-status-dates__item">
+                        <span class="eao-status-dates__label"><?php esc_html_e( 'Submitted', 'easy-album-orders' ); ?></span>
+                        <span class="eao-status-dates__value"><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $submitted_date ) ) ); ?></span>
+                    </div>
                 <?php endif; ?>
 
                 <?php if ( $ordered_date ) : ?>
-                    <p><strong><?php esc_html_e( 'Ordered:', 'easy-album-orders' ); ?></strong><br>
-                    <?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $ordered_date ) ) ); ?></p>
+                    <div class="eao-status-dates__item">
+                        <span class="eao-status-dates__label"><?php esc_html_e( 'Ordered', 'easy-album-orders' ); ?></span>
+                        <span class="eao-status-dates__value"><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $ordered_date ) ) ); ?></span>
+                    </div>
                 <?php endif; ?>
 
                 <?php if ( $shipped_date ) : ?>
-                    <p><strong><?php esc_html_e( 'Shipped:', 'easy-album-orders' ); ?></strong><br>
-                    <?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $shipped_date ) ) ); ?></p>
+                    <div class="eao-status-dates__item">
+                        <span class="eao-status-dates__label"><?php esc_html_e( 'Shipped', 'easy-album-orders' ); ?></span>
+                        <span class="eao-status-dates__value"><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $shipped_date ) ) ); ?></span>
+                    </div>
                 <?php endif; ?>
             </div>
+            <?php endif; ?>
         </div>
         <?php
     }
@@ -168,63 +176,65 @@ class EAO_Album_Order_Meta {
         $applied_credits    = floatval( get_post_meta( $post->ID, '_eao_applied_credits', true ) );
         $total              = EAO_Album_Order::calculate_total( $post->ID );
         ?>
-        <div class="eao-meta-box">
-            <div class="eao-order-header" style="background: #f6f7f7; padding: 15px; margin: -12px -12px 20px; border-bottom: 1px solid #ddd;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong style="font-size: 14px;"><?php echo esc_html( $order_number ); ?></strong>
-                        <?php if ( $album_name ) : ?>
-                            <br><span style="color: #666;"><?php echo esc_html( $album_name ); ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 24px; font-weight: bold; color: #2271b1;"><?php echo esc_html( eao_format_price( $total ) ); ?></span>
-                    </div>
-                </div>
+        <div class="eao-order-header">
+            <div class="eao-order-header__info">
+                <span class="eao-order-header__number"><?php echo esc_html( $order_number ); ?></span>
+                <?php if ( $album_name ) : ?>
+                    <span class="eao-order-header__album"><?php echo esc_html( $album_name ); ?></span>
+                <?php endif; ?>
+            </div>
+            <div class="eao-order-header__total">
+                <div class="eao-order-header__total-label"><?php esc_html_e( 'Order total', 'easy-album-orders' ); ?></div>
+                <div class="eao-order-header__total-value"><?php echo esc_html( eao_format_price( $total ) ); ?></div>
+            </div>
+        </div>
+
+        <div class="eao-price-table">
+            <div class="eao-price-row">
+                <span class="eao-price-row__label"><?php esc_html_e( 'Base price', 'easy-album-orders' ); ?></span>
+                <span class="eao-price-row__value"><?php echo esc_html( eao_format_price( $base_price ) ); ?></span>
             </div>
 
-            <table class="eao-price-table" style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><?php esc_html_e( 'Base Price', 'easy-album-orders' ); ?></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;"><?php echo esc_html( eao_format_price( $base_price ) ); ?></td>
-                </tr>
-                <?php if ( $material_upcharge > 0 ) : ?>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><?php esc_html_e( 'Material Upcharge', 'easy-album-orders' ); ?></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">+ <?php echo esc_html( eao_format_price( $material_upcharge ) ); ?></td>
-                </tr>
-                <?php endif; ?>
-                <?php if ( $size_upcharge > 0 ) : ?>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><?php esc_html_e( 'Size Upcharge', 'easy-album-orders' ); ?></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">+ <?php echo esc_html( eao_format_price( $size_upcharge ) ); ?></td>
-                </tr>
-                <?php endif; ?>
-                <?php if ( $engraving_upcharge > 0 ) : ?>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">+ <?php echo esc_html( eao_format_price( $engraving_upcharge ) ); ?></td>
-                </tr>
-                <?php endif; ?>
-                <?php if ( $applied_credits > 0 ) : ?>
-                <tr style="color: #00a32a;">
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">
-                        <?php 
-                        if ( 'free_album' === $credit_type ) {
-                            esc_html_e( 'Free Album Credit', 'easy-album-orders' );
-                        } else {
-                            esc_html_e( 'Album Credit', 'easy-album-orders' );
-                        }
-                        ?>
-                    </td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right;">- <?php echo esc_html( eao_format_price( $applied_credits ) ); ?></td>
-                </tr>
-                <?php endif; ?>
-                <tr style="font-weight: bold; font-size: 16px;">
-                    <td style="padding: 12px 0;"><?php esc_html_e( 'Total', 'easy-album-orders' ); ?></td>
-                    <td style="padding: 12px 0; text-align: right;"><?php echo esc_html( eao_format_price( $total ) ); ?></td>
-                </tr>
-            </table>
+            <?php if ( $material_upcharge > 0 ) : ?>
+            <div class="eao-price-row eao-price-row--upcharge">
+                <span class="eao-price-row__label"><?php esc_html_e( 'Material upcharge', 'easy-album-orders' ); ?></span>
+                <span class="eao-price-row__value"><?php echo esc_html( eao_format_price( $material_upcharge ) ); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if ( $size_upcharge > 0 ) : ?>
+            <div class="eao-price-row eao-price-row--upcharge">
+                <span class="eao-price-row__label"><?php esc_html_e( 'Size upcharge', 'easy-album-orders' ); ?></span>
+                <span class="eao-price-row__value"><?php echo esc_html( eao_format_price( $size_upcharge ) ); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if ( $engraving_upcharge > 0 ) : ?>
+            <div class="eao-price-row eao-price-row--upcharge">
+                <span class="eao-price-row__label"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></span>
+                <span class="eao-price-row__value"><?php echo esc_html( eao_format_price( $engraving_upcharge ) ); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if ( $applied_credits > 0 ) : ?>
+            <div class="eao-price-row eao-price-row--credit">
+                <span class="eao-price-row__label">
+                    <?php 
+                    if ( 'free_album' === $credit_type ) {
+                        esc_html_e( 'Free album credit', 'easy-album-orders' );
+                    } else {
+                        esc_html_e( 'Album credit', 'easy-album-orders' );
+                    }
+                    ?>
+                </span>
+                <span class="eao-price-row__value"><?php echo esc_html( eao_format_price( $applied_credits ) ); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <div class="eao-price-row eao-price-row--total">
+                <span class="eao-price-row__label"><?php esc_html_e( 'Total', 'easy-album-orders' ); ?></span>
+                <span class="eao-price-row__value"><?php echo esc_html( eao_format_price( $total ) ); ?></span>
+            </div>
         </div>
         <?php
     }
@@ -253,43 +263,48 @@ class EAO_Album_Order_Meta {
         $engraving_options = get_option( 'eao_engraving_options', array() );
         ?>
         <div class="eao-meta-box">
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_album_name"><?php esc_html_e( 'Album Name', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_album_name" name="eao_album_name" value="<?php echo esc_attr( $album_name ); ?>" class="regular-text" style="width: 100%;">
+            <!-- Album Details Section -->
+            <div class="eao-config-section">
+                <div class="eao-field">
+                    <label for="eao_album_name"><?php esc_html_e( 'Album name', 'easy-album-orders' ); ?></label>
+                    <input type="text" id="eao_album_name" name="eao_album_name" value="<?php echo esc_attr( $album_name ); ?>">
                 </div>
-            </div>
 
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
+                <div class="eao-field">
                     <label for="eao_design_name"><?php esc_html_e( 'Design', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_design_name" name="eao_design_name" value="<?php echo esc_attr( $design_name ); ?>" class="regular-text" style="width: 100%;">
+                    <input type="text" id="eao_design_name" name="eao_design_name" value="<?php echo esc_attr( $design_name ); ?>">
                     <p class="description"><?php esc_html_e( 'The selected album design.', 'easy-album-orders' ); ?></p>
                 </div>
             </div>
 
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_material_name"><?php esc_html_e( 'Material', 'easy-album-orders' ); ?></label>
-                    <select id="eao_material_name" name="eao_material_name" style="width: 100%;">
-                        <option value=""><?php esc_html_e( '— Select Material —', 'easy-album-orders' ); ?></option>
-                        <?php foreach ( $materials as $material ) : ?>
-                            <option value="<?php echo esc_attr( $material['name'] ); ?>" <?php selected( $material_name, $material['name'] ); ?>>
-                                <?php echo esc_html( $material['name'] ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_material_color"><?php esc_html_e( 'Color', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_material_color" name="eao_material_color" value="<?php echo esc_attr( $material_color ); ?>" class="regular-text" style="width: 100%;">
-                </div>
-            </div>
+            <!-- Material & Size Section -->
+            <div class="eao-config-section">
+                <h4 class="eao-config-section__title">
+                    <span class="dashicons dashicons-art"></span>
+                    <?php esc_html_e( 'Material & Size', 'easy-album-orders' ); ?>
+                </h4>
 
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
+                <div class="eao-field-row">
+                    <div class="eao-field">
+                        <label for="eao_material_name"><?php esc_html_e( 'Material', 'easy-album-orders' ); ?></label>
+                        <select id="eao_material_name" name="eao_material_name">
+                            <option value=""><?php esc_html_e( '— Select Material —', 'easy-album-orders' ); ?></option>
+                            <?php foreach ( $materials as $material ) : ?>
+                                <option value="<?php echo esc_attr( $material['name'] ); ?>" <?php selected( $material_name, $material['name'] ); ?>>
+                                    <?php echo esc_html( $material['name'] ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="eao-field">
+                        <label for="eao_material_color"><?php esc_html_e( 'Color', 'easy-album-orders' ); ?></label>
+                        <input type="text" id="eao_material_color" name="eao_material_color" value="<?php echo esc_attr( $material_color ); ?>">
+                    </div>
+                </div>
+
+                <div class="eao-field">
                     <label for="eao_size_name"><?php esc_html_e( 'Size', 'easy-album-orders' ); ?></label>
-                    <select id="eao_size_name" name="eao_size_name" style="width: 100%;">
+                    <select id="eao_size_name" name="eao_size_name">
                         <option value=""><?php esc_html_e( '— Select Size —', 'easy-album-orders' ); ?></option>
                         <?php foreach ( $sizes as $size ) : ?>
                             <option value="<?php echo esc_attr( $size['name'] ); ?>" <?php selected( $size_name, $size['name'] ); ?>>
@@ -300,31 +315,35 @@ class EAO_Album_Order_Meta {
                 </div>
             </div>
 
-            <hr style="margin: 20px 0;">
+            <!-- Engraving Section -->
+            <div class="eao-config-section">
+                <h4 class="eao-config-section__title">
+                    <span class="dashicons dashicons-edit"></span>
+                    <?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?>
+                </h4>
 
-            <h4 style="margin: 0 0 15px;"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></h4>
-
-            <div class="eao-field-row">
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_engraving_method"><?php esc_html_e( 'Method', 'easy-album-orders' ); ?></label>
-                    <select id="eao_engraving_method" name="eao_engraving_method" style="width: 100%;">
-                        <option value=""><?php esc_html_e( 'No Engraving', 'easy-album-orders' ); ?></option>
-                        <?php foreach ( $engraving_options as $option ) : ?>
-                            <option value="<?php echo esc_attr( $option['name'] ); ?>" <?php selected( $engraving_method, $option['name'] ); ?>>
-                                <?php echo esc_html( $option['name'] ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="eao-field-row">
+                    <div class="eao-field">
+                        <label for="eao_engraving_method"><?php esc_html_e( 'Method', 'easy-album-orders' ); ?></label>
+                        <select id="eao_engraving_method" name="eao_engraving_method">
+                            <option value=""><?php esc_html_e( 'No engraving', 'easy-album-orders' ); ?></option>
+                            <?php foreach ( $engraving_options as $option ) : ?>
+                                <option value="<?php echo esc_attr( $option['name'] ); ?>" <?php selected( $engraving_method, $option['name'] ); ?>>
+                                    <?php echo esc_html( $option['name'] ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="eao-field">
+                        <label for="eao_engraving_font"><?php esc_html_e( 'Font', 'easy-album-orders' ); ?></label>
+                        <input type="text" id="eao_engraving_font" name="eao_engraving_font" value="<?php echo esc_attr( $engraving_font ); ?>">
+                    </div>
                 </div>
-                <div class="eao-field" style="flex: 1;">
-                    <label for="eao_engraving_font"><?php esc_html_e( 'Font', 'easy-album-orders' ); ?></label>
-                    <input type="text" id="eao_engraving_font" name="eao_engraving_font" value="<?php echo esc_attr( $engraving_font ); ?>" class="regular-text" style="width: 100%;">
-                </div>
-            </div>
 
-            <div class="eao-field">
-                <label for="eao_engraving_text"><?php esc_html_e( 'Engraving Text', 'easy-album-orders' ); ?></label>
-                <input type="text" id="eao_engraving_text" name="eao_engraving_text" value="<?php echo esc_attr( $engraving_text ); ?>" class="large-text">
+                <div class="eao-field">
+                    <label for="eao_engraving_text"><?php esc_html_e( 'Engraving text', 'easy-album-orders' ); ?></label>
+                    <input type="text" id="eao_engraving_text" name="eao_engraving_text" value="<?php echo esc_attr( $engraving_text ); ?>">
+                </div>
             </div>
         </div>
         <?php
@@ -352,115 +371,6 @@ class EAO_Album_Order_Meta {
 
         $has_shipping = ! empty( $shipping_name ) || ! empty( $shipping_address1 );
         ?>
-        <style>
-            .eao-info-cards {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
-            .eao-info-card {
-                background: #f9f9f9;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 16px;
-                position: relative;
-            }
-            .eao-info-card--full {
-                grid-column: 1 / -1;
-            }
-            .eao-info-card__header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 12px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #e0e0e0;
-            }
-            .eao-info-card__title {
-                font-size: 12px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: #666;
-                margin: 0;
-            }
-            .eao-info-card__edit {
-                font-size: 12px;
-                color: #2271b1;
-                text-decoration: none;
-                cursor: pointer;
-            }
-            .eao-info-card__edit:hover {
-                color: #135e96;
-            }
-            .eao-info-card__content {
-                line-height: 1.6;
-            }
-            .eao-info-card__name {
-                font-weight: 600;
-                font-size: 14px;
-                color: #1d2327;
-                margin-bottom: 4px;
-            }
-            .eao-info-card__detail {
-                font-size: 13px;
-                color: #50575e;
-            }
-            .eao-info-card__detail a {
-                color: #2271b1;
-                text-decoration: none;
-            }
-            .eao-info-card__detail a:hover {
-                text-decoration: underline;
-            }
-            .eao-info-card__address {
-                font-size: 13px;
-                color: #1d2327;
-            }
-            .eao-info-card__empty {
-                color: #999;
-                font-style: italic;
-                font-size: 13px;
-            }
-            .eao-edit-form {
-                display: none;
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px dashed #ddd;
-            }
-            .eao-edit-form.is-visible {
-                display: block;
-            }
-            .eao-edit-form .eao-field {
-                margin-bottom: 12px;
-            }
-            .eao-edit-form .eao-field:last-child {
-                margin-bottom: 0;
-            }
-            .eao-edit-form label {
-                display: block;
-                font-size: 12px;
-                font-weight: 500;
-                color: #666;
-                margin-bottom: 4px;
-            }
-            .eao-edit-form input {
-                width: 100%;
-            }
-            .eao-edit-form .eao-field-row {
-                display: flex;
-                gap: 10px;
-            }
-            .eao-edit-form .eao-field-row .eao-field {
-                flex: 1;
-            }
-            @media (max-width: 782px) {
-                .eao-info-cards {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
-
         <div class="eao-meta-box">
             <div class="eao-info-cards">
                 <!-- Customer Contact Card -->
@@ -490,15 +400,15 @@ class EAO_Album_Order_Meta {
                     <div class="eao-edit-form" id="eao-customer-form">
                         <div class="eao-field">
                             <label for="eao_customer_name"><?php esc_html_e( 'Name', 'easy-album-orders' ); ?></label>
-                            <input type="text" id="eao_customer_name" name="eao_customer_name" value="<?php echo esc_attr( $customer_name ); ?>" class="regular-text">
+                            <input type="text" id="eao_customer_name" name="eao_customer_name" value="<?php echo esc_attr( $customer_name ); ?>">
                         </div>
                         <div class="eao-field">
                             <label for="eao_customer_email"><?php esc_html_e( 'Email', 'easy-album-orders' ); ?></label>
-                            <input type="email" id="eao_customer_email" name="eao_customer_email" value="<?php echo esc_attr( $customer_email ); ?>" class="regular-text">
+                            <input type="email" id="eao_customer_email" name="eao_customer_email" value="<?php echo esc_attr( $customer_email ); ?>">
                         </div>
                         <div class="eao-field">
                             <label for="eao_customer_phone"><?php esc_html_e( 'Phone', 'easy-album-orders' ); ?></label>
-                            <input type="tel" id="eao_customer_phone" name="eao_customer_phone" value="<?php echo esc_attr( $customer_phone ); ?>" class="regular-text">
+                            <input type="tel" id="eao_customer_phone" name="eao_customer_phone" value="<?php echo esc_attr( $customer_phone ); ?>">
                         </div>
                     </div>
                 </div>
@@ -506,7 +416,7 @@ class EAO_Album_Order_Meta {
                 <!-- Shipping Address Card -->
                 <div class="eao-info-card" id="eao-shipping-card">
                     <div class="eao-info-card__header">
-                        <h4 class="eao-info-card__title"><?php esc_html_e( 'Ship To', 'easy-album-orders' ); ?></h4>
+                        <h4 class="eao-info-card__title"><?php esc_html_e( 'Ship to', 'easy-album-orders' ); ?></h4>
                         <a class="eao-info-card__edit" onclick="eaoToggleEdit('shipping')"><?php esc_html_e( 'Edit', 'easy-album-orders' ); ?></a>
                     </div>
                     <div class="eao-info-card__content" id="eao-shipping-display">
@@ -529,29 +439,29 @@ class EAO_Album_Order_Meta {
                     </div>
                     <div class="eao-edit-form" id="eao-shipping-form">
                         <div class="eao-field">
-                            <label for="eao_shipping_name"><?php esc_html_e( 'Recipient Name', 'easy-album-orders' ); ?></label>
-                            <input type="text" id="eao_shipping_name" name="eao_shipping_name" value="<?php echo esc_attr( $shipping_name ); ?>" class="regular-text">
+                            <label for="eao_shipping_name"><?php esc_html_e( 'Recipient name', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_shipping_name" name="eao_shipping_name" value="<?php echo esc_attr( $shipping_name ); ?>">
                         </div>
                         <div class="eao-field">
-                            <label for="eao_shipping_address1"><?php esc_html_e( 'Street Address', 'easy-album-orders' ); ?></label>
-                            <input type="text" id="eao_shipping_address1" name="eao_shipping_address1" value="<?php echo esc_attr( $shipping_address1 ); ?>" class="regular-text">
+                            <label for="eao_shipping_address1"><?php esc_html_e( 'Street address', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_shipping_address1" name="eao_shipping_address1" value="<?php echo esc_attr( $shipping_address1 ); ?>">
                         </div>
                         <div class="eao-field">
-                            <label for="eao_shipping_address2"><?php esc_html_e( 'Apt, Suite, etc.', 'easy-album-orders' ); ?></label>
-                            <input type="text" id="eao_shipping_address2" name="eao_shipping_address2" value="<?php echo esc_attr( $shipping_address2 ); ?>" class="regular-text">
+                            <label for="eao_shipping_address2"><?php esc_html_e( 'Apt, suite, etc.', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_shipping_address2" name="eao_shipping_address2" value="<?php echo esc_attr( $shipping_address2 ); ?>">
                         </div>
                         <div class="eao-field-row">
-                            <div class="eao-field" style="flex: 2;">
+                            <div class="eao-field eao-field--city">
                                 <label for="eao_shipping_city"><?php esc_html_e( 'City', 'easy-album-orders' ); ?></label>
-                                <input type="text" id="eao_shipping_city" name="eao_shipping_city" value="<?php echo esc_attr( $shipping_city ); ?>" class="regular-text">
+                                <input type="text" id="eao_shipping_city" name="eao_shipping_city" value="<?php echo esc_attr( $shipping_city ); ?>">
                             </div>
-                            <div class="eao-field">
+                            <div class="eao-field eao-field--state">
                                 <label for="eao_shipping_state"><?php esc_html_e( 'State', 'easy-album-orders' ); ?></label>
-                                <input type="text" id="eao_shipping_state" name="eao_shipping_state" value="<?php echo esc_attr( $shipping_state ); ?>" class="regular-text">
+                                <input type="text" id="eao_shipping_state" name="eao_shipping_state" value="<?php echo esc_attr( $shipping_state ); ?>">
                             </div>
-                            <div class="eao-field">
+                            <div class="eao-field eao-field--zip">
                                 <label for="eao_shipping_zip"><?php esc_html_e( 'ZIP', 'easy-album-orders' ); ?></label>
-                                <input type="text" id="eao_shipping_zip" name="eao_shipping_zip" value="<?php echo esc_attr( $shipping_zip ); ?>" class="regular-text">
+                                <input type="text" id="eao_shipping_zip" name="eao_shipping_zip" value="<?php echo esc_attr( $shipping_zip ); ?>">
                             </div>
                         </div>
                     </div>
@@ -562,7 +472,8 @@ class EAO_Album_Order_Meta {
         <script>
         function eaoToggleEdit(type) {
             var form = document.getElementById('eao-' + type + '-form');
-            var link = form.previousElementSibling.previousElementSibling.querySelector('.eao-info-card__edit');
+            var card = form.closest('.eao-info-card');
+            var link = card.querySelector('.eao-info-card__edit');
             
             if (form.classList.contains('is-visible')) {
                 form.classList.remove('is-visible');
@@ -588,15 +499,22 @@ class EAO_Album_Order_Meta {
         $photographer_notes = get_post_meta( $post->ID, '_eao_photographer_notes', true );
         ?>
         <div class="eao-meta-box">
-            <div class="eao-field">
-                <label for="eao_client_notes"><?php esc_html_e( 'Client Notes', 'easy-album-orders' ); ?></label>
-                <textarea id="eao_client_notes" name="eao_client_notes" rows="3" class="large-text"><?php echo esc_textarea( $client_notes ); ?></textarea>
-                <p class="description"><?php esc_html_e( 'Notes from the client during checkout.', 'easy-album-orders' ); ?></p>
+            <div class="eao-notes-section">
+                <label for="eao_client_notes" class="eao-notes-section__label">
+                    <span class="dashicons dashicons-admin-comments"></span>
+                    <?php esc_html_e( 'Client notes', 'easy-album-orders' ); ?>
+                </label>
+                <textarea id="eao_client_notes" name="eao_client_notes" rows="3" class="eao-notes-textarea eao-notes-textarea--readonly" readonly><?php echo esc_textarea( $client_notes ); ?></textarea>
+                <p class="eao-notes-help"><?php esc_html_e( 'Notes from the client during checkout (read-only).', 'easy-album-orders' ); ?></p>
             </div>
-            <div class="eao-field" style="margin-top: 15px;">
-                <label for="eao_photographer_notes"><?php esc_html_e( 'Internal Notes', 'easy-album-orders' ); ?></label>
-                <textarea id="eao_photographer_notes" name="eao_photographer_notes" rows="3" class="large-text"><?php echo esc_textarea( $photographer_notes ); ?></textarea>
-                <p class="description"><?php esc_html_e( 'Private notes (not visible to client).', 'easy-album-orders' ); ?></p>
+
+            <div class="eao-notes-section">
+                <label for="eao_photographer_notes" class="eao-notes-section__label eao-notes-section__label--internal">
+                    <span class="dashicons dashicons-lock"></span>
+                    <?php esc_html_e( 'Internal notes', 'easy-album-orders' ); ?>
+                </label>
+                <textarea id="eao_photographer_notes" name="eao_photographer_notes" rows="3" class="eao-notes-textarea"><?php echo esc_textarea( $photographer_notes ); ?></textarea>
+                <p class="eao-notes-help"><?php esc_html_e( 'Private notes visible only to you.', 'easy-album-orders' ); ?></p>
             </div>
         </div>
         <?php
@@ -615,21 +533,22 @@ class EAO_Album_Order_Meta {
         ?>
         <div class="eao-meta-box">
             <?php if ( $client_album ) : ?>
-                <p>
-                    <strong><?php echo esc_html( $client_album->post_title ); ?></strong>
-                </p>
-                <p>
-                    <a href="<?php echo esc_url( get_edit_post_link( $client_album_id ) ); ?>" class="button">
-                        <?php esc_html_e( 'View Client Album', 'easy-album-orders' ); ?>
-                    </a>
-                </p>
-                <p>
-                    <a href="<?php echo esc_url( get_permalink( $client_album_id ) ); ?>" target="_blank">
-                        <?php esc_html_e( 'View Order Form', 'easy-album-orders' ); ?> →
-                    </a>
-                </p>
+                <div class="eao-related-album">
+                    <h5 class="eao-related-album__title"><?php echo esc_html( $client_album->post_title ); ?></h5>
+                    <div class="eao-related-album__actions">
+                        <a href="<?php echo esc_url( get_edit_post_link( $client_album_id ) ); ?>" class="eao-related-album__link">
+                            <span class="dashicons dashicons-edit"></span>
+                            <?php esc_html_e( 'Edit client album', 'easy-album-orders' ); ?>
+                        </a>
+                        <a href="<?php echo esc_url( get_permalink( $client_album_id ) ); ?>" target="_blank" class="eao-related-album__external">
+                            <?php esc_html_e( 'View order form', 'easy-album-orders' ); ?> →
+                        </a>
+                    </div>
+                </div>
             <?php else : ?>
-                <p class="description"><?php esc_html_e( 'This order is not linked to a client album.', 'easy-album-orders' ); ?></p>
+                <div class="eao-related-album--empty">
+                    <p><?php esc_html_e( 'This order is not linked to a client album.', 'easy-album-orders' ); ?></p>
+                </div>
             <?php endif; ?>
         </div>
         <?php
