@@ -192,9 +192,9 @@ class EAO_Admin_Columns {
         $new_columns = array(
             'cb'            => $columns['cb'],
             'order_number'  => __( 'Order', 'easy-album-orders' ),
-            'album_name'    => __( 'Album', 'easy-album-orders' ),
             'client_album'  => __( 'Client Album', 'easy-album-orders' ),
             'customer'      => __( 'Customer', 'easy-album-orders' ),
+            'album_name'    => __( 'Album', 'easy-album-orders' ),
             'configuration' => __( 'Configuration', 'easy-album-orders' ),
             'total'         => __( 'Total', 'easy-album-orders' ),
             'order_status'  => __( 'Status', 'easy-album-orders' ),
