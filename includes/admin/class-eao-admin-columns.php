@@ -468,23 +468,7 @@ class EAO_Admin_Columns {
         );
 
         // Status actions based on current status.
-        if ( 'submitted' === $status ) {
-            // Can mark as ordered.
-            $custom_actions['mark_ordered'] = sprintf(
-                '<a href="%s" class="eao-action-ordered">%s</a>',
-                wp_nonce_url(
-                    add_query_arg(
-                        array(
-                            'action'   => 'eao_mark_ordered',
-                            'order_id' => $post->ID,
-                        ),
-                        admin_url( 'admin.php' )
-                    ),
-                    'eao_mark_ordered_' . $post->ID
-                ),
-                esc_html__( 'Mark Ordered', 'easy-album-orders' )
-            );
-        } elseif ( 'ordered' === $status ) {
+        if ( 'ordered' === $status ) {
             // Can mark as shipped.
             $custom_actions['mark_shipped'] = sprintf(
                 '<a href="%s" class="eao-action-shipped">%s</a>',
@@ -499,16 +483,6 @@ class EAO_Admin_Columns {
                     'eao_mark_shipped_' . $post->ID
                 ),
                 esc_html__( 'Mark Shipped', 'easy-album-orders' )
-            );
-        }
-
-        // View client album link.
-        $client_album_id = get_post_meta( $post->ID, '_eao_client_album_id', true );
-        if ( $client_album_id ) {
-            $custom_actions['view_client'] = sprintf(
-                '<a href="%s">%s</a>',
-                get_edit_post_link( $client_album_id ),
-                esc_html__( 'Client Album', 'easy-album-orders' )
             );
         }
 
