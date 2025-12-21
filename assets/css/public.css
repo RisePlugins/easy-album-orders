@@ -892,7 +892,7 @@
    ========================================================================== */
 
 .eao-engraving-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 .eao-engraving-card {
@@ -962,13 +962,24 @@
     color: var(--eao-accent);
 }
 
-/* Engraving card with image */
+/* Engraving card with image - larger like size cards */
 .eao-engraving-card .eao-selection-card__image {
-    width: 70px;
-    height: 70px;
+    width: 100%;
+    height: 100px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 6px;
     margin-bottom: 12px;
+    background: var(--eao-bg);
+}
+
+/* When card has image, adjust layout */
+.eao-engraving-card:has(.eao-selection-card__image) {
+    min-height: auto;
+    padding: 15px;
+}
+
+.eao-engraving-card:has(.eao-selection-card__image) .eao-selection-card__name {
+    font-size: 1rem;
 }
 
 /* Engraving fields container */
@@ -1139,6 +1150,10 @@
         padding: 15px 12px;
     }
 
+    .eao-engraving-card .eao-selection-card__image {
+        height: 80px;
+    }
+
     .eao-engraving-card__icon {
         width: 50px;
         height: 50px;
@@ -1158,6 +1173,10 @@
 @media (max-width: 480px) {
     .eao-engraving-grid {
         grid-template-columns: 1fr;
+    }
+
+    .eao-engraving-card .eao-selection-card__image {
+        height: 120px;
     }
 
     .eao-engraving-fields {
