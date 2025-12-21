@@ -223,38 +223,84 @@ $cart_items = array();
                     <section class="eao-form__section eao-engraving-section" id="eao-engraving-section" style="display: none;">
                         <h2 class="eao-form__section-title"><?php esc_html_e( 'Add Engraving', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'Optional', 'easy-album-orders' ); ?>)</span></h2>
                         
-                        <div class="eao-field">
-                            <label for="eao-engraving-method" class="eao-field__label"><?php esc_html_e( 'Engraving Method', 'easy-album-orders' ); ?></label>
-                            <select id="eao-engraving-method" name="engraving_method" class="eao-field__select">
-                                <option value=""><?php esc_html_e( 'No Engraving', 'easy-album-orders' ); ?></option>
-                                <?php foreach ( $engraving_options as $option ) : ?>
-                                    <option value="<?php echo esc_attr( $option['id'] ); ?>" 
-                                            data-upcharge="<?php echo esc_attr( $option['upcharge'] ); ?>"
-                                            data-char-limit="<?php echo esc_attr( $option['character_limit'] ); ?>"
-                                            data-fonts="<?php echo esc_attr( $option['fonts'] ); ?>">
-                                        <?php 
-                                        echo esc_html( $option['name'] );
-                                        if ( $option['upcharge'] > 0 ) {
-                                            echo ' (+' . esc_html( eao_format_price( $option['upcharge'] ) ) . ')';
-                                        }
-                                        ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <!-- Engraving Method Selection Cards -->
+                        <div class="eao-selection-grid eao-engraving-grid">
+                            <!-- No Engraving Card -->
+                            <label class="eao-selection-card eao-engraving-card eao-engraving-card--none is-selected" 
+                                   data-engraving-id=""
+                                   data-upcharge="0"
+                                   data-char-limit="0"
+                                   data-fonts="">
+                                <input type="radio" name="engraving_method" value="" checked>
+                                <div class="eao-engraving-card__icon">
+                                    <span class="dashicons dashicons-no-alt"></span>
+                                </div>
+                                <div class="eao-selection-card__name"><?php esc_html_e( 'No Engraving', 'easy-album-orders' ); ?></div>
+                                <div class="eao-selection-card__price eao-selection-card__price--included"><?php esc_html_e( 'Included', 'easy-album-orders' ); ?></div>
+                            </label>
+
+                            <?php foreach ( $engraving_options as $option ) : ?>
+                                <?php
+                                $engraving_image = ! empty( $option['image_id'] ) ? wp_get_attachment_image_url( $option['image_id'], 'thumbnail' ) : '';
+                                ?>
+                                <label class="eao-selection-card eao-engraving-card" 
+                                       data-engraving-id="<?php echo esc_attr( $option['id'] ); ?>"
+                                       data-upcharge="<?php echo esc_attr( $option['upcharge'] ); ?>"
+                                       data-char-limit="<?php echo esc_attr( $option['character_limit'] ); ?>"
+                                       data-fonts="<?php echo esc_attr( $option['fonts'] ); ?>">
+                                    <input type="radio" name="engraving_method" value="<?php echo esc_attr( $option['id'] ); ?>">
+                                    <?php if ( $engraving_image ) : ?>
+                                        <img src="<?php echo esc_url( $engraving_image ); ?>" alt="<?php echo esc_attr( $option['name'] ); ?>" class="eao-selection-card__image">
+                                    <?php else : ?>
+                                        <div class="eao-engraving-card__icon">
+                                            <span class="dashicons dashicons-edit"></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="eao-selection-card__name"><?php echo esc_html( $option['name'] ); ?></div>
+                                    <?php if ( $option['upcharge'] > 0 ) : ?>
+                                        <div class="eao-selection-card__price">+ <?php echo esc_html( eao_format_price( $option['upcharge'] ) ); ?></div>
+                                    <?php else : ?>
+                                        <div class="eao-selection-card__price eao-selection-card__price--included"><?php esc_html_e( 'Included', 'easy-album-orders' ); ?></div>
+                                    <?php endif; ?>
+                                    <?php if ( ! empty( $option['character_limit'] ) ) : ?>
+                                        <div class="eao-engraving-card__limit"><?php echo esc_html( sprintf( __( 'Up to %d characters', 'easy-album-orders' ), $option['character_limit'] ) ); ?></div>
+                                    <?php endif; ?>
+                                </label>
+                            <?php endforeach; ?>
                         </div>
 
+                        <!-- Hidden select for backwards compatibility with JS -->
+                        <select id="eao-engraving-method" name="engraving_method_select" class="eao-field__select" style="display: none;">
+                            <option value=""><?php esc_html_e( 'No Engraving', 'easy-album-orders' ); ?></option>
+                            <?php foreach ( $engraving_options as $option ) : ?>
+                                <option value="<?php echo esc_attr( $option['id'] ); ?>" 
+                                        data-upcharge="<?php echo esc_attr( $option['upcharge'] ); ?>"
+                                        data-char-limit="<?php echo esc_attr( $option['character_limit'] ); ?>"
+                                        data-fonts="<?php echo esc_attr( $option['fonts'] ); ?>">
+                                    <?php echo esc_html( $option['name'] ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <!-- Engraving Details (shown when an engraving method is selected) -->
                         <div class="eao-engraving-fields" id="eao-engraving-fields" style="display: none;">
                             <div class="eao-field">
                                 <label for="eao-engraving-text" class="eao-field__label"><?php esc_html_e( 'Engraving Text', 'easy-album-orders' ); ?></label>
-                                <input type="text" id="eao-engraving-text" name="engraving_text" class="eao-field__input" placeholder="<?php esc_attr_e( 'Enter your engraving text', 'easy-album-orders' ); ?>">
-                                <p class="eao-field__help">
-                                    <span id="eao-char-count">0</span> / <span id="eao-char-limit">50</span> <?php esc_html_e( 'characters', 'easy-album-orders' ); ?>
+                                <input type="text" id="eao-engraving-text" name="engraving_text" class="eao-field__input eao-field__input--engraving" placeholder="<?php esc_attr_e( 'Enter your engraving text', 'easy-album-orders' ); ?>">
+                                <p class="eao-field__help eao-char-counter">
+                                    <span class="eao-char-counter__current" id="eao-char-count">0</span>
+                                    <span class="eao-char-counter__separator">/</span>
+                                    <span class="eao-char-counter__limit" id="eao-char-limit">50</span>
+                                    <span class="eao-char-counter__label"><?php esc_html_e( 'characters', 'easy-album-orders' ); ?></span>
                                 </p>
                             </div>
 
-                            <div class="eao-field" id="eao-font-field" style="display: none;">
-                                <label for="eao-engraving-font" class="eao-field__label"><?php esc_html_e( 'Font Style', 'easy-album-orders' ); ?></label>
-                                <select id="eao-engraving-font" name="engraving_font" class="eao-field__select">
+                            <div class="eao-field eao-font-field" id="eao-font-field" style="display: none;">
+                                <label class="eao-field__label"><?php esc_html_e( 'Font Style', 'easy-album-orders' ); ?></label>
+                                <div class="eao-font-grid" id="eao-font-grid">
+                                    <!-- Font options populated by JavaScript -->
+                                </div>
+                                <select id="eao-engraving-font" name="engraving_font" class="eao-field__select" style="display: none;">
                                     <option value=""><?php esc_html_e( 'Select Font', 'easy-album-orders' ); ?></option>
                                 </select>
                             </div>

@@ -390,12 +390,22 @@
         bindEngravingOptions: function() {
             const self = this;
 
-            // Method selection.
-            $('#eao-engraving-method').on('change', function() {
-                const $selected = $(this).find('option:selected');
-                const value = $(this).val();
+            // Engraving card selection.
+            $(document).on('click', '.eao-engraving-card', function() {
+                const $card = $(this);
+                const $input = $card.find('input[type="radio"]');
+                const engravingId = $card.data('engraving-id');
 
-                if (!value) {
+                // Update selection UI.
+                $('.eao-engraving-card').removeClass('is-selected');
+                $card.addClass('is-selected');
+                $input.prop('checked', true);
+
+                // Sync with hidden select for backwards compatibility.
+                $('#eao-engraving-method').val(engravingId || '');
+
+                if (!engravingId) {
+                    // No engraving selected.
                     $('#eao-engraving-fields').hide();
                     self.selections.engraving = null;
                     self.updatePriceCalculation();
@@ -404,40 +414,136 @@
 
                 // Store selection.
                 self.selections.engraving = {
-                    id: value,
-                    upcharge: parseFloat($selected.data('upcharge')) || 0,
-                    charLimit: parseInt($selected.data('char-limit')) || 50,
-                    fonts: $selected.data('fonts') || ''
+                    id: engravingId,
+                    upcharge: parseFloat($card.data('upcharge')) || 0,
+                    charLimit: parseInt($card.data('char-limit')) || 50,
+                    fonts: $card.data('fonts') || ''
                 };
 
                 // Update character limit.
                 $('#eao-char-limit').text(self.selections.engraving.charLimit);
                 $('#eao-engraving-text').attr('maxlength', self.selections.engraving.charLimit);
 
-                // Update fonts.
-                const $fontField = $('#eao-font-field');
-                const $fontSelect = $('#eao-engraving-font');
-                const fonts = self.selections.engraving.fonts.split('\n').filter(f => f.trim());
+                // Update fonts - now using card-based selection.
+                self.updateFontDisplay();
 
-                if (fonts.length > 0) {
-                    let fontOptions = '<option value="">' + (eaoPublic.i18n?.selectFont || 'Select Font') + '</option>';
-                    fonts.forEach(function(font) {
-                        fontOptions += '<option value="' + font.trim() + '">' + font.trim() + '</option>';
-                    });
-                    $fontSelect.html(fontOptions);
-                    $fontField.show();
-                } else {
-                    $fontField.hide();
-                }
-
-                $('#eao-engraving-fields').show();
+                // Show engraving fields with animation.
+                $('#eao-engraving-fields').slideDown(200);
                 self.updatePriceCalculation();
             });
 
-            // Character count.
+            // Character count with visual feedback.
             $('#eao-engraving-text').on('input', function() {
-                $('#eao-char-count').text($(this).val().length);
+                const length = $(this).val().length;
+                const limit = parseInt($('#eao-char-limit').text()) || 50;
+                const $counter = $(this).closest('.eao-field').find('.eao-char-counter');
+                
+                $('#eao-char-count').text(length);
+                
+                // Update counter state.
+                $counter.removeClass('eao-char-counter--warning eao-char-counter--error');
+                if (length >= limit) {
+                    $counter.addClass('eao-char-counter--error');
+                } else if (length >= limit * 0.8) {
+                    $counter.addClass('eao-char-counter--warning');
+                }
             });
+
+            // Legacy: Also support the hidden select change (for edit mode).
+            $('#eao-engraving-method').on('change', function() {
+                const value = $(this).val();
+                const $card = value 
+                    ? $('.eao-engraving-card[data-engraving-id="' + value + '"]')
+                    : $('.eao-engraving-card--none');
+                
+                if ($card.length && !$card.hasClass('is-selected')) {
+                    $card.trigger('click');
+                }
+            });
+        },
+
+        /**
+         * Update font display based on selected engraving method.
+         */
+        updateFontDisplay: function() {
+            const self = this;
+            const $fontField = $('#eao-font-field');
+            const $fontGrid = $('#eao-font-grid');
+            const $fontSelect = $('#eao-engraving-font');
+
+            if (!self.selections.engraving || !self.selections.engraving.fonts) {
+                $fontField.hide();
+                return;
+            }
+
+            const fonts = self.selections.engraving.fonts.split('\n').filter(f => f.trim());
+
+            if (fonts.length === 0) {
+                $fontField.hide();
+                return;
+            }
+
+            // Build font cards.
+            let fontHtml = '';
+            let fontOptions = '<option value="">' + (eaoPublic.i18n?.selectFont || 'Select Font') + '</option>';
+
+            fonts.forEach(function(font, index) {
+                const fontName = font.trim();
+                const fontClass = self.getFontClass(fontName);
+                const isFirst = index === 0;
+                
+                fontHtml += '<label class="eao-font-card ' + fontClass + (isFirst ? ' is-selected' : '') + '" data-font="' + self.escapeHtml(fontName) + '">';
+                fontHtml += '<input type="radio" name="font_selection" value="' + self.escapeHtml(fontName) + '"' + (isFirst ? ' checked' : '') + '>';
+                fontHtml += '<div class="eao-font-card__preview">Abc</div>';
+                fontHtml += '<div class="eao-font-card__name">' + self.escapeHtml(fontName) + '</div>';
+                fontHtml += '</label>';
+
+                fontOptions += '<option value="' + fontName + '"' + (isFirst ? ' selected' : '') + '>' + fontName + '</option>';
+            });
+
+            $fontGrid.html(fontHtml);
+            $fontSelect.html(fontOptions);
+
+            // Auto-select first font.
+            if (fonts.length > 0) {
+                $fontSelect.val(fonts[0].trim());
+            }
+
+            // Bind font card clicks.
+            $fontGrid.find('.eao-font-card').on('click', function() {
+                const $card = $(this);
+                const fontName = $card.data('font');
+
+                $('.eao-font-card').removeClass('is-selected');
+                $card.addClass('is-selected');
+                $card.find('input').prop('checked', true);
+
+                // Sync with hidden select.
+                $fontSelect.val(fontName);
+            });
+
+            $fontField.slideDown(200);
+        },
+
+        /**
+         * Get CSS class for font card based on font name.
+         *
+         * @param {string} fontName The font name.
+         * @return {string} CSS class for the font style.
+         */
+        getFontClass: function(fontName) {
+            const name = fontName.toLowerCase();
+            
+            if (name.includes('script') || name.includes('cursive') || name.includes('italic') || name.includes('calligraphy')) {
+                return 'eao-font-card--script';
+            }
+            if (name.includes('serif') && !name.includes('sans')) {
+                return 'eao-font-card--serif';
+            }
+            if (name.includes('block') || name.includes('bold') || name.includes('caps')) {
+                return 'eao-font-card--block';
+            }
+            return 'eao-font-card--sans';
         },
 
         /**
@@ -866,9 +972,19 @@
             // Clear UI.
             $('.eao-selection-card').removeClass('is-selected');
             $('.eao-color-card').removeClass('is-selected');
+            $('.eao-font-card').removeClass('is-selected');
             $('#eao-color-section').hide();
             $('#eao-engraving-section').hide();
             $('#eao-engraving-fields').hide();
+            $('#eao-font-field').hide();
+            $('#eao-font-grid').empty();
+
+            // Reset engraving to "No Engraving".
+            $('.eao-engraving-card--none').addClass('is-selected');
+            $('#eao-engraving-method').val('');
+            $('#eao-engraving-text').val('');
+            $('#eao-char-count').text('0');
+            $('.eao-char-counter').removeClass('eao-char-counter--warning eao-char-counter--error');
 
             // Reset address selector to "New Address".
             $('.eao-address-card').removeClass('is-selected');
@@ -1021,10 +1137,29 @@
 
             // Select engraving.
             if (data.engraving_method) {
-                $('#eao-engraving-method').val(data.engraving_method).trigger('change');
-                $('#eao-engraving-text').val(data.engraving_text);
-                $('#eao-engraving-font').val(data.engraving_font);
-                $('#eao-char-count').text(data.engraving_text.length);
+                // Use card-based selection.
+                const $engravingCard = $('.eao-engraving-card[data-engraving-id="' + data.engraving_method + '"]');
+                if ($engravingCard.length) {
+                    $engravingCard.trigger('click');
+                    
+                    // Wait for fonts to render, then select font and set text.
+                    setTimeout(function() {
+                        if (data.engraving_text) {
+                            $('#eao-engraving-text').val(data.engraving_text);
+                            $('#eao-char-count').text(data.engraving_text.length);
+                        }
+                        if (data.engraving_font) {
+                            const $fontCard = $('.eao-font-card[data-font="' + data.engraving_font + '"]');
+                            if ($fontCard.length) {
+                                $fontCard.trigger('click');
+                            }
+                            $('#eao-engraving-font').val(data.engraving_font);
+                        }
+                    }, 150);
+                }
+            } else {
+                // Select "No Engraving".
+                $('.eao-engraving-card--none').trigger('click');
             }
 
             // Populate shipping address fields.
