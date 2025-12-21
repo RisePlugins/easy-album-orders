@@ -199,6 +199,7 @@ class EAO_Admin_Columns {
             'total'         => __( 'Total', 'easy-album-orders' ),
             'order_status'  => __( 'Status', 'easy-album-orders' ),
             'date'          => __( 'Date', 'easy-album-orders' ),
+            'actions'       => __( 'Actions', 'easy-album-orders' ),
         );
 
         return $new_columns;
@@ -327,6 +328,27 @@ class EAO_Admin_Columns {
                 $class  = EAO_Helpers::get_status_color_class( $status );
                 echo '<span class="eao-status ' . esc_attr( $class ) . '">' . esc_html( $label ) . '</span>';
                 break;
+
+            case 'actions':
+                $edit_link  = get_edit_post_link( $post_id );
+                $trash_link = get_delete_post_link( $post_id );
+
+                echo '<div class="eao-row-actions">';
+                
+                // Edit/View icon.
+                echo '<a href="' . esc_url( $edit_link ) . '" class="eao-row-action eao-row-action--edit" title="' . esc_attr__( 'View', 'easy-album-orders' ) . '">';
+                echo '<span class="dashicons dashicons-visibility"></span>';
+                echo '</a>';
+
+                // Trash icon.
+                if ( $trash_link ) {
+                    echo '<a href="' . esc_url( $trash_link ) . '" class="eao-row-action eao-row-action--trash" title="' . esc_attr__( 'Trash', 'easy-album-orders' ) . '">';
+                    echo '<span class="dashicons dashicons-trash"></span>';
+                    echo '</a>';
+                }
+
+                echo '</div>';
+                break;
         }
     }
 
@@ -439,38 +461,21 @@ class EAO_Admin_Columns {
     }
 
     /**
-     * Add custom row actions for Album Orders.
+     * Remove row actions for Album Orders (using Actions column instead).
      *
      * @since 1.0.0
      *
      * @param array   $actions Existing row actions.
      * @param WP_Post $post    The post object.
-     * @return array Modified row actions.
+     * @return array Empty array to hide row actions.
      */
     public function album_order_row_actions( $actions, $post ) {
         if ( 'album_order' !== $post->post_type ) {
             return $actions;
         }
 
-        // Remove default edit link - we'll add our own.
-        unset( $actions['inline hide-if-no-js'] ); // Remove Quick Edit.
-
-        // Build custom actions.
-        $custom_actions = array();
-
-        // View/Edit - always available.
-        $custom_actions['edit'] = sprintf(
-            '<a href="%s">%s</a>',
-            get_edit_post_link( $post->ID ),
-            esc_html__( 'View', 'easy-album-orders' )
-        );
-
-        // Trash - keep at end.
-        if ( isset( $actions['trash'] ) ) {
-            $custom_actions['trash'] = $actions['trash'];
-        }
-
-        return $custom_actions;
+        // Return empty array - actions are shown in the Actions column instead.
+        return array();
     }
 
     /**

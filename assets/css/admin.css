@@ -1974,40 +1974,54 @@
     color: var(--eao-gray-800);
 }
 
-/* Row Actions */
-.eao-album-orders-page .row-actions {
-    padding-top: 6px;
+/* Actions Column */
+.eao-album-orders-page .column-actions {
+    width: 80px;
+    text-align: center;
 }
 
-.eao-album-orders-page .row-actions a {
-    color: var(--eao-gray-500);
-    font-size: var(--eao-font-xs);
+.eao-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.eao-album-orders-page .row-actions a:hover {
+.eao-row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--eao-radius-md);
+    color: var(--eao-gray-400);
+    text-decoration: none;
+    transition: all var(--eao-transition);
+}
+
+.eao-row-action:hover {
+    background: var(--eao-gray-100);
+}
+
+.eao-row-action .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.eao-row-action--edit:hover {
     color: var(--eao-primary);
+    background: var(--eao-primary-light);
 }
 
-.eao-album-orders-page .row-actions .eao-action-ordered {
-    color: #1e40af;
-}
-
-.eao-album-orders-page .row-actions .eao-action-ordered:hover {
-    color: #1e3a8a;
-    text-decoration: underline;
-}
-
-.eao-album-orders-page .row-actions .eao-action-shipped {
-    color: var(--eao-success);
-}
-
-.eao-album-orders-page .row-actions .eao-action-shipped:hover {
-    color: #047857;
-    text-decoration: underline;
-}
-
-.eao-album-orders-page .row-actions .trash a {
+.eao-row-action--trash:hover {
     color: var(--eao-error);
+    background: var(--eao-error-light);
+}
+
+/* Hide default row actions */
+.eao-album-orders-page .row-actions {
+    display: none !important;
 }
 
 /* Tablenav (filters area) */
