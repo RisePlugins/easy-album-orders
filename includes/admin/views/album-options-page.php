@@ -32,6 +32,9 @@ if ( ! defined( 'ABSPATH' ) ) {
             <a href="#emails" class="nav-tab" data-tab="emails">
                 <?php esc_html_e( 'Emails', 'easy-album-orders' ); ?>
             </a>
+            <a href="#payments" class="nav-tab" data-tab="payments">
+                <?php esc_html_e( 'Payments', 'easy-album-orders' ); ?>
+            </a>
             <a href="#general" class="nav-tab" data-tab="general">
                 <?php esc_html_e( 'General', 'easy-album-orders' ); ?>
             </a>
@@ -607,6 +610,222 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <?php
+        $stripe_settings = get_option( 'eao_stripe_settings', array() );
+        $stripe          = new EAO_Stripe();
+        ?>
+        <div id="payments" class="eao-tab-content">
+            <div class="eao-tab-header">
+                <div class="eao-tab-header__text">
+                    <h2><?php esc_html_e( 'Payment Settings', 'easy-album-orders' ); ?></h2>
+                    <p class="description">
+                        <?php esc_html_e( 'Configure Stripe payment processing for album orders. Customers will pay during checkout.', 'easy-album-orders' ); ?>
+                    </p>
+                </div>
+            </div>
+
+            <div class="eao-settings-grid">
+                <!-- Enable Payments -->
+                <div class="eao-settings-card eao-settings-card--full">
+                    <h3>
+                        <span class="dashicons dashicons-cart"></span>
+                        <?php esc_html_e( 'Enable Payments', 'easy-album-orders' ); ?>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <label class="eao-toggle eao-toggle--block">
+                            <input type="checkbox" name="eao_stripe_settings[enabled]" value="1" <?php checked( ! empty( $stripe_settings['enabled'] ) ); ?>>
+                            <span class="eao-toggle__label"><?php esc_html_e( 'Require payment at checkout', 'easy-album-orders' ); ?></span>
+                        </label>
+                        <p class="description">
+                            <?php esc_html_e( 'When enabled, customers must complete payment to finalize their album order. When disabled, orders can be placed without payment.', 'easy-album-orders' ); ?>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stripe API Mode -->
+                <div class="eao-settings-card eao-settings-card--full">
+                    <h3>
+                        <span class="dashicons dashicons-admin-network"></span>
+                        <?php esc_html_e( 'API Mode', 'easy-album-orders' ); ?>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <div class="eao-field">
+                            <div class="eao-radio-group eao-radio-group--vertical">
+                                <label class="eao-radio">
+                                    <input type="radio" name="eao_stripe_settings[mode]" value="test" <?php checked( isset( $stripe_settings['mode'] ) ? $stripe_settings['mode'] : 'test', 'test' ); ?>>
+                                    <span>
+                                        <strong><?php esc_html_e( 'Test Mode', 'easy-album-orders' ); ?></strong>
+                                        <small><?php esc_html_e( 'Use test API keys for development and testing. No real charges will be made.', 'easy-album-orders' ); ?></small>
+                                    </span>
+                                </label>
+                                <label class="eao-radio">
+                                    <input type="radio" name="eao_stripe_settings[mode]" value="live" <?php checked( isset( $stripe_settings['mode'] ) ? $stripe_settings['mode'] : 'test', 'live' ); ?>>
+                                    <span>
+                                        <strong><?php esc_html_e( 'Live Mode', 'easy-album-orders' ); ?></strong>
+                                        <small><?php esc_html_e( 'Use live API keys to accept real payments from customers.', 'easy-album-orders' ); ?></small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test API Keys -->
+                <div class="eao-settings-card">
+                    <h3>
+                        <span class="dashicons dashicons-admin-tools"></span>
+                        <?php esc_html_e( 'Test API Keys', 'easy-album-orders' ); ?>
+                        <span class="eao-badge eao-badge--test"><?php esc_html_e( 'Test', 'easy-album-orders' ); ?></span>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <p class="eao-settings-card__description">
+                            <?php
+                            printf(
+                                /* translators: %s: Stripe Dashboard URL */
+                                esc_html__( 'Find your test API keys in the %s under Developers → API Keys.', 'easy-album-orders' ),
+                                '<a href="https://dashboard.stripe.com/test/apikeys" target="_blank" rel="noopener">Stripe Dashboard</a>'
+                            );
+                            ?>
+                        </p>
+                        <div class="eao-field">
+                            <label for="eao_test_publishable_key"><?php esc_html_e( 'Publishable Key', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_test_publishable_key" name="eao_stripe_settings[test_publishable_key]" value="<?php echo esc_attr( isset( $stripe_settings['test_publishable_key'] ) ? $stripe_settings['test_publishable_key'] : '' ); ?>" placeholder="pk_test_..." class="regular-text">
+                            <p class="description"><?php esc_html_e( 'Starts with pk_test_', 'easy-album-orders' ); ?></p>
+                        </div>
+                        <div class="eao-field">
+                            <label for="eao_test_secret_key"><?php esc_html_e( 'Secret Key', 'easy-album-orders' ); ?></label>
+                            <input type="password" id="eao_test_secret_key" name="eao_stripe_settings[test_secret_key]" value="<?php echo esc_attr( isset( $stripe_settings['test_secret_key'] ) ? $stripe_settings['test_secret_key'] : '' ); ?>" placeholder="sk_test_..." class="regular-text" autocomplete="off">
+                            <p class="description"><?php esc_html_e( 'Starts with sk_test_ — Keep this secret!', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live API Keys -->
+                <div class="eao-settings-card">
+                    <h3>
+                        <span class="dashicons dashicons-lock"></span>
+                        <?php esc_html_e( 'Live API Keys', 'easy-album-orders' ); ?>
+                        <span class="eao-badge eao-badge--live"><?php esc_html_e( 'Live', 'easy-album-orders' ); ?></span>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <p class="eao-settings-card__description">
+                            <?php
+                            printf(
+                                /* translators: %s: Stripe Dashboard URL */
+                                esc_html__( 'Find your live API keys in the %s under Developers → API Keys.', 'easy-album-orders' ),
+                                '<a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener">Stripe Dashboard</a>'
+                            );
+                            ?>
+                        </p>
+                        <div class="eao-field">
+                            <label for="eao_live_publishable_key"><?php esc_html_e( 'Publishable Key', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_live_publishable_key" name="eao_stripe_settings[live_publishable_key]" value="<?php echo esc_attr( isset( $stripe_settings['live_publishable_key'] ) ? $stripe_settings['live_publishable_key'] : '' ); ?>" placeholder="pk_live_..." class="regular-text">
+                            <p class="description"><?php esc_html_e( 'Starts with pk_live_', 'easy-album-orders' ); ?></p>
+                        </div>
+                        <div class="eao-field">
+                            <label for="eao_live_secret_key"><?php esc_html_e( 'Secret Key', 'easy-album-orders' ); ?></label>
+                            <input type="password" id="eao_live_secret_key" name="eao_stripe_settings[live_secret_key]" value="<?php echo esc_attr( isset( $stripe_settings['live_secret_key'] ) ? $stripe_settings['live_secret_key'] : '' ); ?>" placeholder="sk_live_..." class="regular-text" autocomplete="off">
+                            <p class="description"><?php esc_html_e( 'Starts with sk_live_ — Keep this secret!', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Webhook Configuration -->
+                <div class="eao-settings-card eao-settings-card--full">
+                    <h3>
+                        <span class="dashicons dashicons-update"></span>
+                        <?php esc_html_e( 'Webhook Configuration', 'easy-album-orders' ); ?>
+                        <span class="eao-badge eao-badge--optional"><?php esc_html_e( 'Recommended', 'easy-album-orders' ); ?></span>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <p class="eao-settings-card__description">
+                            <?php esc_html_e( 'Webhooks allow Stripe to notify your site about payment events (success, failure, refunds). Configure in Stripe Dashboard → Developers → Webhooks.', 'easy-album-orders' ); ?>
+                        </p>
+
+                        <div class="eao-field">
+                            <label><?php esc_html_e( 'Webhook Endpoint URL', 'easy-album-orders' ); ?></label>
+                            <div class="eao-webhook-url-field">
+                                <input type="text" id="eao_webhook_url" value="<?php echo esc_attr( EAO_Stripe::get_webhook_url() ); ?>" readonly class="regular-text">
+                                <button type="button" class="button eao-copy-webhook-url" data-copy-target="#eao_webhook_url">
+                                    <span class="dashicons dashicons-clipboard"></span>
+                                    <?php esc_html_e( 'Copy', 'easy-album-orders' ); ?>
+                                </button>
+                            </div>
+                            <p class="description"><?php esc_html_e( 'Add this URL as an endpoint in your Stripe Dashboard.', 'easy-album-orders' ); ?></p>
+                        </div>
+
+                        <div class="eao-field">
+                            <label><?php esc_html_e( 'Required Events', 'easy-album-orders' ); ?></label>
+                            <ul class="eao-webhook-events">
+                                <li><code>payment_intent.succeeded</code> — <?php esc_html_e( 'Payment completed successfully', 'easy-album-orders' ); ?></li>
+                                <li><code>payment_intent.payment_failed</code> — <?php esc_html_e( 'Payment failed', 'easy-album-orders' ); ?></li>
+                                <li><code>charge.refunded</code> — <?php esc_html_e( 'Payment was refunded', 'easy-album-orders' ); ?></li>
+                            </ul>
+                        </div>
+
+                        <div class="eao-field">
+                            <label for="eao_webhook_secret"><?php esc_html_e( 'Webhook Signing Secret', 'easy-album-orders' ); ?></label>
+                            <input type="password" id="eao_webhook_secret" name="eao_stripe_settings[webhook_secret]" value="<?php echo esc_attr( isset( $stripe_settings['webhook_secret'] ) ? $stripe_settings['webhook_secret'] : '' ); ?>" placeholder="whsec_..." class="regular-text" autocomplete="off">
+                            <p class="description"><?php esc_html_e( 'Found in Stripe Dashboard after creating the webhook endpoint. Starts with whsec_', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Settings -->
+                <div class="eao-settings-card eao-settings-card--full">
+                    <h3>
+                        <span class="dashicons dashicons-admin-settings"></span>
+                        <?php esc_html_e( 'Payment Settings', 'easy-album-orders' ); ?>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <div class="eao-field">
+                            <label for="eao_statement_descriptor"><?php esc_html_e( 'Statement Descriptor', 'easy-album-orders' ); ?></label>
+                            <input type="text" id="eao_statement_descriptor" name="eao_stripe_settings[statement_descriptor]" value="<?php echo esc_attr( isset( $stripe_settings['statement_descriptor'] ) ? $stripe_settings['statement_descriptor'] : 'Album Order' ); ?>" maxlength="22" class="regular-text">
+                            <p class="description"><?php esc_html_e( 'Appears on customer\'s bank/card statement (max 22 characters, letters, numbers, spaces, hyphens only).', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Status -->
+                <?php if ( ! empty( $stripe_settings['enabled'] ) ) : ?>
+                <div class="eao-settings-card eao-settings-card--full">
+                    <h3>
+                        <span class="dashicons dashicons-info"></span>
+                        <?php esc_html_e( 'Connection Status', 'easy-album-orders' ); ?>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <?php if ( $stripe->is_enabled() ) : ?>
+                            <div class="eao-stripe-status eao-stripe-status--connected">
+                                <span class="dashicons dashicons-yes-alt"></span>
+                                <span>
+                                    <?php
+                                    printf(
+                                        /* translators: %s: Test or Live */
+                                        esc_html__( 'Stripe is connected in %s mode', 'easy-album-orders' ),
+                                        $stripe->is_test_mode() ? '<strong>' . esc_html__( 'Test', 'easy-album-orders' ) . '</strong>' : '<strong>' . esc_html__( 'Live', 'easy-album-orders' ) . '</strong>'
+                                    );
+                                    ?>
+                                </span>
+                            </div>
+                            <?php if ( $stripe->is_test_mode() ) : ?>
+                                <p class="description eao-stripe-test-notice">
+                                    <span class="dashicons dashicons-warning"></span>
+                                    <?php esc_html_e( 'Test mode is active. Use test card 4242 4242 4242 4242 with any future date and CVC.', 'easy-album-orders' ); ?>
+                                </p>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <div class="eao-stripe-status eao-stripe-status--disconnected">
+                                <span class="dashicons dashicons-warning"></span>
+                                <span><?php esc_html_e( 'Stripe API keys are missing or invalid. Please enter your API keys above.', 'easy-album-orders' ); ?></span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 

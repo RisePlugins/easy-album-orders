@@ -160,6 +160,12 @@ class EAO_Admin_Menus {
             update_option( 'eao_email_settings', $email );
         }
 
+        // Sanitize and save Stripe settings.
+        if ( isset( $_POST['eao_stripe_settings'] ) && is_array( $_POST['eao_stripe_settings'] ) ) {
+            $stripe = $this->sanitize_stripe_settings( $_POST['eao_stripe_settings'] );
+            update_option( 'eao_stripe_settings', $stripe );
+        }
+
         // Add success message.
         add_settings_error(
             'eao_messages',
@@ -395,6 +401,75 @@ class EAO_Admin_Menus {
             $cleaned  = stripslashes( $cleaned );
         }
         return $cleaned;
+    }
+
+    /**
+     * Sanitize Stripe settings.
+     *
+     * @since  1.1.0
+     * @access private
+     *
+     * @param array $settings Raw Stripe settings.
+     * @return array Sanitized Stripe settings.
+     */
+    private function sanitize_stripe_settings( $settings ) {
+        return array(
+            // Enable/Disable.
+            'enabled'              => isset( $settings['enabled'] ) ? true : false,
+
+            // Mode (test or live).
+            'mode'                 => isset( $settings['mode'] ) && in_array( $settings['mode'], array( 'test', 'live' ), true )
+                ? $settings['mode']
+                : 'test',
+
+            // Test API Keys.
+            'test_publishable_key' => isset( $settings['test_publishable_key'] )
+                ? $this->sanitize_stripe_key( $settings['test_publishable_key'] )
+                : '',
+            'test_secret_key'      => isset( $settings['test_secret_key'] )
+                ? $this->sanitize_stripe_key( $settings['test_secret_key'] )
+                : '',
+
+            // Live API Keys.
+            'live_publishable_key' => isset( $settings['live_publishable_key'] )
+                ? $this->sanitize_stripe_key( $settings['live_publishable_key'] )
+                : '',
+            'live_secret_key'      => isset( $settings['live_secret_key'] )
+                ? $this->sanitize_stripe_key( $settings['live_secret_key'] )
+                : '',
+
+            // Webhook Secret.
+            'webhook_secret'       => isset( $settings['webhook_secret'] )
+                ? $this->sanitize_stripe_key( $settings['webhook_secret'] )
+                : '',
+
+            // Statement Descriptor (max 22 chars, alphanumeric + spaces/hyphens).
+            'statement_descriptor' => isset( $settings['statement_descriptor'] )
+                ? substr( preg_replace( '/[^a-zA-Z0-9 \-]/', '', sanitize_text_field( $settings['statement_descriptor'] ) ), 0, 22 )
+                : 'Album Order',
+        );
+    }
+
+    /**
+     * Sanitize a Stripe API key.
+     *
+     * Removes whitespace and validates basic format.
+     *
+     * @since  1.1.0
+     * @access private
+     *
+     * @param string $key Raw API key.
+     * @return string Sanitized API key.
+     */
+    private function sanitize_stripe_key( $key ) {
+        // Remove whitespace and sanitize.
+        $key = trim( sanitize_text_field( $key ) );
+
+        // Remove any accidental quotes or slashes.
+        $key = stripslashes( $key );
+        $key = str_replace( array( '"', "'" ), '', $key );
+
+        return $key;
     }
 }
 

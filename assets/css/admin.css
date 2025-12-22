@@ -3463,6 +3463,8 @@
     font-weight: 600;
     color: var(--eao-gray-800);
     padding: 0 !important;
+    justify-content: flex-start;
+    gap: 6px;
 }
 
 .post-type-album_order .postbox .inside,
@@ -4096,9 +4098,8 @@
 /* Icons in WordPress meta box headers */
 .postbox .postbox-header h2 .eao-icon,
 .postbox .hndle .eao-icon {
-    margin-right: 6px;
-    vertical-align: -4px;
     color: var(--eao-gray-500);
+    flex-shrink: 0;
 }
 
 /* Empty state icons */
