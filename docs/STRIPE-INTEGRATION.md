@@ -1773,39 +1773,39 @@ This section provides a detailed, actionable build plan for implementing Stripe 
 
 **Goal:** Set up Stripe SDK and admin settings UI
 
-#### Task 1.1: Install Stripe PHP SDK
+#### Task 1.1: Install Stripe PHP SDK ✅
 - **Dependencies:** None
 - **Deliverables:**
-  - [ ] Create `composer.json` with `stripe/stripe-php` dependency
-  - [ ] Run `composer install`
-  - [ ] Add `vendor/` to `.gitignore` (if not already)
-  - [ ] Verify autoloader works
+  - [x] Create `composer.json` with `stripe/stripe-php` dependency
+  - [x] Run `composer install`
+  - [x] ~~Add `vendor/` to `.gitignore`~~ (Removed - vendor included for distribution)
+  - [x] Verify autoloader works
 
 ```bash
 cd /path/to/easy-album-orders
 composer require stripe/stripe-php
 ```
 
-#### Task 1.2: Create Core Stripe Class
+#### Task 1.2: Create Core Stripe Class ✅
 - **Dependencies:** Task 1.1
 - **File:** `includes/core/class-eao-stripe.php`
 - **Deliverables:**
-  - [ ] Create `EAO_Stripe` class with all methods from Phase 1.3 documentation
-  - [ ] Implement `is_enabled()`, `is_test_mode()` checks
-  - [ ] Implement `get_publishable_key()`, `get_secret_key()` methods
-  - [ ] Implement `create_payment_intent()` method
-  - [ ] Implement `get_payment_intent()` method
-  - [ ] Implement `verify_webhook()` method
-  - [ ] Add proper error handling with `WP_Error`
+  - [x] Create `EAO_Stripe` class with all methods from Phase 1.3 documentation
+  - [x] Implement `is_enabled()`, `is_test_mode()` checks
+  - [x] Implement `get_publishable_key()`, `get_secret_key()` methods
+  - [x] Implement `create_payment_intent()` method
+  - [x] Implement `get_payment_intent()` method
+  - [x] Implement `verify_webhook()` method
+  - [x] Add proper error handling with `WP_Error`
 
-#### Task 1.3: Add Stripe Settings Tab
+#### Task 1.3: Add Stripe Settings Tab ✅
 - **Dependencies:** Task 1.2
 - **Files:** 
   - `includes/admin/views/album-options-page.php`
   - `assets/css/admin.css`
 - **Deliverables:**
-  - [ ] Add "Payments" tab to Album Options page
-  - [ ] Create settings fields:
+  - [x] Add "Payments" tab to Album Options page
+  - [x] Create settings fields:
     - Enable/Disable toggle
     - Mode selector (Test/Live)
     - Test Publishable Key field
@@ -1814,17 +1814,19 @@ composer require stripe/stripe-php
     - Live Secret Key field (password type)
     - Webhook Secret field (password type)
     - Statement Descriptor field
-  - [ ] Add save handler for `eao_stripe_settings` option
-  - [ ] Add validation for API key format
-  - [ ] Display webhook URL for easy copying
-  - [ ] Style the settings form
+  - [x] Add save handler for `eao_stripe_settings` option
+  - [x] Add validation for API key format
+  - [x] Display webhook URL for easy copying
+  - [x] Style the settings form
+  - [x] **BONUS:** Added setup guide with step-by-step instructions
+  - [x] **BONUS:** Added real-time key format validation with visual feedback
 
-#### Task 1.4: Load Stripe Class
+#### Task 1.4: Load Stripe Class ✅
 - **Dependencies:** Task 1.2
 - **File:** `includes/class-eao-plugin.php`
 - **Deliverables:**
-  - [ ] Include `class-eao-stripe.php` in plugin loader
-  - [ ] Ensure class is available globally
+  - [x] Include `class-eao-stripe.php` in plugin loader
+  - [x] Ensure class is available globally
 
 ---
 
@@ -1832,43 +1834,43 @@ composer require stripe/stripe-php
 
 **Goal:** Create AJAX endpoints for payment processing
 
-#### Task 2.1: Add Payment Intent Endpoint
+#### Task 2.1: Add Payment Intent Endpoint ✅
 - **Dependencies:** Phase 1 complete
 - **File:** `includes/public/class-eao-ajax-handler.php`
 - **Deliverables:**
-  - [ ] Register `eao_create_payment_intent` AJAX action (both logged in and not)
-  - [ ] Implement `create_payment_intent()` method
-  - [ ] Validate cart has items
-  - [ ] Calculate total from cart
-  - [ ] Handle $0 orders (skip payment)
-  - [ ] Handle Stripe disabled (skip payment)
-  - [ ] Create Payment Intent via `EAO_Stripe`
-  - [ ] Store Payment Intent ID in order meta
-  - [ ] Return `client_secret` to frontend
+  - [x] Register `eao_create_payment_intent` AJAX action (both logged in and not)
+  - [x] Implement `create_payment_intent()` method
+  - [x] Validate cart has items
+  - [x] Calculate total from cart
+  - [x] Handle $0 orders (skip payment)
+  - [x] Handle Stripe disabled (skip payment)
+  - [x] Create Payment Intent via `EAO_Stripe`
+  - [x] Store Payment Intent ID in order meta
+  - [x] Return `client_secret` to frontend
 
-#### Task 2.2: Add Payment Confirmation Endpoint
+#### Task 2.2: Add Payment Confirmation Endpoint ✅
 - **Dependencies:** Task 2.1
 - **File:** `includes/public/class-eao-ajax-handler.php`
 - **Deliverables:**
-  - [ ] Register `eao_confirm_payment` AJAX action
-  - [ ] Implement `confirm_payment()` method
-  - [ ] Verify Payment Intent status with Stripe
-  - [ ] Verify Payment Intent matches stored ID
-  - [ ] Update order status to "ordered"
-  - [ ] Save customer information
-  - [ ] Save payment metadata:
+  - [x] Register `eao_confirm_payment` AJAX action
+  - [x] Implement `confirm_payment()` method
+  - [x] Verify Payment Intent status with Stripe
+  - [x] Verify Payment Intent matches stored ID
+  - [x] Update order status to "ordered"
+  - [x] Save customer information
+  - [x] Save payment metadata:
     - `_eao_payment_status` = 'paid'
     - `_eao_payment_amount`
     - `_eao_stripe_charge_id`
-  - [ ] Fire `eao_payment_complete` action hook
+  - [x] Fire `eao_payment_complete` action hook
 
-#### Task 2.3: Update Existing Checkout
+#### Task 2.3: Update Existing Checkout ✅
 - **Dependencies:** Task 2.1
 - **File:** `includes/public/class-eao-ajax-handler.php`
 - **Deliverables:**
-  - [ ] Modify `process_checkout()` to check if Stripe enabled
-  - [ ] If enabled and total > 0, return `payment_required` flag
-  - [ ] Allow free orders to bypass payment
+  - [x] Modify `process_checkout()` to check if Stripe enabled
+  - [x] If enabled and total > 0, return `payment_required` flag
+  - [x] Allow free orders to bypass payment
 
 ---
 
@@ -1876,65 +1878,69 @@ composer require stripe/stripe-php
 
 **Goal:** Build the payment interface in checkout modal
 
-#### Task 3.1: Enqueue Stripe.js
+#### Task 3.1: Enqueue Stripe.js ✅
 - **Dependencies:** Phase 1 complete
 - **File:** `includes/public/class-eao-public.php`
 - **Deliverables:**
-  - [ ] Conditionally enqueue Stripe.js from `js.stripe.com/v3/`
-  - [ ] Add Stripe config to `eaoPublic` localized data:
+  - [x] Conditionally enqueue Stripe.js from `js.stripe.com/v3/`
+  - [x] Add Stripe config to `eaoPublic` localized data:
     - `stripe.enabled`
     - `stripe.publishableKey`
-  - [ ] Add i18n strings for payment UI
+    - `stripe.testMode`
+  - [x] Add i18n strings for payment UI
 
-#### Task 3.2: Update Checkout Modal HTML
+#### Task 3.2: Update Checkout Modal HTML ✅
 - **Dependencies:** None
 - **File:** `includes/public/templates/single-client-album.php`
 - **Deliverables:**
-  - [ ] Restructure modal into steps (info → payment)
-  - [ ] Add Step 1: Customer Info (existing fields)
-  - [ ] Add Step 2: Payment Details section
-  - [ ] Add `#eao-card-element` container for Stripe Elements
-  - [ ] Add `#eao-card-errors` error display
-  - [ ] Add secure payment badge
-  - [ ] Update button text ("Continue to Payment" → "Pay Now")
+  - [x] Restructure modal into steps (info → payment)
+  - [x] Add Step 1: Customer Info (existing fields)
+  - [x] Add Step 2: Payment Details section
+  - [x] Add `#eao-card-element` container for Stripe Elements
+  - [x] Add `#eao-card-errors` error display
+  - [x] Add secure payment badge
+  - [x] Update button text ("Continue to Payment" → "Pay Now")
+  - [x] Add back button to return to info step
 
-#### Task 3.3: Create EAOStripe JavaScript Object
+#### Task 3.3: Create EAOStripe JavaScript Object ✅
 - **Dependencies:** Tasks 3.1, 3.2
 - **File:** `assets/js/public.js`
 - **Deliverables:**
-  - [ ] Create `EAOStripe` object with:
+  - [x] Create `EAOStripe` object with:
     - `init()` - Initialize Stripe instance
     - `mountCard()` - Mount card element to DOM
     - `createPaymentIntent()` - AJAX call to create intent
     - `confirmPayment()` - Stripe.js payment confirmation
     - `completeCheckout()` - AJAX call to confirm payment
     - `reset()` - Reset for new checkout
-  - [ ] Configure card element styling to match plugin design
-  - [ ] Handle real-time validation errors
+    - `isEnabled()` - Check if Stripe is ready
+    - `showInfoStep()` / `showPaymentStep()` - Step navigation
+  - [x] Configure card element styling to match plugin design
+  - [x] Handle real-time validation errors
 
-#### Task 3.4: Update Checkout Flow
+#### Task 3.4: Update Checkout Flow ✅
 - **Dependencies:** Task 3.3
 - **File:** `assets/js/public.js`
 - **Deliverables:**
-  - [ ] Update `bindCheckout()` to initialize Stripe
-  - [ ] Create `handleStripeCheckout()` method
-  - [ ] Implement two-step flow:
+  - [x] Update `bindCheckout()` to initialize Stripe
+  - [x] Create `handleStripeCheckout()` method
+  - [x] Implement two-step flow:
     - Step 1: Validate customer info → Create Payment Intent
     - Step 2: Collect card → Confirm payment → Complete checkout
-  - [ ] Handle payment errors gracefully
-  - [ ] Show loading states during processing
-  - [ ] Handle "skip payment" response (free orders)
+  - [x] Handle payment errors gracefully
+  - [x] Show loading states during processing
+  - [x] Handle "skip payment" response (free orders)
 
-#### Task 3.5: Add Payment Styles
+#### Task 3.5: Add Payment Styles ✅
 - **Dependencies:** Task 3.2
 - **File:** `assets/css/public.css`
 - **Deliverables:**
-  - [ ] Style `.eao-checkout-step--payment` section
-  - [ ] Style `.eao-stripe-element` container
-  - [ ] Style `.eao-stripe-error` messages
-  - [ ] Style `.eao-payment-secure` badge
-  - [ ] Add focus states and transitions
-  - [ ] Ensure mobile responsiveness
+  - [x] Style `.eao-checkout-step--payment` section
+  - [x] Style `.eao-stripe-element` container
+  - [x] Style `.eao-stripe-error` messages
+  - [x] Style `.eao-payment-secure` badge
+  - [x] Add focus states and transitions
+  - [x] Ensure mobile responsiveness
 
 ---
 
@@ -1942,35 +1948,39 @@ composer require stripe/stripe-php
 
 **Goal:** Handle Stripe webhook events for reliable payment tracking
 
-#### Task 4.1: Create Webhook Handler Class
+#### Task 4.1: Create Webhook Handler Class ✅
 - **Dependencies:** Phase 2 complete
 - **File:** `includes/public/class-eao-stripe-webhook.php`
 - **Deliverables:**
-  - [ ] Create `EAO_Stripe_Webhook` class
-  - [ ] Register REST route: `eao/v1/stripe-webhook`
-  - [ ] Implement `handle_webhook()` method
-  - [ ] Verify webhook signature using `EAO_Stripe`
-  - [ ] Handle events:
+  - [x] Create `EAO_Stripe_Webhook` class
+  - [x] Register REST route: `eao/v1/stripe-webhook`
+  - [x] Implement `handle_webhook()` method
+  - [x] Verify webhook signature using `EAO_Stripe`
+  - [x] Handle events:
     - `payment_intent.succeeded`
     - `payment_intent.payment_failed`
     - `charge.refunded`
-  - [ ] Update order meta based on events
-  - [ ] Fire appropriate action hooks
+  - [x] Update order meta based on events
+  - [x] Fire appropriate action hooks
+  - [x] **BONUS:** Added idempotency checks
+  - [x] **BONUS:** Added fallback customer info saving from metadata
+  - [x] **BONUS:** Added debug logging when WP_DEBUG enabled
 
-#### Task 4.2: Load Webhook Handler
+#### Task 4.2: Load Webhook Handler ✅
 - **Dependencies:** Task 4.1
 - **File:** `includes/class-eao-plugin.php`
 - **Deliverables:**
-  - [ ] Include webhook handler class
-  - [ ] Instantiate on plugin load
+  - [x] Include webhook handler class
+  - [x] Instantiate on plugin load
 
-#### Task 4.3: Display Webhook URL in Admin
+#### Task 4.3: Display Webhook URL in Admin ✅
 - **Dependencies:** Task 1.3
 - **File:** `includes/admin/views/album-options-page.php`
 - **Deliverables:**
-  - [ ] Display webhook URL: `{site_url}/wp-json/eao/v1/stripe-webhook`
-  - [ ] Add copy-to-clipboard button
-  - [ ] List required webhook events
+  - [x] Display webhook URL: `{site_url}/wp-json/eao/v1/stripe-webhook`
+  - [x] Add copy-to-clipboard button
+  - [x] List required webhook events
+  - [x] **BONUS:** Added step-by-step webhook setup instructions
 
 ---
 
@@ -1978,33 +1988,35 @@ composer require stripe/stripe-php
 
 **Goal:** Display payment information in WordPress admin
 
-#### Task 5.1: Add Payment Meta Box
+#### Task 5.1: Add Payment Meta Box ✅
 - **Dependencies:** Phase 4 complete
 - **File:** `includes/admin/class-eao-album-order-meta.php`
 - **Deliverables:**
-  - [ ] Register "Payment Information" meta box
-  - [ ] Display payment status badge (Paid/Failed/Refunded/Pending)
-  - [ ] Display amount paid
-  - [ ] Display refund amount (if applicable)
-  - [ ] Link to Stripe Dashboard for charge details
-  - [ ] Style payment status badges
+  - [x] Register "Payment Information" meta box
+  - [x] Display payment status badge (Paid/Failed/Refunded/Pending/Free)
+  - [x] Display amount paid
+  - [x] Display refund amount (if applicable)
+  - [x] Link to Stripe Dashboard for charge details (test/live mode aware)
+  - [x] Style payment status badges
+  - [x] Display payment date
+  - [x] Display error message for failed payments
 
-#### Task 5.2: Add Payment Column to Orders List
+#### Task 5.2: Add Payment Column to Orders List ✅
 - **Dependencies:** Task 5.1
 - **File:** `includes/admin/class-eao-admin-columns.php`
 - **Deliverables:**
-  - [ ] Add "Payment" column after "Status" column
-  - [ ] Display payment amount or status badge
-  - [ ] Make column sortable (optional)
-  - [ ] Style column content
+  - [x] Add "Payment" column after "Total" column
+  - [x] Display payment amount or status badge
+  - [x] Style column content
 
-#### Task 5.3: Add Payment Badge Styles
+#### Task 5.3: Add Payment Badge Styles ✅
 - **Dependencies:** Tasks 5.1, 5.2
 - **File:** `assets/css/admin.css`
 - **Deliverables:**
-  - [ ] Style `.eao-payment-badge` base
-  - [ ] Style modifiers: `--paid`, `--failed`, `--refunded`, `--pending`, `--none`
-  - [ ] Match existing admin design system
+  - [x] Style `.eao-payment-badge` base
+  - [x] Style modifiers: `--paid`, `--failed`, `--refunded`, `--pending`, `--free`, `--none`
+  - [x] Match existing admin design system
+  - [x] Style payment meta box table
 
 ---
 
@@ -2066,36 +2078,36 @@ composer require stripe/stripe-php
 
 Use this checklist to track progress:
 
-#### Phase 1: Foundation
-- [ ] 1.1 Install Stripe PHP SDK
-- [ ] 1.2 Create `class-eao-stripe.php`
-- [ ] 1.3 Add Stripe settings tab
-- [ ] 1.4 Load Stripe class in plugin
+#### Phase 1: Foundation ✅
+- [x] 1.1 Install Stripe PHP SDK
+- [x] 1.2 Create `class-eao-stripe.php`
+- [x] 1.3 Add Stripe settings tab
+- [x] 1.4 Load Stripe class in plugin
 
-#### Phase 2: Backend
-- [ ] 2.1 Add Payment Intent endpoint
-- [ ] 2.2 Add Payment Confirmation endpoint
-- [ ] 2.3 Update existing checkout
+#### Phase 2: Backend ✅
+- [x] 2.1 Add Payment Intent endpoint
+- [x] 2.2 Add Payment Confirmation endpoint
+- [x] 2.3 Update existing checkout
 
-#### Phase 3: Frontend
-- [ ] 3.1 Enqueue Stripe.js
-- [ ] 3.2 Update checkout modal HTML
-- [ ] 3.3 Create EAOStripe JavaScript object
-- [ ] 3.4 Update checkout flow
-- [ ] 3.5 Add payment styles
+#### Phase 3: Frontend ✅
+- [x] 3.1 Enqueue Stripe.js
+- [x] 3.2 Update checkout modal HTML
+- [x] 3.3 Create EAOStripe JavaScript object
+- [x] 3.4 Update checkout flow
+- [x] 3.5 Add payment styles
 
-#### Phase 4: Webhooks
-- [ ] 4.1 Create webhook handler class
-- [ ] 4.2 Load webhook handler
-- [ ] 4.3 Display webhook URL in admin
+#### Phase 4: Webhooks ✅
+- [x] 4.1 Create webhook handler class
+- [x] 4.2 Load webhook handler
+- [x] 4.3 Display webhook URL in admin
 
-#### Phase 5: Admin
-- [ ] 5.1 Add payment meta box
-- [ ] 5.2 Add payment column to orders list
-- [ ] 5.3 Add payment badge styles
+#### Phase 5: Admin ✅
+- [x] 5.1 Add payment meta box
+- [x] 5.2 Add payment column to orders list
+- [x] 5.3 Add payment badge styles
 
-#### Phase 6: Testing
-- [ ] 6.1 Test mode testing
+#### Phase 6: Testing 🔄
+- [ ] 6.1 Test mode testing ← **Currently here**
 - [ ] 6.2 Webhook testing
 - [ ] 6.3 Edge cases
 - [ ] 6.4 Mobile testing
