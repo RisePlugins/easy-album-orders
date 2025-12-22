@@ -216,7 +216,7 @@ EAO_Icons::render( 'shopping-cart' );
 
 // With custom options
 EAO_Icons::render( 'plus', array(
-    'size'    => 20,           // Icon size in pixels (default: 24)
+    'size'    => 20,           // Icon size in pixels (default: 16)
     'class'   => 'my-class',   // Additional CSS classes
     'variant' => 'filled',     // 'outline' (default) or 'filled'
     'stroke'  => 1.5,          // Stroke width for outline icons (default: 2)
@@ -244,11 +244,11 @@ Add these CSS classes for consistent sizing:
 
 | Class | Size | Use Case |
 |-------|------|----------|
-| `.eao-icon--xs` | 14px | Inline with small text |
-| `.eao-icon--sm` | 18px | Buttons, compact UI |
-| `.eao-icon--md` | 24px | Default, most uses |
-| `.eao-icon--lg` | 32px | Section headers |
-| `.eao-icon--xl` | 48px | Hero sections, empty states |
+| *(default)* | 16px | Most uses, inline with text |
+| `.eao-icon--sm` | 14px | Small/compact UI |
+| `.eao-icon--md` | 20px | Slightly larger emphasis |
+| `.eao-icon--lg` | 24px | Section headers |
+| `.eao-icon--xl` | 32px | Hero sections, empty states |
 
 ### Icon + Text Pattern
 

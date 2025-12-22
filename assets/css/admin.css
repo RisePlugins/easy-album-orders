@@ -3943,34 +3943,29 @@
     display: inline-block;
     vertical-align: middle;
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
 }
 
 /* Icon sizes */
-.eao-icon--xs {
+.eao-icon--sm {
     width: 14px;
     height: 14px;
 }
 
-.eao-icon--sm {
-    width: 18px;
-    height: 18px;
+.eao-icon--md {
+    width: 20px;
+    height: 20px;
 }
 
-.eao-icon--md {
+.eao-icon--lg {
     width: 24px;
     height: 24px;
 }
 
-.eao-icon--lg {
+.eao-icon--xl {
     width: 32px;
     height: 32px;
-}
-
-.eao-icon--xl {
-    width: 48px;
-    height: 48px;
 }
 
 /* Icon in buttons */
