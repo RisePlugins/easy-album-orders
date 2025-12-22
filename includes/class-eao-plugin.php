@@ -95,6 +95,7 @@ class EAO_Plugin {
         require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-public.php';
         require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-template-loader.php';
         require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-ajax-handler.php';
+        require_once EAO_PLUGIN_DIR . 'includes/public/class-eao-stripe-webhook.php';
 
         // Core utilities.
         require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-helpers.php';
@@ -155,6 +156,9 @@ class EAO_Plugin {
 
         // AJAX handlers (hooks registered in constructor).
         new EAO_Ajax_Handler();
+
+        // Stripe webhook handler (hooks registered in constructor).
+        new EAO_Stripe_Webhook();
 
         // Email notifications.
         $email = new EAO_Email();
