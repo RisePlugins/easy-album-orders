@@ -45,6 +45,13 @@ class EAO_Ajax_Handler {
         add_action( 'wp_ajax_eao_get_order_for_edit', array( $this, 'get_order_for_edit' ) );
         add_action( 'wp_ajax_nopriv_eao_get_order_for_edit', array( $this, 'get_order_for_edit' ) );
 
+        // Payment processing (Stripe).
+        add_action( 'wp_ajax_eao_create_payment_intent', array( $this, 'create_payment_intent' ) );
+        add_action( 'wp_ajax_nopriv_eao_create_payment_intent', array( $this, 'create_payment_intent' ) );
+
+        add_action( 'wp_ajax_eao_confirm_payment', array( $this, 'confirm_payment' ) );
+        add_action( 'wp_ajax_nopriv_eao_confirm_payment', array( $this, 'confirm_payment' ) );
+
         // Saved addresses.
         add_action( 'wp_ajax_eao_save_address', array( $this, 'save_address' ) );
         add_action( 'wp_ajax_nopriv_eao_save_address', array( $this, 'save_address' ) );
@@ -481,6 +488,9 @@ class EAO_Ajax_Handler {
     /**
      * Process checkout.
      *
+     * Handles checkout for free orders or when Stripe is disabled.
+     * For paid orders with Stripe enabled, use create_payment_intent/confirm_payment instead.
+     *
      * @since 1.0.0
      */
     public function process_checkout() {
@@ -503,6 +513,27 @@ class EAO_Ajax_Handler {
             wp_send_json_error( array( 'message' => __( 'Your cart is empty.', 'easy-album-orders' ) ) );
         }
 
+        // Check if payment is required.
+        $stripe = new EAO_Stripe();
+        if ( $stripe->is_enabled() ) {
+            // Calculate cart total.
+            $total = 0;
+            foreach ( $cart_items as $item ) {
+                $total += EAO_Album_Order::calculate_total( $item->ID );
+            }
+
+            // If total > 0, require payment flow.
+            if ( $total > 0 ) {
+                wp_send_json_error( array(
+                    'message'          => __( 'Payment required.', 'easy-album-orders' ),
+                    'payment_required' => true,
+                    'total'            => $total,
+                    'formatted_total'  => eao_format_price( $total ),
+                ) );
+            }
+        }
+
+        // Continue with free order checkout (credits cover the entire amount).
         // Collect customer info.
         $customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( $_POST['customer_name'] ) : '';
         $customer_email   = isset( $_POST['customer_email'] ) ? sanitize_email( $_POST['customer_email'] ) : '';
@@ -527,6 +558,9 @@ class EAO_Ajax_Handler {
             update_post_meta( $item->ID, '_eao_shipping_address', $shipping_address );
             update_post_meta( $item->ID, '_eao_client_notes', $client_notes );
             update_post_meta( $item->ID, '_eao_order_date', current_time( 'mysql' ) );
+
+            // Mark as free (no payment needed).
+            update_post_meta( $item->ID, '_eao_payment_status', 'free' );
         }
 
         /**
@@ -541,6 +575,209 @@ class EAO_Ajax_Handler {
 
         wp_send_json_success( array(
             'message'      => __( 'Order submitted successfully!', 'easy-album-orders' ),
+            'order_count'  => count( $cart_items ),
+            'redirect_url' => add_query_arg( 'order_complete', '1', get_permalink( $client_album_id ) ),
+        ) );
+    }
+
+    /**
+     * Create a Payment Intent for the checkout.
+     *
+     * This creates a Stripe Payment Intent and returns the client secret
+     * needed to confirm the payment on the frontend with Stripe.js.
+     *
+     * @since 1.1.0
+     */
+    public function create_payment_intent() {
+        // Verify nonce.
+        if ( ! check_ajax_referer( 'eao_public_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
+        }
+
+        $client_album_id = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+        $cart_token      = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
+        $customer_email  = isset( $_POST['customer_email'] ) ? sanitize_email( $_POST['customer_email'] ) : '';
+        $customer_name   = isset( $_POST['customer_name'] ) ? sanitize_text_field( $_POST['customer_name'] ) : '';
+
+        if ( ! $client_album_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid album.', 'easy-album-orders' ) ) );
+        }
+
+        // Get cart items.
+        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id, $cart_token );
+
+        if ( empty( $cart_items ) ) {
+            wp_send_json_error( array( 'message' => __( 'Your cart is empty.', 'easy-album-orders' ) ) );
+        }
+
+        // Calculate total.
+        $total     = 0;
+        $order_ids = array();
+        foreach ( $cart_items as $item ) {
+            $total += EAO_Album_Order::calculate_total( $item->ID );
+            $order_ids[] = $item->ID;
+        }
+
+        // Validate total.
+        if ( $total <= 0 ) {
+            // If total is 0 (fully credited), skip payment.
+            wp_send_json_success( array(
+                'skip_payment' => true,
+                'message'      => __( 'No payment required.', 'easy-album-orders' ),
+            ) );
+        }
+
+        // Initialize Stripe.
+        $stripe = new EAO_Stripe();
+
+        if ( ! $stripe->is_enabled() ) {
+            // If Stripe is disabled, allow checkout without payment.
+            wp_send_json_success( array(
+                'skip_payment' => true,
+                'message'      => __( 'Payment processing is disabled.', 'easy-album-orders' ),
+            ) );
+        }
+
+        // Get client album title for description.
+        $album_title = get_the_title( $client_album_id );
+
+        // Create Payment Intent metadata.
+        $metadata = array(
+            'client_album_id' => $client_album_id,
+            'cart_token'      => $cart_token,
+            'order_ids'       => implode( ',', $order_ids ),
+            'customer_name'   => $customer_name,
+            'customer_email'  => $customer_email,
+            'album_title'     => $album_title,
+        );
+
+        // Get currency from general settings.
+        $general_settings = get_option( 'eao_general_settings', array() );
+        $currency         = isset( $general_settings['currency'] ) ? strtolower( $general_settings['currency'] ) : 'usd';
+
+        // Create Payment Intent.
+        $result = $stripe->create_payment_intent( $total, $currency, $metadata, $customer_email );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        // Store Payment Intent ID with orders for later verification.
+        foreach ( $cart_items as $item ) {
+            update_post_meta( $item->ID, '_eao_payment_intent_id', $result['id'] );
+        }
+
+        wp_send_json_success( array(
+            'client_secret'   => $result['client_secret'],
+            'payment_intent'  => $result['id'],
+            'publishable_key' => $stripe->get_publishable_key(),
+            'amount'          => $total,
+            'formatted_total' => eao_format_price( $total ),
+        ) );
+    }
+
+    /**
+     * Confirm payment was successful and complete checkout.
+     *
+     * Called after the frontend confirms the payment with Stripe.js.
+     * Verifies the payment status and updates order records.
+     *
+     * @since 1.1.0
+     */
+    public function confirm_payment() {
+        // Verify nonce.
+        if ( ! check_ajax_referer( 'eao_public_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
+        }
+
+        $payment_intent_id = isset( $_POST['payment_intent_id'] ) ? sanitize_text_field( $_POST['payment_intent_id'] ) : '';
+        $client_album_id   = isset( $_POST['client_album_id'] ) ? absint( $_POST['client_album_id'] ) : 0;
+        $cart_token        = isset( $_POST['cart_token'] ) ? sanitize_key( $_POST['cart_token'] ) : '';
+
+        if ( ! $payment_intent_id || ! $client_album_id ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid request.', 'easy-album-orders' ) ) );
+        }
+
+        // Verify payment with Stripe.
+        $stripe = new EAO_Stripe();
+        $intent = $stripe->get_payment_intent( $payment_intent_id );
+
+        if ( is_wp_error( $intent ) ) {
+            wp_send_json_error( array( 'message' => $intent->get_error_message() ) );
+        }
+
+        // Check payment status.
+        if ( 'succeeded' !== $intent->status ) {
+            wp_send_json_error( array(
+                'message' => __( 'Payment was not successful. Please try again.', 'easy-album-orders' ),
+                'status'  => $intent->status,
+            ) );
+        }
+
+        // Get cart items and verify they match the payment.
+        $cart_items = EAO_Album_Order::get_cart_items( $client_album_id, $cart_token );
+
+        if ( empty( $cart_items ) ) {
+            wp_send_json_error( array( 'message' => __( 'Cart items not found.', 'easy-album-orders' ) ) );
+        }
+
+        // Verify Payment Intent matches what's stored on orders.
+        foreach ( $cart_items as $item ) {
+            $stored_intent = get_post_meta( $item->ID, '_eao_payment_intent_id', true );
+            if ( $stored_intent !== $payment_intent_id ) {
+                wp_send_json_error( array( 'message' => __( 'Payment verification failed.', 'easy-album-orders' ) ) );
+            }
+        }
+
+        // Collect customer info.
+        $customer_name  = isset( $_POST['customer_name'] ) ? sanitize_text_field( $_POST['customer_name'] ) : '';
+        $customer_email = isset( $_POST['customer_email'] ) ? sanitize_email( $_POST['customer_email'] ) : '';
+        $customer_phone = isset( $_POST['customer_phone'] ) ? EAO_Helpers::sanitize_phone( $_POST['customer_phone'] ) : '';
+        $client_notes   = isset( $_POST['client_notes'] ) ? sanitize_textarea_field( $_POST['client_notes'] ) : '';
+
+        $order_ids = array();
+
+        foreach ( $cart_items as $item ) {
+            $order_ids[] = $item->ID;
+
+            // Update status to ordered.
+            EAO_Album_Order::update_status( $item->ID, EAO_Album_Order::STATUS_ORDERED );
+
+            // Save customer info.
+            update_post_meta( $item->ID, '_eao_customer_name', $customer_name );
+            update_post_meta( $item->ID, '_eao_customer_email', $customer_email );
+            update_post_meta( $item->ID, '_eao_customer_phone', $customer_phone );
+            update_post_meta( $item->ID, '_eao_client_notes', $client_notes );
+            update_post_meta( $item->ID, '_eao_order_date', current_time( 'mysql' ) );
+
+            // Save payment info.
+            update_post_meta( $item->ID, '_eao_payment_status', 'paid' );
+            update_post_meta( $item->ID, '_eao_payment_amount', $intent->amount / 100 );
+            update_post_meta( $item->ID, '_eao_stripe_charge_id', $intent->latest_charge );
+        }
+
+        /**
+         * Fires after checkout with payment is completed.
+         *
+         * @since 1.1.0
+         *
+         * @param array  $order_ids       Array of order IDs.
+         * @param int    $client_album_id The client album ID.
+         */
+        do_action( 'eao_order_checkout_complete', $order_ids, $client_album_id );
+
+        /**
+         * Fires after a Stripe payment is completed.
+         *
+         * @since 1.1.0
+         *
+         * @param array  $order_ids        Array of order IDs.
+         * @param string $payment_intent_id Stripe Payment Intent ID.
+         */
+        do_action( 'eao_payment_complete', $order_ids, $payment_intent_id );
+
+        wp_send_json_success( array(
+            'message'      => __( 'Payment successful! Order submitted.', 'easy-album-orders' ),
             'order_count'  => count( $cart_items ),
             'redirect_url' => add_query_arg( 'order_complete', '1', get_permalink( $client_album_id ) ),
         ) );
