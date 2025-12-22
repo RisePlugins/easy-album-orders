@@ -41,7 +41,7 @@ class EAO_Client_Album_Meta {
         // Client Information meta box.
         add_meta_box(
             'eao_client_info',
-            __( 'Client Information', 'easy-album-orders' ),
+            EAO_Icons::get( 'user', array( 'size' => 18 ) ) . ' ' . __( 'Client Information', 'easy-album-orders' ),
             array( $this, 'render_client_info_meta_box' ),
             'client_album',
             'normal',
@@ -51,7 +51,7 @@ class EAO_Client_Album_Meta {
         // Loom Video meta box.
         add_meta_box(
             'eao_loom_video',
-            __( 'Loom Video', 'easy-album-orders' ),
+            EAO_Icons::get( 'brand-loom', array( 'size' => 18 ) ) . ' ' . __( 'Loom Video', 'easy-album-orders' ),
             array( $this, 'render_loom_video_meta_box' ),
             'client_album',
             'normal',
@@ -61,7 +61,7 @@ class EAO_Client_Album_Meta {
         // Album Designs meta box.
         add_meta_box(
             'eao_album_designs',
-            __( 'Album Designs', 'easy-album-orders' ),
+            EAO_Icons::get( 'books', array( 'size' => 18 ) ) . ' ' . __( 'Album Designs', 'easy-album-orders' ),
             array( $this, 'render_designs_meta_box' ),
             'client_album',
             'normal',
@@ -71,7 +71,7 @@ class EAO_Client_Album_Meta {
         // Album Link meta box.
         add_meta_box(
             'eao_album_link',
-            __( 'Album Order Link', 'easy-album-orders' ),
+            EAO_Icons::get( 'link', array( 'size' => 18 ) ) . ' ' . __( 'Album Order Link', 'easy-album-orders' ),
             array( $this, 'render_album_link_meta_box' ),
             'client_album',
             'side',
@@ -83,7 +83,7 @@ class EAO_Client_Album_Meta {
         if ( $post && $post->ID ) {
             add_meta_box(
                 'eao_client_orders',
-                __( 'Orders', 'easy-album-orders' ),
+                EAO_Icons::get( 'shopping-cart', array( 'size' => 18 ) ) . ' ' . __( 'Orders', 'easy-album-orders' ),
                 array( $this, 'render_orders_meta_box' ),
                 'client_album',
                 'normal',
