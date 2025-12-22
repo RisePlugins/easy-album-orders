@@ -470,28 +470,56 @@ $cart_items = array();
                 </button>
             </div>
             <div class="eao-modal__body">
-                <p class="eao-modal__intro"><?php esc_html_e( 'Please provide your contact information so we can reach you about your order.', 'easy-album-orders' ); ?></p>
-                
                 <form id="eao-checkout-form">
-                    <div class="eao-field">
-                        <label for="eao-customer-name" class="eao-field__label"><?php esc_html_e( 'Your Name', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                        <input type="text" id="eao-customer-name" name="customer_name" class="eao-field__input" placeholder="<?php esc_attr_e( 'John Smith', 'easy-album-orders' ); ?>" required>
+                    <!-- Step 1: Customer Info -->
+                    <div class="eao-checkout-step" id="eao-step-info">
+                        <p class="eao-modal__intro"><?php esc_html_e( 'Please provide your contact information so we can reach you about your order.', 'easy-album-orders' ); ?></p>
+                        
+                        <div class="eao-field">
+                            <label for="eao-customer-name" class="eao-field__label"><?php esc_html_e( 'Your Name', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="text" id="eao-customer-name" name="customer_name" class="eao-field__input" placeholder="<?php esc_attr_e( 'John Smith', 'easy-album-orders' ); ?>" required>
+                        </div>
+                        
+                        <div class="eao-field">
+                            <label for="eao-customer-email" class="eao-field__label"><?php esc_html_e( 'Email Address', 'easy-album-orders' ); ?> <span class="required">*</span></label>
+                            <input type="email" id="eao-customer-email" name="customer_email" class="eao-field__input" placeholder="<?php esc_attr_e( 'john@example.com', 'easy-album-orders' ); ?>" required>
+                            <p class="eao-field__help"><?php esc_html_e( 'We\'ll send order confirmation and receipt to this email.', 'easy-album-orders' ); ?></p>
+                        </div>
+                        
+                        <div class="eao-field">
+                            <label for="eao-customer-phone" class="eao-field__label"><?php esc_html_e( 'Phone Number', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
+                            <input type="tel" id="eao-customer-phone" name="customer_phone" class="eao-field__input" placeholder="<?php esc_attr_e( '(555) 123-4567', 'easy-album-orders' ); ?>">
+                        </div>
+                        
+                        <div class="eao-field">
+                            <label for="eao-client-notes" class="eao-field__label"><?php esc_html_e( 'Order Notes', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
+                            <textarea id="eao-client-notes" name="client_notes" class="eao-field__textarea" rows="3" placeholder="<?php esc_attr_e( 'Any special requests or notes about your order...', 'easy-album-orders' ); ?>"></textarea>
+                        </div>
                     </div>
-                    
-                    <div class="eao-field">
-                        <label for="eao-customer-email" class="eao-field__label"><?php esc_html_e( 'Email Address', 'easy-album-orders' ); ?> <span class="required">*</span></label>
-                        <input type="email" id="eao-customer-email" name="customer_email" class="eao-field__input" placeholder="<?php esc_attr_e( 'john@example.com', 'easy-album-orders' ); ?>" required>
-                        <p class="eao-field__help"><?php esc_html_e( 'We\'ll send order confirmation to this email.', 'easy-album-orders' ); ?></p>
-                    </div>
-                    
-                    <div class="eao-field">
-                        <label for="eao-customer-phone" class="eao-field__label"><?php esc_html_e( 'Phone Number', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
-                        <input type="tel" id="eao-customer-phone" name="customer_phone" class="eao-field__input" placeholder="<?php esc_attr_e( '(555) 123-4567', 'easy-album-orders' ); ?>">
-                    </div>
-                    
-                    <div class="eao-field">
-                        <label for="eao-client-notes" class="eao-field__label"><?php esc_html_e( 'Order Notes', 'easy-album-orders' ); ?> <span class="optional">(<?php esc_html_e( 'optional', 'easy-album-orders' ); ?>)</span></label>
-                        <textarea id="eao-client-notes" name="client_notes" class="eao-field__textarea" rows="3" placeholder="<?php esc_attr_e( 'Any special requests or notes about your order...', 'easy-album-orders' ); ?>"></textarea>
+
+                    <!-- Step 2: Payment (Stripe Elements) -->
+                    <div class="eao-checkout-step eao-checkout-step--payment" id="eao-step-payment" style="display: none;">
+                        <h3 class="eao-checkout-step__title"><?php esc_html_e( 'Payment Details', 'easy-album-orders' ); ?></h3>
+                        
+                        <!-- Stripe Elements container -->
+                        <div class="eao-stripe-element" id="eao-card-element">
+                            <!-- Stripe Card Element will be mounted here -->
+                        </div>
+                        
+                        <!-- Error display -->
+                        <div class="eao-stripe-error" id="eao-card-errors" role="alert"></div>
+                        
+                        <!-- Secure payment badge -->
+                        <div class="eao-payment-secure">
+                            <?php EAO_Icons::render( 'lock' ); ?>
+                            <?php esc_html_e( 'Payments are secure and encrypted', 'easy-album-orders' ); ?>
+                        </div>
+                        
+                        <!-- Back button -->
+                        <button type="button" class="eao-btn eao-btn--text" id="eao-payment-back">
+                            <?php EAO_Icons::render( 'arrow-left' ); ?>
+                            <?php esc_html_e( 'Back to contact info', 'easy-album-orders' ); ?>
+                        </button>
                     </div>
                 </form>
             </div>

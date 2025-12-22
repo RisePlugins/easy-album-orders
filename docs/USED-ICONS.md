@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 14 (~56KB estimated)
+- **Icons currently used**: 16 (~64KB estimated)
 - **Potential savings**: ~22.9MB
 
 ---
@@ -41,15 +41,19 @@ Keep this list updated as you add new icons throughout development.
 
 *To be updated when icons are added*
 
-### Front-End Templates
+### Front-End Templates (`single-client-album.php`)
 
-*To be updated when icons are added*
+| Icon | Usage |
+|------|-------|
+| `lock` | Secure payment badge in checkout modal |
+| `arrow-left` | Back button in payment step |
 
 ---
 
 ## Complete Icon List (Alphabetical)
 
 ```
+arrow-left
 arrow-right
 award
 book
@@ -60,13 +64,14 @@ copy
 external-link
 file-type-pdf
 link
+lock
 plus
 shopping-cart
 trash
 user
 ```
 
-**Total: 14 icons**
+**Total: 16 icons**
 
 ---
 

@@ -2314,3 +2314,140 @@
     gap: 4px;
 }
 
+/* ==========================================================================
+   Stripe Payment Elements
+   ========================================================================== */
+
+.eao-checkout-step {
+    /* Wrapper for checkout steps */
+}
+
+.eao-checkout-step--payment {
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+}
+
+.eao-checkout-step__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: var(--eao-text-color, #333);
+}
+
+/* Stripe Card Element Container */
+.eao-stripe-element {
+    padding: 14px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 24px;
+}
+
+.eao-stripe-element:focus-within {
+    border-color: var(--eao-primary-color, #2d5a27);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
+}
+
+/* Stripe Error Display */
+.eao-stripe-error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 20px;
+}
+
+/* Secure Payment Badge */
+.eao-payment-secure {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+    border-radius: 6px;
+}
+
+.eao-payment-secure .eao-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Payment Back Button */
+#eao-payment-back {
+    margin-top: 16px;
+    padding: 8px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--eao-text-light, #666);
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#eao-payment-back:hover {
+    color: var(--eao-primary-color, #2d5a27);
+}
+
+#eao-payment-back .eao-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Test Mode Badge */
+.eao-stripe-test-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #856404;
+    background: #fff3cd;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+/* Payment Processing Overlay */
+.eao-payment-processing {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 8px;
+}
+
+.eao-payment-processing__text {
+    margin-top: 16px;
+    font-weight: 500;
+    color: var(--eao-text-color, #333);
+}
+
+/* Modal Footer - Payment Total Emphasis */
+.eao-modal__total {
+    font-size: 15px;
+    color: var(--eao-text-light, #666);
+}
+
+.eao-modal__total-value {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--eao-text-color, #333);
+}
+

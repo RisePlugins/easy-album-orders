@@ -12,6 +12,250 @@
     'use strict';
 
     /**
+     * Stripe Payment Handler.
+     *
+     * Manages Stripe.js integration for payment processing.
+     *
+     * @since 1.1.0
+     */
+    const EAOStripe = {
+        // Stripe instance.
+        stripe: null,
+
+        // Elements instance.
+        elements: null,
+
+        // Card element.
+        cardElement: null,
+
+        // Payment Intent client secret.
+        clientSecret: null,
+
+        // Current step: 'info' or 'payment'.
+        currentStep: 'info',
+
+        // Whether Stripe is initialized.
+        initialized: false,
+
+        /**
+         * Initialize Stripe if enabled.
+         *
+         * @return {boolean} True if Stripe was initialized.
+         */
+        init: function() {
+            if (!eaoPublic.stripe || !eaoPublic.stripe.enabled || !eaoPublic.stripe.publishableKey) {
+                return false;
+            }
+
+            // Check if Stripe.js is loaded.
+            if (typeof Stripe === 'undefined') {
+                console.error('Stripe.js not loaded');
+                return false;
+            }
+
+            try {
+                this.stripe = Stripe(eaoPublic.stripe.publishableKey);
+                this.elements = this.stripe.elements();
+
+                // Create card element with custom styling.
+                const style = {
+                    base: {
+                        color: '#333',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        fontSmoothing: 'antialiased',
+                        fontSize: '16px',
+                        '::placeholder': {
+                            color: '#aab7c4'
+                        }
+                    },
+                    invalid: {
+                        color: '#dc3545',
+                        iconColor: '#dc3545'
+                    }
+                };
+
+                this.cardElement = this.elements.create('card', { style: style });
+
+                // Handle real-time validation errors.
+                this.cardElement.on('change', function(event) {
+                    const displayError = document.getElementById('eao-card-errors');
+                    if (displayError) {
+                        displayError.textContent = event.error ? event.error.message : '';
+                    }
+                });
+
+                this.initialized = true;
+                return true;
+
+            } catch (error) {
+                console.error('Error initializing Stripe:', error);
+                return false;
+            }
+        },
+
+        /**
+         * Check if Stripe is enabled and initialized.
+         *
+         * @return {boolean} True if Stripe is ready.
+         */
+        isEnabled: function() {
+            return this.initialized && this.stripe !== null;
+        },
+
+        /**
+         * Mount card element to DOM.
+         */
+        mountCard: function() {
+            const container = document.getElementById('eao-card-element');
+            if (container && this.cardElement) {
+                this.cardElement.mount('#eao-card-element');
+            }
+        },
+
+        /**
+         * Create Payment Intent via AJAX.
+         *
+         * @param {Object} customerData Customer info.
+         * @return {Promise}
+         */
+        createPaymentIntent: function(customerData) {
+            const self = this;
+
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: eaoPublic.ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'eao_create_payment_intent',
+                        nonce: eaoPublic.nonce,
+                        client_album_id: eaoPublic.clientAlbumId,
+                        cart_token: EAOPublic.getCartToken(),
+                        customer_name: customerData.name,
+                        customer_email: customerData.email
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            resolve(response.data);
+                        } else {
+                            reject(new Error(response.data.message || 'Payment initialization failed'));
+                        }
+                    },
+                    error: function() {
+                        reject(new Error(eaoPublic.i18n?.errorOccurred || 'An error occurred'));
+                    }
+                });
+            });
+        },
+
+        /**
+         * Confirm the payment with Stripe.
+         *
+         * @param {Object} customerData Customer info.
+         * @return {Promise}
+         */
+        confirmPayment: function(customerData) {
+            const self = this;
+
+            return this.stripe.confirmCardPayment(this.clientSecret, {
+                payment_method: {
+                    card: this.cardElement,
+                    billing_details: {
+                        name: customerData.name,
+                        email: customerData.email
+                    }
+                }
+            }).then(function(result) {
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+                return result.paymentIntent;
+            });
+        },
+
+        /**
+         * Complete the checkout after successful payment.
+         *
+         * @param {string} paymentIntentId Payment Intent ID.
+         * @param {Object} customerData    Customer info.
+         * @return {Promise}
+         */
+        completeCheckout: function(paymentIntentId, customerData) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: eaoPublic.ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'eao_confirm_payment',
+                        nonce: eaoPublic.nonce,
+                        payment_intent_id: paymentIntentId,
+                        client_album_id: eaoPublic.clientAlbumId,
+                        cart_token: EAOPublic.getCartToken(),
+                        customer_name: customerData.name,
+                        customer_email: customerData.email,
+                        customer_phone: customerData.phone,
+                        client_notes: customerData.notes
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            resolve(response.data);
+                        } else {
+                            reject(new Error(response.data.message || 'Checkout failed'));
+                        }
+                    },
+                    error: function() {
+                        reject(new Error(eaoPublic.i18n?.errorOccurred || 'An error occurred'));
+                    }
+                });
+            });
+        },
+
+        /**
+         * Show the payment step.
+         */
+        showPaymentStep: function() {
+            this.currentStep = 'payment';
+            $('#eao-step-info').slideUp(200);
+            $('#eao-step-payment').slideDown(200);
+            
+            // Focus card element after animation.
+            setTimeout(() => {
+                if (this.cardElement) {
+                    this.cardElement.focus();
+                }
+            }, 250);
+        },
+
+        /**
+         * Show the info step.
+         */
+        showInfoStep: function() {
+            this.currentStep = 'info';
+            $('#eao-step-payment').slideUp(200);
+            $('#eao-step-info').slideDown(200);
+            
+            // Clear any card errors.
+            $('#eao-card-errors').text('');
+        },
+
+        /**
+         * Reset for new checkout.
+         */
+        reset: function() {
+            this.clientSecret = null;
+            this.currentStep = 'info';
+            
+            if (this.cardElement) {
+                this.cardElement.clear();
+            }
+            
+            // Reset step visibility.
+            $('#eao-step-info').show();
+            $('#eao-step-payment').hide();
+            $('#eao-card-errors').text('');
+        }
+    };
+
+    /**
      * Public handler object.
      */
     const EAOPublic = {
@@ -1314,32 +1558,58 @@
         bindCheckout: function() {
             const self = this;
 
+            // Initialize Stripe.
+            const stripeEnabled = EAOStripe.init();
+
             // Open checkout modal.
             $('#eao-checkout-btn').on('click', function() {
                 self.openCheckoutModal();
+                
+                // Mount Stripe card element if enabled.
+                if (stripeEnabled) {
+                    setTimeout(function() {
+                        EAOStripe.mountCard();
+                    }, 200);
+                }
             });
 
             // Close modal handlers.
             $('#eao-modal-close, .eao-modal__backdrop').on('click', function() {
                 self.closeCheckoutModal();
+                EAOStripe.reset();
             });
 
             // Close on escape key.
             $(document).on('keydown', function(e) {
                 if (e.key === 'Escape' && $('#eao-checkout-modal').is(':visible')) {
                     self.closeCheckoutModal();
+                    EAOStripe.reset();
                 }
+            });
+
+            // Payment back button (return to info step).
+            $('#eao-payment-back').on('click', function() {
+                EAOStripe.showInfoStep();
+                self.updateCheckoutButton();
             });
 
             // Submit order from modal.
             $('#eao-submit-order-btn').on('click', function() {
-                self.submitCheckout();
+                if (stripeEnabled) {
+                    self.handleStripeCheckout();
+                } else {
+                    self.submitCheckout();
+                }
             });
 
             // Also submit on form enter.
             $('#eao-checkout-form').on('submit', function(e) {
                 e.preventDefault();
-                self.submitCheckout();
+                if (stripeEnabled) {
+                    self.handleStripeCheckout();
+                } else {
+                    self.submitCheckout();
+                }
             });
         },
 
@@ -1347,8 +1617,18 @@
          * Open the checkout modal.
          */
         openCheckoutModal: function() {
+            const self = this;
+            
             // Update modal total.
             $('#eao-modal-total').text($('#eao-cart-total').text());
+            
+            // Reset Stripe state if enabled.
+            if (EAOStripe.isEnabled()) {
+                EAOStripe.reset();
+            }
+            
+            // Update button text based on Stripe status.
+            self.updateCheckoutButton();
             
             // Show modal.
             $('#eao-checkout-modal').fadeIn(200);
@@ -1369,7 +1649,7 @@
         },
 
         /**
-         * Submit checkout with customer info.
+         * Submit checkout with customer info (no payment).
          */
         submitCheckout: function() {
             const self = this;
@@ -1423,6 +1703,9 @@
                     if (response.success) {
                         // Redirect to confirmation.
                         window.location.href = response.data.redirect_url;
+                    } else if (response.data && response.data.payment_required) {
+                        // Payment is required - switch to Stripe flow.
+                        self.handleStripeCheckout();
                     } else {
                         self.closeCheckoutModal();
                         self.showMessage('error', response.data.message);
@@ -1439,6 +1722,150 @@
                     $spinner.hide();
                 }
             });
+        },
+
+        /**
+         * Handle Stripe checkout flow.
+         *
+         * @since 1.1.0
+         */
+        handleStripeCheckout: function() {
+            const self = this;
+            const $btn = $('#eao-submit-order-btn');
+            const $btnText = $btn.find('.eao-btn-text');
+            const $spinner = $btn.find('.eao-spinner');
+
+            // Get customer data.
+            const customerData = {
+                name: $('#eao-customer-name').val().trim(),
+                email: $('#eao-customer-email').val().trim(),
+                phone: $('#eao-customer-phone').val().trim(),
+                notes: $('#eao-client-notes').val().trim()
+            };
+
+            // Validate customer info.
+            if (!customerData.name) {
+                self.showCheckoutError(eaoPublic.i18n?.enterCustomerName || 'Please enter your name.');
+                $('#eao-customer-name').focus();
+                return;
+            }
+
+            if (!customerData.email || !self.isValidEmail(customerData.email)) {
+                self.showCheckoutError(eaoPublic.i18n?.invalidEmail || 'Please enter a valid email.');
+                $('#eao-customer-email').focus();
+                return;
+            }
+
+            // Step 1: Info step - create Payment Intent and show payment.
+            if (EAOStripe.currentStep === 'info') {
+                $btn.prop('disabled', true);
+                $btnText.text(eaoPublic.i18n?.processing || 'Processing...');
+                $spinner.show();
+
+                // Create Payment Intent.
+                EAOStripe.createPaymentIntent(customerData)
+                    .then(function(data) {
+                        if (data.skip_payment) {
+                            // No payment required, complete checkout directly.
+                            return self.submitCheckout();
+                        }
+
+                        // Store client secret and show payment step.
+                        EAOStripe.clientSecret = data.client_secret;
+                        EAOStripe.showPaymentStep();
+
+                        // Update button text.
+                        $btnText.text(eaoPublic.i18n?.payNow || 'Pay Now');
+                        $btn.prop('disabled', false);
+                        $spinner.hide();
+                    })
+                    .catch(function(error) {
+                        self.showCheckoutError(error.message);
+                        $btn.prop('disabled', false);
+                        $btnText.text(eaoPublic.i18n?.continueToPayment || 'Continue to Payment');
+                        $spinner.hide();
+                    });
+
+                return;
+            }
+
+            // Step 2: Payment step - confirm payment.
+            if (EAOStripe.currentStep === 'payment') {
+                $btn.prop('disabled', true);
+                $btnText.text(eaoPublic.i18n?.processing || 'Processing...');
+                $spinner.show();
+
+                // Clear any previous errors.
+                $('#eao-card-errors').text('');
+
+                EAOStripe.confirmPayment(customerData)
+                    .then(function(paymentIntent) {
+                        // Payment successful, complete checkout.
+                        $btnText.text(eaoPublic.i18n?.processing || 'Completing order...');
+                        return EAOStripe.completeCheckout(paymentIntent.id, customerData);
+                    })
+                    .then(function(data) {
+                        // Redirect to confirmation.
+                        window.location.href = data.redirect_url;
+                    })
+                    .catch(function(error) {
+                        // Show error.
+                        $('#eao-card-errors').text(error.message);
+                        self.showCheckoutError(error.message);
+                        
+                        $btn.prop('disabled', false);
+                        $btnText.text(eaoPublic.i18n?.payNow || 'Pay Now');
+                        $spinner.hide();
+                    });
+            }
+        },
+
+        /**
+         * Update checkout button text based on current step.
+         *
+         * @since 1.1.0
+         */
+        updateCheckoutButton: function() {
+            const $btnText = $('#eao-submit-order-btn .eao-btn-text');
+            
+            if (EAOStripe.isEnabled()) {
+                if (EAOStripe.currentStep === 'payment') {
+                    $btnText.text(eaoPublic.i18n?.payNow || 'Pay Now');
+                } else {
+                    $btnText.text(eaoPublic.i18n?.continueToPayment || 'Continue to Payment');
+                }
+            } else {
+                $btnText.text(eaoPublic.i18n?.submitOrder || 'Submit Order');
+            }
+        },
+
+        /**
+         * Show error in checkout modal.
+         *
+         * @since 1.1.0
+         *
+         * @param {string} message Error message.
+         */
+        showCheckoutError: function(message) {
+            // Show error in card errors element if on payment step.
+            if (EAOStripe.currentStep === 'payment') {
+                $('#eao-card-errors').text(message);
+            }
+            
+            // Also show toast message.
+            this.showMessage('error', message);
+        },
+
+        /**
+         * Simple email validation.
+         *
+         * @since 1.1.0
+         *
+         * @param {string} email Email address.
+         * @return {boolean} True if valid.
+         */
+        isValidEmail: function(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         },
 
         /**
