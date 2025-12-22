@@ -492,86 +492,106 @@ class EAO_Client_Album_Meta {
         $design = wp_parse_args( $design, $defaults );
         $name_field = $is_template ? 'eao_designs[{{data.index}}]' : "eao_designs[{$index}]";
         ?>
-        <div class="eao-repeater__item eao-design-item" data-index="<?php echo esc_attr( $index ); ?>">
-            <div class="eao-repeater__item-header">
-                <span class="eao-repeater__item-title">
-                    <?php echo ! empty( $design['name'] ) ? esc_html( $design['name'] ) : esc_html__( 'New Design', 'easy-album-orders' ); ?>
-                </span>
-                <button type="button" class="eao-repeater__toggle" aria-expanded="<?php echo $is_template ? 'true' : 'false'; ?>">
-                    <span class="dashicons dashicons-arrow-<?php echo $is_template ? 'up' : 'down'; ?>-alt2"></span>
-                </button>
-                <button type="button" class="eao-repeater__remove" title="<?php esc_attr_e( 'Remove', 'easy-album-orders' ); ?>">
+        <div class="eao-design-card" data-index="<?php echo esc_attr( $index ); ?>">
+            <div class="eao-design-card__header">
+                <div class="eao-design-card__number">
+                    <span class="dashicons dashicons-book-alt"></span>
+                    <?php
+                    printf(
+                        /* translators: %s: design number */
+                        esc_html__( 'Design %s', 'easy-album-orders' ),
+                        '<span class="eao-design-card__index">' . esc_html( is_numeric( $index ) ? $index + 1 : '#' ) . '</span>'
+                    );
+                    ?>
+                </div>
+                <button type="button" class="eao-design-card__remove" title="<?php esc_attr_e( 'Remove Design', 'easy-album-orders' ); ?>">
                     <span class="dashicons dashicons-trash"></span>
+                    <span class="screen-reader-text"><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></span>
                 </button>
             </div>
-            <div class="eao-repeater__item-content" <?php echo $is_template ? 'style="display: block;"' : ''; ?>>
-                <div class="eao-field-row">
-                    <div class="eao-field" style="flex: 2;">
-                        <label><?php esc_html_e( 'Design Name', 'easy-album-orders' ); ?></label>
-                        <input type="text" name="<?php echo esc_attr( $name_field ); ?>[name]" value="<?php echo esc_attr( $design['name'] ); ?>" class="regular-text eao-design-name-input" placeholder="<?php esc_attr_e( 'e.g., Classic Layout', 'easy-album-orders' ); ?>">
-                    </div>
-                    <div class="eao-field" style="flex: 1;">
-                        <label><?php esc_html_e( 'Base Price ($)', 'easy-album-orders' ); ?></label>
-                        <input type="number" name="<?php echo esc_attr( $name_field ); ?>[base_price]" value="<?php echo esc_attr( $design['base_price'] ); ?>" step="0.01" min="0" class="small-text" style="width: 100%;">
-                    </div>
-                </div>
-
-                <div class="eao-field-row">
-                    <!-- Cover Image -->
-                    <div class="eao-field eao-field--media">
-                        <label><?php esc_html_e( 'Cover Image', 'easy-album-orders' ); ?></label>
-                        <div class="eao-media-upload eao-image-upload">
-                            <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[cover_id]" value="<?php echo esc_attr( $design['cover_id'] ); ?>" class="eao-image-id">
-                            <div class="eao-image-preview">
-                                <?php if ( ! empty( $design['cover_id'] ) ) : ?>
-                                    <?php echo wp_get_attachment_image( $design['cover_id'], 'thumbnail' ); ?>
-                                <?php endif; ?>
-                            </div>
-                            <div class="eao-media-buttons">
-                                <button type="button" class="button eao-upload-image"><?php esc_html_e( 'Select Image', 'easy-album-orders' ); ?></button>
-                                <button type="button" class="button eao-remove-image" <?php echo empty( $design['cover_id'] ) ? 'style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
+            <div class="eao-design-card__body">
+                <!-- Primary Fields -->
+                <div class="eao-design-card__section">
+                    <div class="eao-design-card__row">
+                        <div class="eao-design-card__field eao-design-card__field--name">
+                            <label class="eao-design-card__label"><?php esc_html_e( 'Design Name', 'easy-album-orders' ); ?></label>
+                            <input type="text" name="<?php echo esc_attr( $name_field ); ?>[name]" value="<?php echo esc_attr( $design['name'] ); ?>" class="eao-design-card__input eao-design-name-input" placeholder="<?php esc_attr_e( 'e.g., Classic Layout', 'easy-album-orders' ); ?>">
+                        </div>
+                        <div class="eao-design-card__field eao-design-card__field--price">
+                            <label class="eao-design-card__label"><?php esc_html_e( 'Base Price', 'easy-album-orders' ); ?></label>
+                            <div class="eao-design-card__input-group">
+                                <span class="eao-design-card__input-prefix">$</span>
+                                <input type="number" name="<?php echo esc_attr( $name_field ); ?>[base_price]" value="<?php echo esc_attr( $design['base_price'] ); ?>" step="0.01" min="0" class="eao-design-card__input eao-design-card__input--currency">
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- PDF Proof -->
-                    <div class="eao-field eao-field--media">
-                        <label><?php esc_html_e( 'PDF Proof', 'easy-album-orders' ); ?></label>
-                        <div class="eao-media-upload eao-pdf-upload">
-                            <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[pdf_id]" value="<?php echo esc_attr( $design['pdf_id'] ); ?>" class="eao-pdf-id">
-                            <div class="eao-pdf-preview">
-                                <?php if ( ! empty( $design['pdf_id'] ) ) : ?>
-                                    <?php
-                                    $pdf_url  = wp_get_attachment_url( $design['pdf_id'] );
-                                    $pdf_name = basename( get_attached_file( $design['pdf_id'] ) );
-                                    ?>
-                                    <span class="dashicons dashicons-pdf"></span>
-                                    <a href="<?php echo esc_url( $pdf_url ); ?>" target="_blank"><?php echo esc_html( $pdf_name ); ?></a>
-                                <?php else : ?>
-                                    <span class="eao-no-pdf"><?php esc_html_e( 'No PDF selected', 'easy-album-orders' ); ?></span>
-                                <?php endif; ?>
+                <!-- Media Section -->
+                <div class="eao-design-card__section">
+                    <div class="eao-design-card__row eao-design-card__row--media">
+                        <!-- Cover Image -->
+                        <div class="eao-design-card__field eao-design-card__field--media">
+                            <label class="eao-design-card__label"><?php esc_html_e( 'Cover Image', 'easy-album-orders' ); ?></label>
+                            <div class="eao-media-upload eao-image-upload">
+                                <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[cover_id]" value="<?php echo esc_attr( $design['cover_id'] ); ?>" class="eao-image-id">
+                                <div class="eao-image-preview">
+                                    <?php if ( ! empty( $design['cover_id'] ) ) : ?>
+                                        <?php echo wp_get_attachment_image( $design['cover_id'], 'thumbnail' ); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="eao-media-buttons">
+                                    <button type="button" class="button eao-upload-image"><?php esc_html_e( 'Select Image', 'easy-album-orders' ); ?></button>
+                                    <button type="button" class="button eao-remove-image" <?php echo empty( $design['cover_id'] ) ? 'style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
+                                </div>
                             </div>
-                            <div class="eao-media-buttons">
-                                <button type="button" class="button eao-upload-pdf"><?php esc_html_e( 'Select PDF', 'easy-album-orders' ); ?></button>
-                                <button type="button" class="button eao-remove-pdf" <?php echo empty( $design['pdf_id'] ) ? 'style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
+                        </div>
+
+                        <!-- PDF Proof -->
+                        <div class="eao-design-card__field eao-design-card__field--media">
+                            <label class="eao-design-card__label"><?php esc_html_e( 'PDF Proof', 'easy-album-orders' ); ?></label>
+                            <div class="eao-media-upload eao-pdf-upload">
+                                <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[pdf_id]" value="<?php echo esc_attr( $design['pdf_id'] ); ?>" class="eao-pdf-id">
+                                <div class="eao-pdf-preview">
+                                    <?php if ( ! empty( $design['pdf_id'] ) ) : ?>
+                                        <?php
+                                        $pdf_url  = wp_get_attachment_url( $design['pdf_id'] );
+                                        $pdf_name = basename( get_attached_file( $design['pdf_id'] ) );
+                                        ?>
+                                        <span class="dashicons dashicons-pdf"></span>
+                                        <a href="<?php echo esc_url( $pdf_url ); ?>" target="_blank"><?php echo esc_html( $pdf_name ); ?></a>
+                                    <?php else : ?>
+                                        <span class="eao-no-pdf"><?php esc_html_e( 'No PDF selected', 'easy-album-orders' ); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="eao-media-buttons">
+                                    <button type="button" class="button eao-upload-pdf"><?php esc_html_e( 'Select PDF', 'easy-album-orders' ); ?></button>
+                                    <button type="button" class="button eao-remove-pdf" <?php echo empty( $design['pdf_id'] ) ? 'style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Credits Section -->
-                <div class="eao-design-credits" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e4e7;">
-                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #1d2327;"><?php esc_html_e( 'Album Credits for This Design', 'easy-album-orders' ); ?></h4>
-                    <div class="eao-field-row">
-                        <div class="eao-field" style="flex: 1;">
-                            <label><?php esc_html_e( 'Free Album Credits', 'easy-album-orders' ); ?></label>
-                            <input type="number" name="<?php echo esc_attr( $name_field ); ?>[free_album_credits]" value="<?php echo esc_attr( $design['free_album_credits'] ); ?>" min="0" step="1" class="small-text" style="width: 100%;">
-                            <p class="description"><?php esc_html_e( 'Number of free albums (base price covered). Client pays only for upgrades.', 'easy-album-orders' ); ?></p>
+                <div class="eao-design-card__section eao-design-card__section--credits">
+                    <div class="eao-design-card__section-header">
+                        <span class="dashicons dashicons-awards"></span>
+                        <h4 class="eao-design-card__section-title"><?php esc_html_e( 'Album Credits', 'easy-album-orders' ); ?></h4>
+                    </div>
+                    <div class="eao-design-card__row">
+                        <div class="eao-design-card__field">
+                            <label class="eao-design-card__label"><?php esc_html_e( 'Free Album Credits', 'easy-album-orders' ); ?></label>
+                            <input type="number" name="<?php echo esc_attr( $name_field ); ?>[free_album_credits]" value="<?php echo esc_attr( $design['free_album_credits'] ); ?>" min="0" step="1" class="eao-design-card__input">
+                            <p class="eao-design-card__hint"><?php esc_html_e( 'Number of free albums (base price covered)', 'easy-album-orders' ); ?></p>
                         </div>
-                        <div class="eao-field" style="flex: 1;">
-                            <label><?php esc_html_e( 'Credit Budget ($)', 'easy-album-orders' ); ?></label>
-                            <input type="number" name="<?php echo esc_attr( $name_field ); ?>[dollar_credit]" value="<?php echo esc_attr( $design['dollar_credit'] ); ?>" min="0" step="0.01" class="small-text" style="width: 100%;">
-                            <p class="description"><?php esc_html_e( 'Total credit pool for this design. Applied until depleted.', 'easy-album-orders' ); ?></p>
+                        <div class="eao-design-card__field">
+                            <label class="eao-design-card__label"><?php esc_html_e( 'Credit Budget', 'easy-album-orders' ); ?></label>
+                            <div class="eao-design-card__input-group">
+                                <span class="eao-design-card__input-prefix">$</span>
+                                <input type="number" name="<?php echo esc_attr( $name_field ); ?>[dollar_credit]" value="<?php echo esc_attr( $design['dollar_credit'] ); ?>" min="0" step="0.01" class="eao-design-card__input eao-design-card__input--currency">
+                            </div>
+                            <p class="eao-design-card__hint"><?php esc_html_e( 'Total credit pool until depleted', 'easy-album-orders' ); ?></p>
                         </div>
                     </div>
                 </div>

@@ -967,10 +967,16 @@
                 self.addDesign();
             });
 
-            // Design name update.
-            $(document).on('input', '.eao-design-name-input', function() {
-                const name = $(this).val() || 'New Design';
-                $(this).closest('.eao-repeater__item').find('.eao-repeater__item-title').text(name);
+            // Remove design card.
+            $(document).on('click', '.eao-design-card__remove', function(e) {
+                e.preventDefault();
+                if (confirm(eaoAdmin.confirmDelete || 'Are you sure you want to delete this design?')) {
+                    const $card = $(this).closest('.eao-design-card');
+                    $card.slideUp(250, function() {
+                        $(this).remove();
+                        self.reindexDesignCards();
+                    });
+                }
             });
         },
 
@@ -979,7 +985,7 @@
          */
         addDesign: function() {
             const $container = $('#eao-designs-repeater .eao-repeater__items');
-            const index = $container.find('.eao-design-item').length;
+            const index = $container.find('.eao-design-card').length;
             const template = wp.template('eao-design-item');
 
             const $newItem = $(template({
@@ -987,8 +993,22 @@
             }));
 
             $container.append($newItem);
-            $newItem.addClass('is-open');
+            $newItem.hide().slideDown(250);
             $newItem.find('.eao-design-name-input').focus();
+        },
+
+        /**
+         * Reindex design cards after removal.
+         */
+        reindexDesignCards: function() {
+            $('.eao-design-card').each(function(index) {
+                $(this).attr('data-index', index);
+                $(this).find('.eao-design-card__index').text(index + 1);
+                $(this).find('[name^="eao_designs"]').each(function() {
+                    const name = $(this).attr('name');
+                    $(this).attr('name', name.replace(/eao_designs\[\d+\]/, 'eao_designs[' + index + ']'));
+                });
+            });
         },
 
         /**
