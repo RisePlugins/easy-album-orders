@@ -99,6 +99,7 @@ class EAO_Plugin {
         // Core utilities.
         require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-helpers.php';
         require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-email.php';
+        require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-icons.php';
 
         $this->loader = new EAO_Loader();
     }

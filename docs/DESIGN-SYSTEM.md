@@ -187,6 +187,142 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
 
 ---
 
+## Iconography
+
+### Icon Library: Tabler Icons Pro
+
+This plugin uses **Tabler Icons Pro** for all iconography. Tabler Icons is a comprehensive, MIT-licensed icon set with over 4,500 icons in both outline and filled variants.
+
+- **Website**: https://tabler.io/icons
+- **License**: Tabler Icons Pro (commercial license)
+- **Format**: Inline SVG (rendered via PHP helper class)
+- **Location**: `assets/icons/tabler/`
+
+### Why Tabler Icons?
+
+1. **Consistency**: Unified visual language across 4,500+ icons
+2. **Two variants**: Outline (stroke-based) and filled versions
+3. **Customizable**: SVG format allows size, color, and stroke-width customization
+4. **Crisp at any size**: Vector-based, renders perfectly at all resolutions
+5. **Performance**: Inline SVG means no additional HTTP requests
+
+### Using Icons in PHP
+
+Icons are rendered via the `EAO_Icons` helper class:
+
+```php
+// Basic usage - renders inline SVG
+EAO_Icons::render( 'shopping-cart' );
+
+// With custom options
+EAO_Icons::render( 'plus', array(
+    'size'    => 20,           // Icon size in pixels (default: 24)
+    'class'   => 'my-class',   // Additional CSS classes
+    'variant' => 'filled',     // 'outline' (default) or 'filled'
+    'stroke'  => 1.5,          // Stroke width for outline icons (default: 2)
+) );
+
+// With accessibility title (for meaningful icons)
+EAO_Icons::render( 'trash', array(
+    'title' => __( 'Delete item', 'easy-album-orders' ),
+) );
+
+// Get as string instead of echo
+$icon = EAO_Icons::get( 'check' );
+```
+
+### Icon Variants
+
+| Variant | Use Case | Appearance |
+|---------|----------|------------|
+| `outline` | Default, most UI elements | Stroke-based, lighter feel |
+| `filled` | Emphasis, active states, solid buttons | Solid fill, bolder appearance |
+
+### Available Size Classes
+
+Add these CSS classes for consistent sizing:
+
+| Class | Size | Use Case |
+|-------|------|----------|
+| `.eao-icon--xs` | 14px | Inline with small text |
+| `.eao-icon--sm` | 18px | Buttons, compact UI |
+| `.eao-icon--md` | 24px | Default, most uses |
+| `.eao-icon--lg` | 32px | Section headers |
+| `.eao-icon--xl` | 48px | Hero sections, empty states |
+
+### Icon + Text Pattern
+
+When combining icons with text, use the helper classes:
+
+```html
+<span class="eao-icon-text">
+    <?php EAO_Icons::render( 'shopping-cart', array( 'size' => 18 ) ); ?>
+    <span>Add to Cart</span>
+</span>
+```
+
+### Color Modifiers
+
+Icons inherit color from their parent by default. Use these classes for explicit colors:
+
+| Class | Color | Use |
+|-------|-------|-----|
+| `.eao-icon--primary` | Primary blue | Links, actions |
+| `.eao-icon--success` | Green | Success states |
+| `.eao-icon--warning` | Amber | Warnings |
+| `.eao-icon--error` | Red | Errors, destructive |
+| `.eao-icon--muted` | Gray | Secondary, disabled |
+
+### Commonly Used Icons
+
+#### Navigation & UI
+- `menu`, `x`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`
+- `arrow-left`, `arrow-right`, `external-link`
+
+#### Actions
+- `plus`, `minus`, `trash`, `edit`, `check`, `copy`
+- `upload`, `download`, `search`, `filter`
+
+#### E-commerce
+- `shopping-cart`, `credit-card`, `package`, `truck`
+- `receipt`, `discount`, `currency-dollar`, `tag`
+
+#### Album/Photo
+- `book`, `book-2`, `album`, `photo`, `photo-plus`
+- `camera`, `palette`, `color-swatch`, `ruler`, `dimensions`
+
+#### Status & Feedback
+- `info-circle`, `alert-circle`, `alert-triangle`
+- `circle-check`, `circle-x`, `clock`, `hourglass`
+
+#### Users & Communication
+- `user`, `users`, `mail`, `send`, `phone`
+
+### Adding New Icons
+
+To use any Tabler icon:
+
+1. Find the icon name at https://tabler.io/icons
+2. Use it directly: `EAO_Icons::render( 'icon-name' );`
+3. The SVG file is loaded from `assets/icons/tabler/outline/` or `filled/`
+
+### Icon Guidelines
+
+#### Do's ✅
+- Use outline icons for most UI elements
+- Use filled icons for active/selected states or emphasis
+- Keep icons at consistent sizes within the same context
+- Add accessible titles for icons that convey meaning alone
+- Use `aria-hidden="true"` for decorative icons (automatic when no title)
+
+#### Don'ts ❌
+- Don't mix icon libraries (stick to Tabler)
+- Don't use icons smaller than 14px
+- Don't rely solely on icons without text labels for important actions
+- Don't use filled icons for everything (reduces visual hierarchy)
+
+---
+
 ## Spacing System
 
 Use a consistent spacing scale based on 4px increments:
@@ -677,6 +813,7 @@ assets/css/
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-21 | Added Tabler Icons Pro integration and iconography documentation |
 | 1.0.0 | TBD | Initial design system documentation |
 
 ---

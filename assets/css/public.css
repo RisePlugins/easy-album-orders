@@ -2225,3 +2225,97 @@
     }
 }
 
+/* ==========================================================================
+   Icons (Tabler Icons)
+   ========================================================================== */
+
+/**
+ * Base icon styles for Tabler Icons.
+ * Icons are rendered as inline SVGs via EAO_Icons class.
+ */
+.eao-icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+}
+
+/* Icon sizes */
+.eao-icon--xs {
+    width: 14px;
+    height: 14px;
+}
+
+.eao-icon--sm {
+    width: 18px;
+    height: 18px;
+}
+
+.eao-icon--md {
+    width: 24px;
+    height: 24px;
+}
+
+.eao-icon--lg {
+    width: 32px;
+    height: 32px;
+}
+
+.eao-icon--xl {
+    width: 48px;
+    height: 48px;
+}
+
+/* Icon in buttons */
+.eao-btn .eao-icon {
+    margin-right: 8px;
+}
+
+.eao-btn .eao-icon:last-child {
+    margin-right: 0;
+    margin-left: 8px;
+}
+
+.eao-btn .eao-icon:only-child {
+    margin: 0;
+}
+
+/* Icon colors - inherit from parent text color by default */
+.eao-icon {
+    stroke: currentColor;
+    color: currentColor;
+}
+
+/* Explicit color modifiers */
+.eao-icon--primary {
+    color: var(--eao-primary);
+}
+
+.eao-icon--accent {
+    color: var(--eao-accent);
+}
+
+.eao-icon--success {
+    color: var(--eao-success);
+}
+
+.eao-icon--error {
+    color: var(--eao-error);
+}
+
+.eao-icon--muted {
+    color: var(--eao-text-light);
+}
+
+/* Icon with text alignment helpers */
+.eao-icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.eao-icon-text--sm {
+    gap: 4px;
+}
+

@@ -4,6 +4,25 @@
 
 This document outlines the complete implementation plan for integrating Stripe payments into Easy Album Orders. When customers complete their order in the checkout modal, they will be required to pay before the order is finalized.
 
+### Business Model
+
+Easy Album Orders is designed for **individual photographers** who install the plugin on their own WordPress websites. Each photographer:
+
+1. Purchases the Easy Album Orders plugin
+2. Installs it on their WordPress site
+3. Creates their own Stripe account at [stripe.com](https://stripe.com)
+4. Enters their Stripe API keys in the plugin settings
+5. Receives payments directly to their Stripe account
+
+**This means:**
+- ✅ Each photographer controls their own payments
+- ✅ Money goes directly to the photographer (no middleman)
+- ✅ Standard Stripe fees apply (typically 2.9% + $0.30 per transaction)
+- ✅ No Stripe Connect or platform fees required
+- ✅ Simple setup - just API keys
+
+> **Note:** This is NOT a marketplace model. We don't use Stripe Connect because photographers don't share a platform - each has their own independent WordPress installation.
+
 ---
 
 ## Table of Contents

@@ -134,6 +134,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Template loader with theme override support
 - AJAX handlers for all cart operations
 
+### Added (Iconography System)
+- Integrated Tabler Icons Pro library for consistent iconography
+- Created `EAO_Icons` helper class for rendering inline SVGs
+- Icon files stored in `assets/icons/tabler/` (outline and filled variants)
+- Added icon CSS styles to both admin and public stylesheets
+- Updated DESIGN-SYSTEM.md with comprehensive iconography documentation
+
 ### Planning
 - Plugin architecture design
 - Custom post types (Client Albums, Album Orders)
