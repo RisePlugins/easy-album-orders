@@ -1754,19 +1754,18 @@ This would be a separate product/service, not part of the WordPress plugin.
 
 ## Build Plan
 
-This section provides a detailed, actionable build plan for implementing Stripe integration. Each task includes estimated time, dependencies, and deliverables.
+This section provides a detailed, actionable build plan for implementing Stripe integration. Each task includes dependencies and deliverables.
 
 ### Overview
 
-| Phase | Description | Est. Time | Dependencies |
-|-------|-------------|-----------|--------------|
-| **1** | Foundation & Configuration | 2-3 hours | None |
-| **2** | Backend Payment Logic | 3-4 hours | Phase 1 |
-| **3** | Frontend Payment UI | 3-4 hours | Phase 2 |
-| **4** | Webhooks & Status | 2-3 hours | Phase 2 |
-| **5** | Admin Integration | 2-3 hours | Phase 4 |
-| **6** | Testing & Polish | 2-4 hours | All phases |
-| | **Total Estimated** | **14-21 hours** | |
+| Phase | Description | Dependencies |
+|-------|-------------|--------------|
+| **1** | Foundation & Configuration | None |
+| **2** | Backend Payment Logic | Phase 1 |
+| **3** | Frontend Payment UI | Phase 2 |
+| **4** | Webhooks & Status | Phase 2 |
+| **5** | Admin Integration | Phase 4 |
+| **6** | Testing & Polish | All phases |
 
 ---
 
@@ -1775,7 +1774,6 @@ This section provides a detailed, actionable build plan for implementing Stripe 
 **Goal:** Set up Stripe SDK and admin settings UI
 
 #### Task 1.1: Install Stripe PHP SDK
-- **Est. Time:** 15 min
 - **Dependencies:** None
 - **Deliverables:**
   - [ ] Create `composer.json` with `stripe/stripe-php` dependency
@@ -1789,7 +1787,6 @@ composer require stripe/stripe-php
 ```
 
 #### Task 1.2: Create Core Stripe Class
-- **Est. Time:** 45 min
 - **Dependencies:** Task 1.1
 - **File:** `includes/core/class-eao-stripe.php`
 - **Deliverables:**
@@ -1802,7 +1799,6 @@ composer require stripe/stripe-php
   - [ ] Add proper error handling with `WP_Error`
 
 #### Task 1.3: Add Stripe Settings Tab
-- **Est. Time:** 1.5 hours
 - **Dependencies:** Task 1.2
 - **Files:** 
   - `includes/admin/views/album-options-page.php`
@@ -1824,7 +1820,6 @@ composer require stripe/stripe-php
   - [ ] Style the settings form
 
 #### Task 1.4: Load Stripe Class
-- **Est. Time:** 15 min
 - **Dependencies:** Task 1.2
 - **File:** `includes/class-eao-plugin.php`
 - **Deliverables:**
@@ -1838,7 +1833,6 @@ composer require stripe/stripe-php
 **Goal:** Create AJAX endpoints for payment processing
 
 #### Task 2.1: Add Payment Intent Endpoint
-- **Est. Time:** 1 hour
 - **Dependencies:** Phase 1 complete
 - **File:** `includes/public/class-eao-ajax-handler.php`
 - **Deliverables:**
@@ -1853,7 +1847,6 @@ composer require stripe/stripe-php
   - [ ] Return `client_secret` to frontend
 
 #### Task 2.2: Add Payment Confirmation Endpoint
-- **Est. Time:** 1 hour
 - **Dependencies:** Task 2.1
 - **File:** `includes/public/class-eao-ajax-handler.php`
 - **Deliverables:**
@@ -1870,7 +1863,6 @@ composer require stripe/stripe-php
   - [ ] Fire `eao_payment_complete` action hook
 
 #### Task 2.3: Update Existing Checkout
-- **Est. Time:** 30 min
 - **Dependencies:** Task 2.1
 - **File:** `includes/public/class-eao-ajax-handler.php`
 - **Deliverables:**
@@ -1885,7 +1877,6 @@ composer require stripe/stripe-php
 **Goal:** Build the payment interface in checkout modal
 
 #### Task 3.1: Enqueue Stripe.js
-- **Est. Time:** 30 min
 - **Dependencies:** Phase 1 complete
 - **File:** `includes/public/class-eao-public.php`
 - **Deliverables:**
@@ -1896,7 +1887,6 @@ composer require stripe/stripe-php
   - [ ] Add i18n strings for payment UI
 
 #### Task 3.2: Update Checkout Modal HTML
-- **Est. Time:** 45 min
 - **Dependencies:** None
 - **File:** `includes/public/templates/single-client-album.php`
 - **Deliverables:**
@@ -1909,7 +1899,6 @@ composer require stripe/stripe-php
   - [ ] Update button text ("Continue to Payment" → "Pay Now")
 
 #### Task 3.3: Create EAOStripe JavaScript Object
-- **Est. Time:** 1.5 hours
 - **Dependencies:** Tasks 3.1, 3.2
 - **File:** `assets/js/public.js`
 - **Deliverables:**
@@ -1924,7 +1913,6 @@ composer require stripe/stripe-php
   - [ ] Handle real-time validation errors
 
 #### Task 3.4: Update Checkout Flow
-- **Est. Time:** 1 hour
 - **Dependencies:** Task 3.3
 - **File:** `assets/js/public.js`
 - **Deliverables:**
@@ -1938,7 +1926,6 @@ composer require stripe/stripe-php
   - [ ] Handle "skip payment" response (free orders)
 
 #### Task 3.5: Add Payment Styles
-- **Est. Time:** 30 min
 - **Dependencies:** Task 3.2
 - **File:** `assets/css/public.css`
 - **Deliverables:**
@@ -1956,7 +1943,6 @@ composer require stripe/stripe-php
 **Goal:** Handle Stripe webhook events for reliable payment tracking
 
 #### Task 4.1: Create Webhook Handler Class
-- **Est. Time:** 1.5 hours
 - **Dependencies:** Phase 2 complete
 - **File:** `includes/public/class-eao-stripe-webhook.php`
 - **Deliverables:**
@@ -1972,7 +1958,6 @@ composer require stripe/stripe-php
   - [ ] Fire appropriate action hooks
 
 #### Task 4.2: Load Webhook Handler
-- **Est. Time:** 15 min
 - **Dependencies:** Task 4.1
 - **File:** `includes/class-eao-plugin.php`
 - **Deliverables:**
@@ -1980,7 +1965,6 @@ composer require stripe/stripe-php
   - [ ] Instantiate on plugin load
 
 #### Task 4.3: Display Webhook URL in Admin
-- **Est. Time:** 15 min
 - **Dependencies:** Task 1.3
 - **File:** `includes/admin/views/album-options-page.php`
 - **Deliverables:**
@@ -1995,7 +1979,6 @@ composer require stripe/stripe-php
 **Goal:** Display payment information in WordPress admin
 
 #### Task 5.1: Add Payment Meta Box
-- **Est. Time:** 1 hour
 - **Dependencies:** Phase 4 complete
 - **File:** `includes/admin/class-eao-album-order-meta.php`
 - **Deliverables:**
@@ -2007,7 +1990,6 @@ composer require stripe/stripe-php
   - [ ] Style payment status badges
 
 #### Task 5.2: Add Payment Column to Orders List
-- **Est. Time:** 45 min
 - **Dependencies:** Task 5.1
 - **File:** `includes/admin/class-eao-admin-columns.php`
 - **Deliverables:**
@@ -2017,7 +1999,6 @@ composer require stripe/stripe-php
   - [ ] Style column content
 
 #### Task 5.3: Add Payment Badge Styles
-- **Est. Time:** 30 min
 - **Dependencies:** Tasks 5.1, 5.2
 - **File:** `assets/css/admin.css`
 - **Deliverables:**
@@ -2032,7 +2013,6 @@ composer require stripe/stripe-php
 **Goal:** Thoroughly test all payment scenarios
 
 #### Task 6.1: Test Mode Testing
-- **Est. Time:** 1 hour
 - **Dependencies:** All phases complete
 - **Deliverables:**
   - [ ] Test successful payment with `4242 4242 4242 4242`
@@ -2044,7 +2024,6 @@ composer require stripe/stripe-php
   - [ ] Verify admin sees payment info
 
 #### Task 6.2: Webhook Testing
-- **Est. Time:** 45 min
 - **Dependencies:** Task 6.1
 - **Deliverables:**
   - [ ] Install Stripe CLI: `brew install stripe/stripe-cli/stripe`
@@ -2054,7 +2033,6 @@ composer require stripe/stripe-php
   - [ ] Verify order updates from webhook
 
 #### Task 6.3: Edge Cases
-- **Est. Time:** 45 min
 - **Dependencies:** Task 6.1
 - **Deliverables:**
   - [ ] Test $0 order (fully credited) - should skip payment
@@ -2065,7 +2043,6 @@ composer require stripe/stripe-php
   - [ ] Test multiple tabs/sessions
 
 #### Task 6.4: Mobile Testing
-- **Est. Time:** 30 min
 - **Dependencies:** All phases complete
 - **Deliverables:**
   - [ ] Test checkout modal on mobile
@@ -2074,7 +2051,6 @@ composer require stripe/stripe-php
   - [ ] Check for any iOS/Android specific issues
 
 #### Task 6.5: Documentation
-- **Est. Time:** 30 min
 - **Dependencies:** All testing complete
 - **Deliverables:**
   - [ ] Update `CHANGELOG.md` with Stripe integration
