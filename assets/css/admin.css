@@ -4046,3 +4046,65 @@
     gap: 8px;
 }
 
+/* Icons in WordPress .button elements */
+.button .eao-icon {
+    margin-right: 4px;
+    vertical-align: -3px;
+}
+
+.button .eao-icon:only-child {
+    margin-right: 0;
+}
+
+/* Icons in design card headers */
+.eao-design-card__number .eao-icon {
+    margin-right: 6px;
+    vertical-align: -3px;
+    color: var(--eao-gray-500);
+}
+
+.eao-design-card__remove .eao-icon {
+    color: var(--eao-gray-400);
+    transition: color var(--eao-transition);
+}
+
+.eao-design-card__remove:hover .eao-icon {
+    color: var(--eao-error);
+}
+
+/* Icons in section headers */
+.eao-design-card__section-header .eao-icon {
+    margin-right: 6px;
+    vertical-align: -3px;
+    color: var(--eao-primary);
+}
+
+/* Icons in PDF preview */
+.eao-pdf-preview .eao-icon {
+    margin-right: 6px;
+    vertical-align: -4px;
+}
+
+/* Icons in orders table */
+.eao-orders-table__credit .eao-icon {
+    margin-right: 4px;
+    vertical-align: -3px;
+}
+
+/* Icons in orders footer link */
+.eao-orders-footer__link .eao-icon {
+    margin-left: 4px;
+    vertical-align: -3px;
+}
+
+/* Icons in credit summary header */
+.eao-credit-summary__icon .eao-icon {
+    color: var(--eao-primary);
+}
+
+/* Empty state icons */
+.eao-orders-empty .eao-icon {
+    display: block;
+    margin: 0 auto 12px;
+}
+

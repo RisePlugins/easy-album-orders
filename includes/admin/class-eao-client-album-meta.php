@@ -227,12 +227,14 @@ class EAO_Client_Album_Meta {
                 <div class="eao-copy-link" style="display: flex; gap: 5px; margin-bottom: 10px;">
                     <input type="text" value="<?php echo esc_url( $permalink ); ?>" readonly class="regular-text" style="flex: 1;" id="eao-album-link">
                     <button type="button" class="button eao-copy-link-btn" data-clipboard-target="#eao-album-link">
+                        <?php EAO_Icons::render( 'copy', array( 'size' => 16 ) ); ?>
                         <?php esc_html_e( 'Copy', 'easy-album-orders' ); ?>
                     </button>
                 </div>
                 <p>
                     <a href="<?php echo esc_url( $permalink ); ?>" target="_blank" class="button">
-                        <?php esc_html_e( 'View Order Form', 'easy-album-orders' ); ?> →
+                        <?php EAO_Icons::render( 'external-link', array( 'size' => 16 ) ); ?>
+                        <?php esc_html_e( 'View Order Form', 'easy-album-orders' ); ?>
                     </a>
                 </p>
             <?php else : ?>
@@ -267,7 +269,9 @@ class EAO_Client_Album_Meta {
                 <!-- Credit Usage Summary -->
                 <div class="eao-credit-summary">
                     <div class="eao-credit-summary__header">
-                        <span class="eao-credit-summary__icon dashicons dashicons-awards"></span>
+                        <span class="eao-credit-summary__icon">
+                            <?php EAO_Icons::render( 'award', array( 'size' => 20 ) ); ?>
+                        </span>
                         <h4 class="eao-credit-summary__title">
                             <?php esc_html_e( 'Credit Usage Summary', 'easy-album-orders' ); ?>
                         </h4>
@@ -315,7 +319,7 @@ class EAO_Client_Album_Meta {
 
             <?php if ( empty( $orders ) ) : ?>
                 <div class="eao-orders-empty">
-                    <span class="dashicons dashicons-cart"></span>
+                    <?php EAO_Icons::render( 'shopping-cart', array( 'size' => 48, 'class' => 'eao-icon--muted' ) ); ?>
                     <p><?php esc_html_e( 'No orders have been placed yet.', 'easy-album-orders' ); ?></p>
                 </div>
             <?php else : ?>
@@ -361,7 +365,7 @@ class EAO_Client_Album_Meta {
                                     <td class="eao-orders-table__col--credit">
                                         <?php if ( $applied_credits > 0 ) : ?>
                                             <span class="eao-orders-table__credit eao-orders-table__credit--applied">
-                                                <span class="dashicons dashicons-yes-alt"></span>
+                                                <?php EAO_Icons::render( 'circle-check', array( 'size' => 16 ) ); ?>
                                                 <?php
                                                 if ( 'free_album' === $credit_type ) {
                                                     esc_html_e( 'Free Album', 'easy-album-orders' );
@@ -388,7 +392,7 @@ class EAO_Client_Album_Meta {
                 <div class="eao-orders-footer">
                     <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=album_order&client_album_id=' . $post->ID ) ); ?>" class="eao-orders-footer__link">
                         <?php esc_html_e( 'View All Orders', 'easy-album-orders' ); ?>
-                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                        <?php EAO_Icons::render( 'arrow-right', array( 'size' => 16 ) ); ?>
                     </a>
                 </div>
             <?php endif; ?>
@@ -457,7 +461,7 @@ class EAO_Client_Album_Meta {
                     <?php endif; ?>
                 </div>
                 <button type="button" class="button button-secondary eao-add-design">
-                    <span class="dashicons dashicons-plus-alt2"></span>
+                    <?php EAO_Icons::render( 'plus', array( 'size' => 18 ) ); ?>
                     <?php esc_html_e( 'Add Design', 'easy-album-orders' ); ?>
                 </button>
             </div>
@@ -495,7 +499,7 @@ class EAO_Client_Album_Meta {
         <div class="eao-design-card" data-index="<?php echo esc_attr( $index ); ?>">
             <div class="eao-design-card__header">
                 <div class="eao-design-card__number">
-                    <span class="dashicons dashicons-book-alt"></span>
+                    <?php EAO_Icons::render( 'book', array( 'size' => 18 ) ); ?>
                     <?php
                     printf(
                         /* translators: %s: design number */
@@ -505,7 +509,7 @@ class EAO_Client_Album_Meta {
                     ?>
                 </div>
                 <button type="button" class="eao-design-card__remove" title="<?php esc_attr_e( 'Remove Design', 'easy-album-orders' ); ?>">
-                    <span class="dashicons dashicons-trash"></span>
+                    <?php EAO_Icons::render( 'trash', array( 'size' => 18 ) ); ?>
                     <span class="screen-reader-text"><?php esc_html_e( 'Remove', 'easy-album-orders' ); ?></span>
                 </button>
             </div>
@@ -558,7 +562,7 @@ class EAO_Client_Album_Meta {
                                         $pdf_url  = wp_get_attachment_url( $design['pdf_id'] );
                                         $pdf_name = basename( get_attached_file( $design['pdf_id'] ) );
                                         ?>
-                                        <span class="dashicons dashicons-pdf"></span>
+                                        <?php EAO_Icons::render( 'file-type-pdf', array( 'size' => 20, 'class' => 'eao-icon--error' ) ); ?>
                                         <a href="<?php echo esc_url( $pdf_url ); ?>" target="_blank"><?php echo esc_html( $pdf_name ); ?></a>
                                     <?php else : ?>
                                         <span class="eao-no-pdf"><?php esc_html_e( 'No PDF selected', 'easy-album-orders' ); ?></span>
@@ -576,7 +580,7 @@ class EAO_Client_Album_Meta {
                 <!-- Credits Section -->
                 <div class="eao-design-card__section eao-design-card__section--credits">
                     <div class="eao-design-card__section-header">
-                        <span class="dashicons dashicons-awards"></span>
+                        <?php EAO_Icons::render( 'award', array( 'size' => 18 ) ); ?>
                         <h4 class="eao-design-card__section-title"><?php esc_html_e( 'Album Credits', 'easy-album-orders' ); ?></h4>
                     </div>
                     <div class="eao-design-card__row">
