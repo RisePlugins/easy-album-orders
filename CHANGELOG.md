@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Phase 5: Stripe Payment Integration)
+- Integrated Stripe Payment Intents API for secure, PCI-compliant payment processing
+- New `EAO_Stripe` class (`includes/core/class-eao-stripe.php`) for Stripe API interactions:
+  - Payment Intent creation and retrieval
+  - Webhook signature verification
+  - Test/Live mode switching
+  - Statement descriptor configuration
+- Stripe settings tab in Album Options page:
+  - Enable/Disable toggle for payment requirement
+  - Test/Live mode selector
+  - API key fields (publishable and secret keys for both modes)
+  - Webhook secret configuration
+  - Statement descriptor customization
+  - Webhook URL display with copy-to-clipboard
+  - Setup guide with step-by-step instructions
+- Two-step checkout flow in frontend:
+  - Step 1: Customer information collection
+  - Step 2: Stripe Elements card input
+  - Real-time card validation
+  - Secure payment badge
+  - Back button for step navigation
+- New AJAX endpoints for payment processing:
+  - `eao_create_payment_intent` - Creates Stripe Payment Intent
+  - `eao_confirm_payment` - Confirms payment and completes checkout
+- Webhook handler (`includes/public/class-eao-stripe-webhook.php`):
+  - REST endpoint at `/wp-json/eao/v1/stripe-webhook`
+  - Handles `payment_intent.succeeded` events
+  - Handles `payment_intent.payment_failed` events
+  - Handles `charge.refunded` events
+  - Idempotency checks to prevent duplicate processing
+  - Fallback customer info saving from metadata
+  - Debug logging when WP_DEBUG is enabled
+- Payment Information meta box on Album Order edit screen:
+  - Payment status badge (Paid/Failed/Refunded/Pending/Free)
+  - Amount paid and refund amounts
+  - Direct link to Stripe Dashboard (test/live mode aware)
+  - Payment date display
+  - Error message display for failed payments
+- Payment column in Album Orders list table
+- Payment badge CSS styles for all payment states
+- Free order flow (no payment required for $0 totals or when credits cover full amount)
+- Stripe.js integration for frontend card collection (never touches server)
+- Support for 3D Secure / Strong Customer Authentication (SCA)
+
 ### Added (Phase 1: Foundation)
 - Main plugin file (`easy-album-orders.php`) with plugin headers and version checks
 - Activation hooks with default options setup

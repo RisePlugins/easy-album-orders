@@ -1752,6 +1752,186 @@ This would be a separate product/service, not part of the WordPress plugin.
 
 ---
 
+## Testing Guide
+
+This section provides step-by-step instructions for testing the Stripe integration.
+
+### Prerequisites for Testing
+
+1. **WordPress Development Environment**
+   - Local WordPress installation (LocalWP, MAMP, etc.)
+   - Easy Album Orders plugin activated
+   - At least one Client Album with designs created
+
+2. **Stripe Test Account**
+   - Create account at [stripe.com](https://stripe.com) if you don't have one
+   - Ensure you're in **Test mode** (toggle in top-right of dashboard)
+
+### Step 1: Configure Stripe Test Keys
+
+1. Go to WordPress Admin → Client Albums → Album Options → **Payments** tab
+2. Enable "Enable Stripe Payments"
+3. Set Mode to **Test**
+4. Get your test keys from [Stripe Dashboard → Developers → API Keys](https://dashboard.stripe.com/test/apikeys)
+5. Enter:
+   - **Test Publishable Key**: `pk_test_...`
+   - **Test Secret Key**: `sk_test_...`
+6. Click **Save Settings**
+
+### Step 2: Test Basic Payment Flow
+
+#### Test Scenario A: Successful Payment
+
+1. Navigate to a Client Album order form on the frontend
+2. Configure an album (select design, material, size)
+3. Fill in shipping address
+4. Click "Add to Cart"
+5. Click "Complete Order"
+6. Fill in customer info (name, email)
+7. Click "Continue to Payment"
+8. Enter test card: `4242 4242 4242 4242`
+9. Any future expiry (e.g., `12/34`)
+10. Any 3-digit CVC (e.g., `123`)
+11. Click "Pay Now"
+
+**Expected Results:**
+- ✅ Payment processes successfully
+- ✅ Redirected to order confirmation page
+- ✅ Order status changes to "Ordered"
+- ✅ Payment meta box shows "Paid" status in admin
+- ✅ Customer receives receipt email (if enabled in Stripe)
+
+#### Test Scenario B: Declined Card
+
+1. Follow steps 1-7 above
+2. Enter declined test card: `4000 0000 0000 0002`
+3. Click "Pay Now"
+
+**Expected Results:**
+- ✅ Error message appears: "Your card was declined"
+- ✅ User can try again with different card
+- ✅ Order remains in cart (not lost)
+
+#### Test Scenario C: 3D Secure Authentication
+
+1. Follow steps 1-7 above
+2. Enter 3D Secure test card: `4000 0025 0000 3155`
+3. Click "Pay Now"
+4. Complete the authentication popup
+
+**Expected Results:**
+- ✅ 3D Secure modal appears
+- ✅ After completing auth, payment succeeds
+- ✅ Order completes normally
+
+### Step 3: Test Edge Cases
+
+#### Free Orders (100% Credit)
+
+1. Create a design with free album credits
+2. Configure an album using that design
+3. Click checkout
+
+**Expected Results:**
+- ✅ Payment step is skipped entirely
+- ✅ Order completes immediately
+- ✅ Payment status shows "Free" in admin
+
+#### Stripe Disabled
+
+1. Go to Album Options → Payments → Disable Stripe
+2. Complete checkout flow
+
+**Expected Results:**
+- ✅ No payment step shown
+- ✅ Orders complete without payment
+- ✅ Useful for testing or pre-launch
+
+### Step 4: Test Webhooks (Advanced)
+
+#### Install Stripe CLI
+
+```bash
+# macOS
+brew install stripe/stripe-cli/stripe
+
+# Windows (with scoop)
+scoop install stripe
+
+# Linux
+# Download from https://stripe.com/docs/stripe-cli
+```
+
+#### Forward Webhooks to Local
+
+```bash
+# Login to Stripe
+stripe login
+
+# Forward webhooks to your local site
+stripe listen --forward-to https://your-local-site.test/wp-json/eao/v1/stripe-webhook
+
+# Note the webhook signing secret that's displayed (whsec_...)
+```
+
+#### Update Webhook Secret
+
+1. Copy the signing secret from the CLI output
+2. Go to Album Options → Payments
+3. Paste into "Webhook Secret" field
+4. Save settings
+
+#### Test Webhook Events
+
+```bash
+# In another terminal, trigger test events
+stripe trigger payment_intent.succeeded
+stripe trigger payment_intent.payment_failed
+stripe trigger charge.refunded
+```
+
+**Expected Results:**
+- ✅ Webhook received (check debug log if WP_DEBUG enabled)
+- ✅ Order status updates appropriately
+- ✅ Payment status reflects the event
+
+### Stripe Test Cards Reference
+
+| Card Number | Description |
+|-------------|-------------|
+| `4242 4242 4242 4242` | Success |
+| `4000 0000 0000 0002` | Declined |
+| `4000 0025 0000 3155` | Requires 3D Secure |
+| `4000 0000 0000 0069` | Expired card |
+| `4000 0000 0000 9995` | Insufficient funds |
+| `4000 0000 0000 0127` | Incorrect CVC |
+| `4100 0000 0000 0019` | Blocked as high-risk |
+
+> Use any future expiry date and any 3-digit CVC for all test cards.
+
+### Troubleshooting
+
+#### Payment Not Working
+
+1. **Check API Keys**: Ensure test keys are entered (start with `pk_test_` and `sk_test_`)
+2. **Check Browser Console**: Look for JavaScript errors
+3. **Check HTTPS**: Stripe requires HTTPS (use LocalWP's SSL feature)
+4. **Check Stripe.js Loaded**: Verify `https://js.stripe.com/v3/` loads
+
+#### Webhook Not Receiving Events
+
+1. **Verify URL**: Must be publicly accessible (use ngrok for local dev)
+2. **Check Signing Secret**: Must match what's in Stripe Dashboard
+3. **Enable Debug Logging**: Set `WP_DEBUG` to `true` to see webhook logs
+
+#### 3D Secure Popup Not Appearing
+
+1. **Use Test Card**: Only specific test cards trigger 3D Secure
+2. **Allow Popups**: Browser may block the Stripe authentication modal
+3. **Check iframe**: Stripe Elements needs to load properly
+
+---
+
 ## Build Plan
 
 This section provides a detailed, actionable build plan for implementing Stripe integration. Each task includes dependencies and deliverables.
@@ -2062,15 +2242,18 @@ composer require stripe/stripe-php
   - [ ] Verify touch interactions work
   - [ ] Check for any iOS/Android specific issues
 
-#### Task 6.5: Documentation
+#### Task 6.5: Documentation ✅
 - **Dependencies:** All testing complete
 - **Deliverables:**
-  - [ ] Update `CHANGELOG.md` with Stripe integration
-  - [ ] Add user-facing documentation for:
+  - [x] Update `CHANGELOG.md` with Stripe integration
+  - [x] Add user-facing documentation for:
     - Setting up Stripe account
     - Configuring API keys
     - Setting up webhooks
     - Test mode vs Live mode
+  - [x] Added Testing Guide section with step-by-step instructions
+  - [x] Added test card reference table
+  - [x] Added troubleshooting section
 
 ---
 
@@ -2107,11 +2290,11 @@ Use this checklist to track progress:
 - [x] 5.3 Add payment badge styles
 
 #### Phase 6: Testing 🔄
-- [ ] 6.1 Test mode testing ← **Currently here**
+- [ ] 6.1 Test mode testing ← **Ready for manual testing**
 - [ ] 6.2 Webhook testing
 - [ ] 6.3 Edge cases
 - [ ] 6.4 Mobile testing
-- [ ] 6.5 Documentation
+- [x] 6.5 Documentation ✅
 
 ---
 
@@ -2137,6 +2320,6 @@ For reference, here's the order of files to create/modify:
 
 ---
 
-*Document Version: 1.0.0*
-*Last Updated: December 2024*
+*Document Version: 1.1.0*
+*Last Updated: December 22, 2024*
 
