@@ -23,7 +23,8 @@ Thumbs.db
 
 # Dependencies
 node_modules/
-vendor/
+# Note: vendor/ is NOT ignored - it's included for plugin distribution
+# so users don't need to run composer install
 
 # Build files
 *.log
@@ -53,7 +54,7 @@ phpunit.xml
 .phpunit.result.cache
 
 # Composer
-composer.lock
+# Note: composer.lock is NOT ignored - it's included for reproducible builds
 
 # Package files
 *.zip
