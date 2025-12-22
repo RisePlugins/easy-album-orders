@@ -314,84 +314,83 @@ class EAO_Client_Album_Meta {
             <?php endif; ?>
 
             <?php if ( empty( $orders ) ) : ?>
-                <p class="description" style="margin: 0;">
-                    <?php esc_html_e( 'No orders have been placed yet.', 'easy-album-orders' ); ?>
-                </p>
+                <div class="eao-orders-empty">
+                    <span class="dashicons dashicons-cart"></span>
+                    <p><?php esc_html_e( 'No orders have been placed yet.', 'easy-album-orders' ); ?></p>
+                </div>
             <?php else : ?>
-                <table class="widefat striped" style="margin: 0;">
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;"><?php esc_html_e( 'Order', 'easy-album-orders' ); ?></th>
-                            <th><?php esc_html_e( 'Album Name', 'easy-album-orders' ); ?></th>
-                            <th><?php esc_html_e( 'Design', 'easy-album-orders' ); ?></th>
-                            <th style="width: 100px;"><?php esc_html_e( 'Total', 'easy-album-orders' ); ?></th>
-                            <th style="width: 140px;"><?php esc_html_e( 'Credit Applied', 'easy-album-orders' ); ?></th>
-                            <th style="width: 90px;"><?php esc_html_e( 'Status', 'easy-album-orders' ); ?></th>
-                            <th style="width: 100px;"><?php esc_html_e( 'Date', 'easy-album-orders' ); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ( $orders as $order ) : ?>
-                            <?php
-                            $order_id        = $order->ID;
-                            $order_number    = EAO_Helpers::generate_order_number( $order_id );
-                            $album_name      = get_post_meta( $order_id, '_eao_album_name', true );
-                            $design_name     = get_post_meta( $order_id, '_eao_design_name', true );
-                            $credit_type     = get_post_meta( $order_id, '_eao_credit_type', true );
-                            $applied_credits = floatval( get_post_meta( $order_id, '_eao_applied_credits', true ) );
-                            $status          = EAO_Album_Order::get_order_status( $order_id );
-                            $status_label    = EAO_Album_Order::get_status_label( $status );
-                            $total           = EAO_Album_Order::calculate_total( $order_id );
-                            $order_date      = get_the_date( 'M j, Y', $order_id );
-                            $edit_link       = get_edit_post_link( $order_id );
-
-                            // Status colors.
-                            $status_colors = array(
-                                'submitted' => '#dba617',
-                                'ordered'   => '#2271b1',
-                                'shipped'   => '#00a32a',
-                            );
-                            $status_color = isset( $status_colors[ $status ] ) ? $status_colors[ $status ] : '#646970';
-                            ?>
+                <div class="eao-orders-table-wrap">
+                    <table class="eao-orders-table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <a href="<?php echo esc_url( $edit_link ); ?>" style="font-weight: 600;">
-                                        <?php echo esc_html( $order_number ); ?>
-                                    </a>
-                                </td>
-                                <td><?php echo esc_html( $album_name ?: '—' ); ?></td>
-                                <td><?php echo esc_html( $design_name ?: '—' ); ?></td>
-                                <td><strong><?php echo esc_html( eao_format_price( $total ) ); ?></strong></td>
-                                <td>
-                                    <?php if ( $applied_credits > 0 ) : ?>
-                                        <span style="color: #00a32a;">
-                                            <?php
-                                            if ( 'free_album' === $credit_type ) {
-                                                echo '✓ ' . esc_html__( 'Free Album', 'easy-album-orders' );
-                                            } else {
-                                                echo '✓ ' . esc_html( eao_format_price( $applied_credits ) );
-                                            }
-                                            ?>
-                                        </span>
-                                    <?php else : ?>
-                                        <span style="color: #646970;">—</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="eao-status-badge" style="display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; background: <?php echo esc_attr( $status_color ); ?>; color: #fff;">
-                                        <?php echo esc_html( $status_label ); ?>
-                                    </span>
-                                </td>
-                                <td style="color: #646970; font-size: 12px;"><?php echo esc_html( $order_date ); ?></td>
+                                <th class="eao-orders-table__col--order"><?php esc_html_e( 'Order', 'easy-album-orders' ); ?></th>
+                                <th class="eao-orders-table__col--album"><?php esc_html_e( 'Album Name', 'easy-album-orders' ); ?></th>
+                                <th class="eao-orders-table__col--design"><?php esc_html_e( 'Design', 'easy-album-orders' ); ?></th>
+                                <th class="eao-orders-table__col--total"><?php esc_html_e( 'Total', 'easy-album-orders' ); ?></th>
+                                <th class="eao-orders-table__col--credit"><?php esc_html_e( 'Credit Applied', 'easy-album-orders' ); ?></th>
+                                <th class="eao-orders-table__col--status"><?php esc_html_e( 'Status', 'easy-album-orders' ); ?></th>
+                                <th class="eao-orders-table__col--date"><?php esc_html_e( 'Date', 'easy-album-orders' ); ?></th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <p style="margin: 15px 0 0; text-align: right;">
-                    <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=album_order&client_album_id=' . $post->ID ) ); ?>" class="button">
-                        <?php esc_html_e( 'View All Orders', 'easy-album-orders' ); ?> →
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $orders as $order ) : ?>
+                                <?php
+                                $order_id        = $order->ID;
+                                $order_number    = EAO_Helpers::generate_order_number( $order_id );
+                                $album_name      = get_post_meta( $order_id, '_eao_album_name', true );
+                                $design_name     = get_post_meta( $order_id, '_eao_design_name', true );
+                                $credit_type     = get_post_meta( $order_id, '_eao_credit_type', true );
+                                $applied_credits = floatval( get_post_meta( $order_id, '_eao_applied_credits', true ) );
+                                $status          = EAO_Album_Order::get_order_status( $order_id );
+                                $status_label    = EAO_Album_Order::get_status_label( $status );
+                                $total           = EAO_Album_Order::calculate_total( $order_id );
+                                $order_date      = get_the_date( 'M j, Y', $order_id );
+                                $edit_link       = get_edit_post_link( $order_id );
+                                ?>
+                                <tr>
+                                    <td class="eao-orders-table__col--order">
+                                        <a href="<?php echo esc_url( $edit_link ); ?>" class="eao-orders-table__order-link">
+                                            <?php echo esc_html( $order_number ); ?>
+                                        </a>
+                                    </td>
+                                    <td class="eao-orders-table__col--album"><?php echo esc_html( $album_name ?: '—' ); ?></td>
+                                    <td class="eao-orders-table__col--design"><?php echo esc_html( $design_name ?: '—' ); ?></td>
+                                    <td class="eao-orders-table__col--total">
+                                        <span class="eao-orders-table__total"><?php echo esc_html( eao_format_price( $total ) ); ?></span>
+                                    </td>
+                                    <td class="eao-orders-table__col--credit">
+                                        <?php if ( $applied_credits > 0 ) : ?>
+                                            <span class="eao-orders-table__credit eao-orders-table__credit--applied">
+                                                <span class="dashicons dashicons-yes-alt"></span>
+                                                <?php
+                                                if ( 'free_album' === $credit_type ) {
+                                                    esc_html_e( 'Free Album', 'easy-album-orders' );
+                                                } else {
+                                                    echo esc_html( eao_format_price( $applied_credits ) );
+                                                }
+                                                ?>
+                                            </span>
+                                        <?php else : ?>
+                                            <span class="eao-orders-table__credit eao-orders-table__credit--none">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="eao-orders-table__col--status">
+                                        <span class="eao-status-badge eao-status-badge--<?php echo esc_attr( $status ); ?>">
+                                            <?php echo esc_html( $status_label ); ?>
+                                        </span>
+                                    </td>
+                                    <td class="eao-orders-table__col--date"><?php echo esc_html( $order_date ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="eao-orders-footer">
+                    <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=album_order&client_album_id=' . $post->ID ) ); ?>" class="eao-orders-footer__link">
+                        <?php esc_html_e( 'View All Orders', 'easy-album-orders' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
                     </a>
-                </p>
+                </div>
             <?php endif; ?>
         </div>
         <?php
