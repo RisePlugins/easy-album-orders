@@ -187,12 +187,24 @@ Respect the status progression:
 - Use WordPress template hierarchy conventions
 - Always escape output in templates
 
-### Icons (Tabler Icons)
+### Icons (Tabler Icons ONLY)
+- **ONLY use Tabler Icons** - Do NOT use any other icon library (no Font Awesome, Dashicons, Heroicons, etc.)
+- All icons are rendered via the `EAO_Icons` helper class
 - Use `EAO_Icons::render( 'icon-name' )` to output icons
 - Use `EAO_Icons::get( 'icon-name' )` to get icon as string
 - Default icon size is 16px
 - **ALWAYS update `docs/USED-ICONS.md` when adding a new icon**
 - Browse available icons at: https://tabler.io/icons
+- See `docs/DESIGN-SYSTEM.md` for full iconography guidelines
+
+#### Icon Do's and Don'ts:
+- ✅ Use Tabler Icons exclusively for visual consistency
+- ✅ Use outline icons for most UI elements
+- ✅ Use filled icons for active/selected states or emphasis
+- ✅ Add accessible titles for icons that convey meaning alone
+- ❌ **NEVER mix icon libraries** - stick to Tabler only
+- ❌ Don't use icons smaller than 14px
+- ❌ Don't rely solely on icons without text labels for important actions
 
 #### When Adding a New Icon:
 1. Add the icon using `EAO_Icons::render()` or `EAO_Icons::get()`
