@@ -64,7 +64,7 @@ class EAO_Icons {
      *     Optional. Icon display arguments.
      *
      *     @type string $variant Icon variant: 'outline' or 'filled'. Default 'outline'.
-     *     @type int    $size    Icon size in pixels. Default 24.
+     *     @type int    $size    Icon size in pixels. Default 16.
      *     @type string $class   Additional CSS classes.
      *     @type string $title   Accessible title for screen readers.
      *     @type float  $stroke  Stroke width for outline icons. Default 2.
@@ -74,7 +74,7 @@ class EAO_Icons {
     public static function get( $name, $args = array() ) {
         $defaults = array(
             'variant' => 'outline',
-            'size'    => 24,
+            'size'    => 16,
             'class'   => '',
             'title'   => '',
             'stroke'  => 2,

@@ -4108,3 +4108,193 @@
     margin: 0 auto 12px;
 }
 
+/* ==========================================================================
+   Stripe / Payments Settings
+   ========================================================================== */
+
+/* Badge variations for Stripe */
+.eao-badge--test {
+    background: var(--eao-warning-light);
+    color: #92400e;
+}
+
+.eao-badge--live {
+    background: var(--eao-success-light);
+    color: #065f46;
+}
+
+.eao-badge--optional {
+    background: var(--eao-gray-100);
+    color: var(--eao-gray-600);
+}
+
+/* Radio group vertical layout */
+.eao-radio-group--vertical {
+    flex-direction: column;
+    gap: var(--eao-space-md);
+}
+
+.eao-radio-group--vertical .eao-radio {
+    padding: var(--eao-space-md);
+    background: var(--eao-gray-50);
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-md);
+    transition: border-color var(--eao-transition), background var(--eao-transition);
+}
+
+.eao-radio-group--vertical .eao-radio:hover {
+    background: #fff;
+    border-color: var(--eao-gray-300);
+}
+
+.eao-radio-group--vertical .eao-radio:has(input:checked) {
+    background: var(--eao-primary-light);
+    border-color: var(--eao-primary);
+}
+
+.eao-radio-group--vertical .eao-radio span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.eao-radio-group--vertical .eao-radio strong {
+    font-size: var(--eao-font-md);
+    color: var(--eao-gray-800);
+}
+
+.eao-radio-group--vertical .eao-radio small {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-500);
+    font-weight: 400;
+}
+
+/* Webhook URL Field */
+.eao-webhook-url-field {
+    display: flex;
+    gap: var(--eao-space-sm);
+    align-items: stretch;
+}
+
+.eao-webhook-url-field input[readonly] {
+    flex: 1;
+    background: var(--eao-gray-50);
+    cursor: text;
+    font-family: monospace;
+    font-size: var(--eao-font-sm);
+}
+
+.eao-copy-webhook-url {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--eao-space-xs);
+    white-space: nowrap;
+}
+
+.eao-copy-webhook-url .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.eao-copy-webhook-url.copied {
+    background: var(--eao-success-light);
+    border-color: var(--eao-success);
+    color: var(--eao-success);
+}
+
+/* Webhook Events List */
+.eao-webhook-events {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-xs);
+}
+
+.eao-webhook-events li {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    background: var(--eao-gray-50);
+    border-radius: var(--eao-radius-sm);
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-600);
+}
+
+.eao-webhook-events li code {
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: var(--eao-radius-sm);
+    font-size: var(--eao-font-xs);
+    color: var(--eao-primary);
+    border: 1px solid var(--eao-gray-200);
+}
+
+/* Stripe Connection Status */
+.eao-stripe-status {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    padding: var(--eao-space-md);
+    border-radius: var(--eao-radius-md);
+    font-size: var(--eao-font-md);
+}
+
+.eao-stripe-status .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.eao-stripe-status--connected {
+    background: var(--eao-success-light);
+    color: #065f46;
+}
+
+.eao-stripe-status--connected .dashicons {
+    color: var(--eao-success);
+}
+
+.eao-stripe-status--disconnected {
+    background: var(--eao-warning-light);
+    color: #92400e;
+}
+
+.eao-stripe-status--disconnected .dashicons {
+    color: var(--eao-warning);
+}
+
+.eao-stripe-test-notice {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-xs);
+    margin-top: var(--eao-space-md);
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    background: #fff8e5;
+    border: 1px solid #f5d79e;
+    border-radius: var(--eao-radius-sm);
+    color: #92400e;
+    font-size: var(--eao-font-sm);
+}
+
+.eao-stripe-test-notice .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--eao-warning);
+}
+
+/* Password input toggle (for API keys) */
+.eao-settings-card input[type="password"] {
+    font-family: monospace;
+}
+
+/* Regular text inputs in settings */
+.eao-settings-card input.regular-text {
+    width: 100%;
+    max-width: 400px;
+}
+

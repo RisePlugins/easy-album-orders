@@ -36,6 +36,7 @@
             this.bindEmailPreview();
             this.bindCartReminderSend();
             this.reorganizeAlbumOrdersTable();
+            this.bindCopyWebhookUrl();
         },
 
         /**
@@ -1217,6 +1218,57 @@
                         $button.prop('disabled', false).html(originalText);
                     }
                 });
+            });
+        },
+
+        /**
+         * Bind copy webhook URL functionality for Stripe settings.
+         */
+        bindCopyWebhookUrl: function() {
+            $(document).on('click', '.eao-copy-webhook-url', function(e) {
+                e.preventDefault();
+
+                const $btn = $(this);
+                const targetSelector = $btn.data('copy-target');
+                const $input = $(targetSelector);
+
+                if (!$input.length) {
+                    return;
+                }
+
+                // Select and copy the URL.
+                $input.select();
+                $input[0].setSelectionRange(0, 99999); // For mobile.
+
+                try {
+                    // Try modern clipboard API first.
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText($input.val()).then(function() {
+                            showCopiedFeedback($btn);
+                        }).catch(function() {
+                            // Fallback to execCommand.
+                            document.execCommand('copy');
+                            showCopiedFeedback($btn);
+                        });
+                    } else {
+                        // Fallback to execCommand.
+                        document.execCommand('copy');
+                        showCopiedFeedback($btn);
+                    }
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                }
+
+                function showCopiedFeedback($button) {
+                    const originalHtml = $button.html();
+                    $button.addClass('copied').html(
+                        '<span class="dashicons dashicons-yes"></span> ' +
+                        (eaoAdmin.copied || 'Copied!')
+                    );
+                    setTimeout(function() {
+                        $button.removeClass('copied').html(originalHtml);
+                    }, 2000);
+                }
             });
         },
 

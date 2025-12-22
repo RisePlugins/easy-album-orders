@@ -221,6 +221,8 @@ class EAO_Admin {
                     'cart_reminder'        => __( 'Cart Reminder Email', 'easy-album-orders' ),
                 ),
                 'sendingReminders'     => __( 'Sending...', 'easy-album-orders' ),
+                'copied'               => __( 'Copied!', 'easy-album-orders' ),
+                'copyUrl'              => __( 'Copy URL', 'easy-album-orders' ),
             )
         );
     }
