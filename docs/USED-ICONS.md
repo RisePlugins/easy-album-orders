@@ -35,7 +35,9 @@ Keep this list updated as you add new icons throughout development.
 
 ### Album Order Edit Page (`class-eao-album-order-meta.php`)
 
-*To be updated when icons are added*
+| Icon | Usage |
+|------|-------|
+| `external-link` | View in Stripe link in Payment Information meta box |
 
 ### Album Options Page (`album-options-page.php`)
 

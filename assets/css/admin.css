@@ -4293,3 +4293,118 @@
     max-width: 400px;
 }
 
+/* ==========================================================================
+   Payment Badge Styles
+   ========================================================================== */
+
+.eao-payment-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: var(--eao-radius-sm);
+    font-size: var(--eao-font-xs);
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.eao-payment-badge--paid {
+    background: var(--eao-success-light);
+    color: var(--eao-success);
+}
+
+.eao-payment-badge--failed {
+    background: var(--eao-error-light);
+    color: var(--eao-error);
+}
+
+.eao-payment-badge--refunded {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.eao-payment-badge--pending {
+    background: var(--eao-warning-light);
+    color: #92400e;
+}
+
+.eao-payment-badge--free {
+    background: var(--eao-light);
+    color: var(--eao-text-muted);
+}
+
+.eao-payment-badge--none {
+    background: transparent;
+    color: var(--eao-text-muted);
+}
+
+/* ==========================================================================
+   Payment Meta Box
+   ========================================================================== */
+
+.eao-payment-meta-box .eao-meta-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.eao-payment-meta-box .eao-meta-table th,
+.eao-payment-meta-box .eao-meta-table td {
+    padding: var(--eao-space-xs) 0;
+    vertical-align: top;
+    border-bottom: 1px solid var(--eao-border-light);
+}
+
+.eao-payment-meta-box .eao-meta-table tr:last-child th,
+.eao-payment-meta-box .eao-meta-table tr:last-child td {
+    border-bottom: none;
+}
+
+.eao-payment-meta-box .eao-meta-table th {
+    width: 80px;
+    font-size: var(--eao-font-xs);
+    font-weight: 500;
+    color: var(--eao-text-muted);
+    text-align: left;
+}
+
+.eao-payment-meta-box .eao-meta-table td {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-text);
+}
+
+.eao-payment-refund {
+    color: var(--eao-error) !important;
+}
+
+.eao-payment-error {
+    color: var(--eao-error) !important;
+    font-size: var(--eao-font-xs) !important;
+    word-break: break-word;
+}
+
+.eao-payment-empty {
+    margin: 0;
+    padding: var(--eao-space-sm) 0;
+    color: var(--eao-text-muted);
+    font-size: var(--eao-font-sm);
+    text-align: center;
+}
+
+.eao-stripe-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--eao-primary);
+    text-decoration: none;
+    font-size: var(--eao-font-xs);
+}
+
+.eao-stripe-link:hover {
+    color: var(--eao-primary-dark);
+    text-decoration: underline;
+}
+
+.eao-stripe-link svg {
+    opacity: 0.7;
+}
+

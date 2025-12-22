@@ -96,6 +96,22 @@ class EAO_Album_Order_Meta {
             'side',
             'default'
         );
+
+        // Payment Information meta box (only show if Stripe is enabled or payment data exists).
+        $stripe          = new EAO_Stripe();
+        $payment_status  = get_post_meta( get_the_ID(), '_eao_payment_status', true );
+        $payment_intent  = get_post_meta( get_the_ID(), '_eao_payment_intent_id', true );
+
+        if ( $stripe->is_enabled() || $payment_status || $payment_intent ) {
+            add_meta_box(
+                'eao_payment_info',
+                __( 'Payment Information', 'easy-album-orders' ),
+                array( $this, 'render_payment_meta_box' ),
+                'album_order',
+                'side',
+                'default'
+            );
+        }
     }
 
     /**
@@ -549,6 +565,137 @@ class EAO_Album_Order_Meta {
                 <div class="eao-related-album--empty">
                     <p><?php esc_html_e( 'This order is not linked to a client album.', 'easy-album-orders' ); ?></p>
                 </div>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Render Payment Information meta box.
+     *
+     * Displays payment status, amount, and Stripe details
+     * for orders processed through Stripe.
+     *
+     * @since 1.1.0
+     *
+     * @param WP_Post $post The current post object.
+     */
+    public function render_payment_meta_box( $post ) {
+        $payment_status  = get_post_meta( $post->ID, '_eao_payment_status', true );
+        $payment_amount  = get_post_meta( $post->ID, '_eao_payment_amount', true );
+        $payment_intent  = get_post_meta( $post->ID, '_eao_payment_intent_id', true );
+        $charge_id       = get_post_meta( $post->ID, '_eao_stripe_charge_id', true );
+        $refund_amount   = get_post_meta( $post->ID, '_eao_refund_amount', true );
+        $payment_date    = get_post_meta( $post->ID, '_eao_payment_date', true );
+        $payment_error   = get_post_meta( $post->ID, '_eao_payment_error', true );
+
+        // Status labels and badge classes.
+        $status_config = array(
+            'paid'           => array(
+                'label' => __( 'Paid', 'easy-album-orders' ),
+                'class' => 'eao-payment-badge--paid',
+            ),
+            'failed'         => array(
+                'label' => __( 'Failed', 'easy-album-orders' ),
+                'class' => 'eao-payment-badge--failed',
+            ),
+            'refunded'       => array(
+                'label' => __( 'Refunded', 'easy-album-orders' ),
+                'class' => 'eao-payment-badge--refunded',
+            ),
+            'partial_refund' => array(
+                'label' => __( 'Partial Refund', 'easy-album-orders' ),
+                'class' => 'eao-payment-badge--refunded',
+            ),
+            'pending'        => array(
+                'label' => __( 'Pending', 'easy-album-orders' ),
+                'class' => 'eao-payment-badge--pending',
+            ),
+            'free'           => array(
+                'label' => __( 'Free', 'easy-album-orders' ),
+                'class' => 'eao-payment-badge--free',
+            ),
+        );
+
+        $status_label = isset( $status_config[ $payment_status ]['label'] )
+            ? $status_config[ $payment_status ]['label']
+            : __( 'No Payment', 'easy-album-orders' );
+
+        $status_class = isset( $status_config[ $payment_status ]['class'] )
+            ? $status_config[ $payment_status ]['class']
+            : 'eao-payment-badge--none';
+
+        // Determine Stripe dashboard URL (test vs live).
+        $stripe          = new EAO_Stripe();
+        $stripe_base_url = $stripe->is_test_mode()
+            ? 'https://dashboard.stripe.com/test'
+            : 'https://dashboard.stripe.com';
+        ?>
+        <div class="eao-meta-box eao-payment-meta-box">
+            <table class="eao-meta-table">
+                <tr>
+                    <th><?php esc_html_e( 'Status', 'easy-album-orders' ); ?></th>
+                    <td>
+                        <span class="eao-payment-badge <?php echo esc_attr( $status_class ); ?>">
+                            <?php echo esc_html( $status_label ); ?>
+                        </span>
+                    </td>
+                </tr>
+
+                <?php if ( $payment_amount ) : ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Amount', 'easy-album-orders' ); ?></th>
+                        <td><?php echo esc_html( eao_format_price( $payment_amount ) ); ?></td>
+                    </tr>
+                <?php endif; ?>
+
+                <?php if ( $refund_amount ) : ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Refunded', 'easy-album-orders' ); ?></th>
+                        <td class="eao-payment-refund">
+                            <?php echo esc_html( eao_format_price( $refund_amount ) ); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+
+                <?php if ( $payment_date ) : ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Date', 'easy-album-orders' ); ?></th>
+                        <td>
+                            <?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $payment_date ) ) ); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+
+                <?php if ( $charge_id ) : ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Stripe', 'easy-album-orders' ); ?></th>
+                        <td>
+                            <a href="<?php echo esc_url( $stripe_base_url . '/payments/' . $charge_id ); ?>" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="eao-stripe-link">
+                                <?php esc_html_e( 'View in Stripe', 'easy-album-orders' ); ?>
+                                <?php echo EAO_Icons::render( 'external-link', array( 'size' => 14 ) ); ?>
+                            </a>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+
+                <?php if ( 'failed' === $payment_status && $payment_error ) : ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Error', 'easy-album-orders' ); ?></th>
+                        <td class="eao-payment-error">
+                            <?php echo esc_html( $payment_error ); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </table>
+
+            <?php if ( ! $payment_status && ! $payment_intent ) : ?>
+                <p class="eao-payment-empty">
+                    <?php esc_html_e( 'No payment information recorded for this order.', 'easy-album-orders' ); ?>
+                </p>
             <?php endif; ?>
         </div>
         <?php

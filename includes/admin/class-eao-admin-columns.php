@@ -217,6 +217,7 @@ class EAO_Admin_Columns {
             'album_name'    => __( 'Album', 'easy-album-orders' ),
             'configuration' => __( 'Configuration', 'easy-album-orders' ),
             'total'         => __( 'Total', 'easy-album-orders' ),
+            'payment'       => __( 'Payment', 'easy-album-orders' ),
             'order_status'  => __( 'Status', 'easy-album-orders' ),
             'date'          => __( 'Date', 'easy-album-orders' ),
             'actions'       => __( 'Actions', 'easy-album-orders' ),
@@ -339,6 +340,38 @@ class EAO_Admin_Columns {
                 
                 if ( $applied_credits > 0 ) {
                     echo '<span class="eao-total-credit">-' . esc_html( eao_format_price( $applied_credits ) ) . ' credit</span>';
+                }
+                break;
+
+            case 'payment':
+                $payment_status = get_post_meta( $post_id, '_eao_payment_status', true );
+                $payment_amount = get_post_meta( $post_id, '_eao_payment_amount', true );
+
+                if ( 'paid' === $payment_status ) {
+                    echo '<span class="eao-payment-badge eao-payment-badge--paid">';
+                    echo esc_html( eao_format_price( $payment_amount ) );
+                    echo '</span>';
+                } elseif ( 'refunded' === $payment_status || 'partial_refund' === $payment_status ) {
+                    $refund_label = 'partial_refund' === $payment_status
+                        ? __( 'Partial Refund', 'easy-album-orders' )
+                        : __( 'Refunded', 'easy-album-orders' );
+                    echo '<span class="eao-payment-badge eao-payment-badge--refunded">';
+                    echo esc_html( $refund_label );
+                    echo '</span>';
+                } elseif ( 'failed' === $payment_status ) {
+                    echo '<span class="eao-payment-badge eao-payment-badge--failed">';
+                    esc_html_e( 'Failed', 'easy-album-orders' );
+                    echo '</span>';
+                } elseif ( 'pending' === $payment_status ) {
+                    echo '<span class="eao-payment-badge eao-payment-badge--pending">';
+                    esc_html_e( 'Pending', 'easy-album-orders' );
+                    echo '</span>';
+                } elseif ( 'free' === $payment_status ) {
+                    echo '<span class="eao-payment-badge eao-payment-badge--free">';
+                    esc_html_e( 'Free', 'easy-album-orders' );
+                    echo '</span>';
+                } else {
+                    echo '<span class="eao-payment-badge eao-payment-badge--none">—</span>';
                 }
                 break;
 
