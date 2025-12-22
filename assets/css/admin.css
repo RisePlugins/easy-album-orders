@@ -4572,3 +4572,21 @@
     background-color: var(--eao-error-light) !important;
 }
 
+/* Webhook setup steps */
+.eao-webhook-steps {
+    margin: 0 0 var(--eao-space-sm) 0;
+    padding-left: var(--eao-space-lg);
+    font-size: var(--eao-font-sm);
+    color: var(--eao-text-muted);
+}
+
+.eao-webhook-steps li {
+    margin-bottom: var(--eao-space-xs);
+    padding-left: var(--eao-space-xs);
+}
+
+.eao-webhook-steps li::marker {
+    color: var(--eao-primary);
+    font-weight: 600;
+}
+

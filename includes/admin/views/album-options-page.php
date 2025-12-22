@@ -803,6 +803,17 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
 
                         <div class="eao-field">
+                            <label><?php esc_html_e( 'Webhook Setup Instructions', 'easy-album-orders' ); ?></label>
+                            <ol class="eao-webhook-steps">
+                                <li><?php esc_html_e( 'Select "Your account" (not Connected accounts)', 'easy-album-orders' ); ?></li>
+                                <li><?php esc_html_e( 'For API version, select "your current version"', 'easy-album-orders' ); ?></li>
+                                <li><?php esc_html_e( 'Add the events listed below', 'easy-album-orders' ); ?></li>
+                                <li><?php esc_html_e( 'Paste the Endpoint URL above', 'easy-album-orders' ); ?></li>
+                                <li><?php esc_html_e( 'Copy the Signing Secret and paste it below', 'easy-album-orders' ); ?></li>
+                            </ol>
+                        </div>
+
+                        <div class="eao-field">
                             <label><?php esc_html_e( 'Required Events', 'easy-album-orders' ); ?></label>
                             <ul class="eao-webhook-events">
                                 <li><code>payment_intent.succeeded</code> — <?php esc_html_e( 'Payment completed successfully', 'easy-album-orders' ); ?></li>
