@@ -65,20 +65,51 @@ We'll use **Stripe Payment Intents API** with **Stripe Elements** for a secure, 
 
 ## Prerequisites
 
-### Stripe Account Setup
-
-1. Create a Stripe account at [stripe.com](https://stripe.com)
-2. Complete business verification
-3. Obtain API keys from Dashboard > Developers > API Keys:
-   - **Publishable key** (starts with `pk_test_` or `pk_live_`)
-   - **Secret key** (starts with `sk_test_` or `sk_live_`)
-4. Set up webhook endpoint in Dashboard > Developers > Webhooks
-
-### Server Requirements
+### Server Requirements (For Plugin Development)
 
 - PHP 7.4+
-- SSL certificate (HTTPS required)
+- SSL certificate (HTTPS required for Stripe)
 - WordPress 5.8+
+
+### Stripe Account Setup (For End Users / Photographers)
+
+When photographers install Easy Album Orders, they'll need to set up their own Stripe account. Include these instructions in your plugin documentation or settings page:
+
+#### Step-by-Step Guide for Photographers
+
+1. **Create a Stripe Account**
+   - Go to [stripe.com](https://stripe.com) and click "Start now"
+   - Enter your email and create a password
+   - Verify your email address
+
+2. **Complete Business Verification**
+   - Stripe will ask for business details (name, address, tax ID)
+   - For sole proprietors, personal information is acceptable
+   - This is required to receive payouts
+
+3. **Get Your API Keys**
+   - Log into [Stripe Dashboard](https://dashboard.stripe.com)
+   - Navigate to **Developers > API Keys**
+   - You'll see two types of keys:
+     - **Publishable key**: Starts with `pk_test_` or `pk_live_`
+     - **Secret key**: Starts with `sk_test_` or `sk_live_`
+   - Copy these to your Easy Album Orders settings
+
+4. **Set Up Webhook (Optional but Recommended)**
+   - Go to **Developers > Webhooks**
+   - Click **Add endpoint**
+   - Enter your webhook URL (shown in plugin settings)
+   - Select the required events
+   - Copy the **Signing secret** to your plugin settings
+
+#### Test Mode vs Live Mode
+
+| Mode | When to Use | API Keys |
+|------|-------------|----------|
+| **Test** | Setting up, testing payments | `pk_test_...` / `sk_test_...` |
+| **Live** | Accepting real payments | `pk_live_...` / `sk_live_...` |
+
+> ⚠️ **Important**: Always test with Test mode first! Use card number `4242 4242 4242 4242` with any future date and any CVC.
 
 ---
 
@@ -1645,6 +1676,47 @@ const errorMessages = {
     'default': 'Something went wrong. Please try again or contact support.'
 };
 ```
+
+---
+
+## Architecture Decision: Direct API Keys vs Stripe Connect
+
+### Current Approach: Direct API Keys ✅
+
+Each photographer enters their own Stripe API keys. This is the right choice because:
+
+| Benefit | Description |
+|---------|-------------|
+| **Simplicity** | No OAuth flow, just copy/paste API keys |
+| **Direct payments** | Money goes directly to photographer |
+| **No platform fees** | Only standard Stripe fees (2.9% + $0.30) |
+| **Full control** | Photographer manages their own Stripe account |
+| **Privacy** | You (plugin seller) never see transaction data |
+| **Independence** | Works offline from any central service |
+
+### Alternative: Stripe Connect (Not Recommended for This Use Case)
+
+Stripe Connect would be needed if:
+- You wanted to run a **SaaS platform** (one website, many photographers)
+- You wanted to **take a commission** from each sale
+- Photographers **don't have their own websites**
+
+**Why we don't use Stripe Connect:**
+- Adds complexity (OAuth flow required)
+- Requires a platform fee or Connect fees
+- Creates dependency on your central service
+- Unnecessary for standard WordPress plugin model
+
+### If You Ever Want to Add Stripe Connect
+
+If you decide to offer a hosted SaaS version in the future, you would:
+
+1. Register as a Stripe Connect platform
+2. Implement OAuth flow for photographers to connect accounts
+3. Use `Stripe-Account` header for connected account operations
+4. Handle platform fees and payouts
+
+This would be a separate product/service, not part of the WordPress plugin.
 
 ---
 
