@@ -187,6 +187,35 @@ Respect the status progression:
 - Use WordPress template hierarchy conventions
 - Always escape output in templates
 
+### Icons (Tabler Icons)
+- Use `EAO_Icons::render( 'icon-name' )` to output icons
+- Use `EAO_Icons::get( 'icon-name' )` to get icon as string
+- Default icon size is 16px
+- **ALWAYS update `docs/USED-ICONS.md` when adding a new icon**
+- Browse available icons at: https://tabler.io/icons
+
+#### When Adding a New Icon:
+1. Add the icon using `EAO_Icons::render()` or `EAO_Icons::get()`
+2. Open `docs/USED-ICONS.md`
+3. Add the icon name to the appropriate file section
+4. Add the icon name to the "Complete Icon List" (alphabetical order)
+5. Update the icon count
+
+#### Icon Size Options:
+```php
+// Default (16px) - most uses
+EAO_Icons::render( 'icon-name' );
+
+// Custom sizes
+EAO_Icons::render( 'icon-name', array( 'size' => 20 ) );
+
+// With CSS class
+EAO_Icons::render( 'icon-name', array( 'class' => 'eao-icon--muted' ) );
+
+// Filled variant
+EAO_Icons::render( 'icon-name', array( 'variant' => 'filled' ) );
+```
+
 ---
 
 ## Development Workflow
