@@ -1752,24 +1752,400 @@ This would be a separate product/service, not part of the WordPress plugin.
 
 ---
 
-## Summary Checklist
+## Build Plan
 
-### Implementation Order
+This section provides a detailed, actionable build plan for implementing Stripe integration. Each task includes estimated time, dependencies, and deliverables.
 
-1. [ ] Install Stripe PHP SDK
-2. [ ] Create `class-eao-stripe.php`
-3. [ ] Add Stripe settings tab to admin
-4. [ ] Update AJAX handler with payment endpoints
-5. [ ] Create webhook handler
-6. [ ] Update checkout modal HTML
-7. [ ] Update public.js with Stripe flow
-8. [ ] Add payment styles
-9. [ ] Add payment meta box to admin
-10. [ ] Add payment column to order list
-11. [ ] Configure webhook in Stripe Dashboard
-12. [ ] Test in test mode
-13. [ ] Switch to live mode
-14. [ ] Document for users
+### Overview
+
+| Phase | Description | Est. Time | Dependencies |
+|-------|-------------|-----------|--------------|
+| **1** | Foundation & Configuration | 2-3 hours | None |
+| **2** | Backend Payment Logic | 3-4 hours | Phase 1 |
+| **3** | Frontend Payment UI | 3-4 hours | Phase 2 |
+| **4** | Webhooks & Status | 2-3 hours | Phase 2 |
+| **5** | Admin Integration | 2-3 hours | Phase 4 |
+| **6** | Testing & Polish | 2-4 hours | All phases |
+| | **Total Estimated** | **14-21 hours** | |
+
+---
+
+### Phase 1: Foundation & Configuration
+
+**Goal:** Set up Stripe SDK and admin settings UI
+
+#### Task 1.1: Install Stripe PHP SDK
+- **Est. Time:** 15 min
+- **Dependencies:** None
+- **Deliverables:**
+  - [ ] Create `composer.json` with `stripe/stripe-php` dependency
+  - [ ] Run `composer install`
+  - [ ] Add `vendor/` to `.gitignore` (if not already)
+  - [ ] Verify autoloader works
+
+```bash
+cd /path/to/easy-album-orders
+composer require stripe/stripe-php
+```
+
+#### Task 1.2: Create Core Stripe Class
+- **Est. Time:** 45 min
+- **Dependencies:** Task 1.1
+- **File:** `includes/core/class-eao-stripe.php`
+- **Deliverables:**
+  - [ ] Create `EAO_Stripe` class with all methods from Phase 1.3 documentation
+  - [ ] Implement `is_enabled()`, `is_test_mode()` checks
+  - [ ] Implement `get_publishable_key()`, `get_secret_key()` methods
+  - [ ] Implement `create_payment_intent()` method
+  - [ ] Implement `get_payment_intent()` method
+  - [ ] Implement `verify_webhook()` method
+  - [ ] Add proper error handling with `WP_Error`
+
+#### Task 1.3: Add Stripe Settings Tab
+- **Est. Time:** 1.5 hours
+- **Dependencies:** Task 1.2
+- **Files:** 
+  - `includes/admin/views/album-options-page.php`
+  - `assets/css/admin.css`
+- **Deliverables:**
+  - [ ] Add "Payments" tab to Album Options page
+  - [ ] Create settings fields:
+    - Enable/Disable toggle
+    - Mode selector (Test/Live)
+    - Test Publishable Key field
+    - Test Secret Key field (password type)
+    - Live Publishable Key field
+    - Live Secret Key field (password type)
+    - Webhook Secret field (password type)
+    - Statement Descriptor field
+  - [ ] Add save handler for `eao_stripe_settings` option
+  - [ ] Add validation for API key format
+  - [ ] Display webhook URL for easy copying
+  - [ ] Style the settings form
+
+#### Task 1.4: Load Stripe Class
+- **Est. Time:** 15 min
+- **Dependencies:** Task 1.2
+- **File:** `includes/class-eao-plugin.php`
+- **Deliverables:**
+  - [ ] Include `class-eao-stripe.php` in plugin loader
+  - [ ] Ensure class is available globally
+
+---
+
+### Phase 2: Backend Payment Logic
+
+**Goal:** Create AJAX endpoints for payment processing
+
+#### Task 2.1: Add Payment Intent Endpoint
+- **Est. Time:** 1 hour
+- **Dependencies:** Phase 1 complete
+- **File:** `includes/public/class-eao-ajax-handler.php`
+- **Deliverables:**
+  - [ ] Register `eao_create_payment_intent` AJAX action (both logged in and not)
+  - [ ] Implement `create_payment_intent()` method
+  - [ ] Validate cart has items
+  - [ ] Calculate total from cart
+  - [ ] Handle $0 orders (skip payment)
+  - [ ] Handle Stripe disabled (skip payment)
+  - [ ] Create Payment Intent via `EAO_Stripe`
+  - [ ] Store Payment Intent ID in order meta
+  - [ ] Return `client_secret` to frontend
+
+#### Task 2.2: Add Payment Confirmation Endpoint
+- **Est. Time:** 1 hour
+- **Dependencies:** Task 2.1
+- **File:** `includes/public/class-eao-ajax-handler.php`
+- **Deliverables:**
+  - [ ] Register `eao_confirm_payment` AJAX action
+  - [ ] Implement `confirm_payment()` method
+  - [ ] Verify Payment Intent status with Stripe
+  - [ ] Verify Payment Intent matches stored ID
+  - [ ] Update order status to "ordered"
+  - [ ] Save customer information
+  - [ ] Save payment metadata:
+    - `_eao_payment_status` = 'paid'
+    - `_eao_payment_amount`
+    - `_eao_stripe_charge_id`
+  - [ ] Fire `eao_payment_complete` action hook
+
+#### Task 2.3: Update Existing Checkout
+- **Est. Time:** 30 min
+- **Dependencies:** Task 2.1
+- **File:** `includes/public/class-eao-ajax-handler.php`
+- **Deliverables:**
+  - [ ] Modify `process_checkout()` to check if Stripe enabled
+  - [ ] If enabled and total > 0, return `payment_required` flag
+  - [ ] Allow free orders to bypass payment
+
+---
+
+### Phase 3: Frontend Payment UI
+
+**Goal:** Build the payment interface in checkout modal
+
+#### Task 3.1: Enqueue Stripe.js
+- **Est. Time:** 30 min
+- **Dependencies:** Phase 1 complete
+- **File:** `includes/public/class-eao-public.php`
+- **Deliverables:**
+  - [ ] Conditionally enqueue Stripe.js from `js.stripe.com/v3/`
+  - [ ] Add Stripe config to `eaoPublic` localized data:
+    - `stripe.enabled`
+    - `stripe.publishableKey`
+  - [ ] Add i18n strings for payment UI
+
+#### Task 3.2: Update Checkout Modal HTML
+- **Est. Time:** 45 min
+- **Dependencies:** None
+- **File:** `includes/public/templates/single-client-album.php`
+- **Deliverables:**
+  - [ ] Restructure modal into steps (info → payment)
+  - [ ] Add Step 1: Customer Info (existing fields)
+  - [ ] Add Step 2: Payment Details section
+  - [ ] Add `#eao-card-element` container for Stripe Elements
+  - [ ] Add `#eao-card-errors` error display
+  - [ ] Add secure payment badge
+  - [ ] Update button text ("Continue to Payment" → "Pay Now")
+
+#### Task 3.3: Create EAOStripe JavaScript Object
+- **Est. Time:** 1.5 hours
+- **Dependencies:** Tasks 3.1, 3.2
+- **File:** `assets/js/public.js`
+- **Deliverables:**
+  - [ ] Create `EAOStripe` object with:
+    - `init()` - Initialize Stripe instance
+    - `mountCard()` - Mount card element to DOM
+    - `createPaymentIntent()` - AJAX call to create intent
+    - `confirmPayment()` - Stripe.js payment confirmation
+    - `completeCheckout()` - AJAX call to confirm payment
+    - `reset()` - Reset for new checkout
+  - [ ] Configure card element styling to match plugin design
+  - [ ] Handle real-time validation errors
+
+#### Task 3.4: Update Checkout Flow
+- **Est. Time:** 1 hour
+- **Dependencies:** Task 3.3
+- **File:** `assets/js/public.js`
+- **Deliverables:**
+  - [ ] Update `bindCheckout()` to initialize Stripe
+  - [ ] Create `handleStripeCheckout()` method
+  - [ ] Implement two-step flow:
+    - Step 1: Validate customer info → Create Payment Intent
+    - Step 2: Collect card → Confirm payment → Complete checkout
+  - [ ] Handle payment errors gracefully
+  - [ ] Show loading states during processing
+  - [ ] Handle "skip payment" response (free orders)
+
+#### Task 3.5: Add Payment Styles
+- **Est. Time:** 30 min
+- **Dependencies:** Task 3.2
+- **File:** `assets/css/public.css`
+- **Deliverables:**
+  - [ ] Style `.eao-checkout-step--payment` section
+  - [ ] Style `.eao-stripe-element` container
+  - [ ] Style `.eao-stripe-error` messages
+  - [ ] Style `.eao-payment-secure` badge
+  - [ ] Add focus states and transitions
+  - [ ] Ensure mobile responsiveness
+
+---
+
+### Phase 4: Webhooks & Status
+
+**Goal:** Handle Stripe webhook events for reliable payment tracking
+
+#### Task 4.1: Create Webhook Handler Class
+- **Est. Time:** 1.5 hours
+- **Dependencies:** Phase 2 complete
+- **File:** `includes/public/class-eao-stripe-webhook.php`
+- **Deliverables:**
+  - [ ] Create `EAO_Stripe_Webhook` class
+  - [ ] Register REST route: `eao/v1/stripe-webhook`
+  - [ ] Implement `handle_webhook()` method
+  - [ ] Verify webhook signature using `EAO_Stripe`
+  - [ ] Handle events:
+    - `payment_intent.succeeded`
+    - `payment_intent.payment_failed`
+    - `charge.refunded`
+  - [ ] Update order meta based on events
+  - [ ] Fire appropriate action hooks
+
+#### Task 4.2: Load Webhook Handler
+- **Est. Time:** 15 min
+- **Dependencies:** Task 4.1
+- **File:** `includes/class-eao-plugin.php`
+- **Deliverables:**
+  - [ ] Include webhook handler class
+  - [ ] Instantiate on plugin load
+
+#### Task 4.3: Display Webhook URL in Admin
+- **Est. Time:** 15 min
+- **Dependencies:** Task 1.3
+- **File:** `includes/admin/views/album-options-page.php`
+- **Deliverables:**
+  - [ ] Display webhook URL: `{site_url}/wp-json/eao/v1/stripe-webhook`
+  - [ ] Add copy-to-clipboard button
+  - [ ] List required webhook events
+
+---
+
+### Phase 5: Admin Integration
+
+**Goal:** Display payment information in WordPress admin
+
+#### Task 5.1: Add Payment Meta Box
+- **Est. Time:** 1 hour
+- **Dependencies:** Phase 4 complete
+- **File:** `includes/admin/class-eao-album-order-meta.php`
+- **Deliverables:**
+  - [ ] Register "Payment Information" meta box
+  - [ ] Display payment status badge (Paid/Failed/Refunded/Pending)
+  - [ ] Display amount paid
+  - [ ] Display refund amount (if applicable)
+  - [ ] Link to Stripe Dashboard for charge details
+  - [ ] Style payment status badges
+
+#### Task 5.2: Add Payment Column to Orders List
+- **Est. Time:** 45 min
+- **Dependencies:** Task 5.1
+- **File:** `includes/admin/class-eao-admin-columns.php`
+- **Deliverables:**
+  - [ ] Add "Payment" column after "Status" column
+  - [ ] Display payment amount or status badge
+  - [ ] Make column sortable (optional)
+  - [ ] Style column content
+
+#### Task 5.3: Add Payment Badge Styles
+- **Est. Time:** 30 min
+- **Dependencies:** Tasks 5.1, 5.2
+- **File:** `assets/css/admin.css`
+- **Deliverables:**
+  - [ ] Style `.eao-payment-badge` base
+  - [ ] Style modifiers: `--paid`, `--failed`, `--refunded`, `--pending`, `--none`
+  - [ ] Match existing admin design system
+
+---
+
+### Phase 6: Testing & Polish
+
+**Goal:** Thoroughly test all payment scenarios
+
+#### Task 6.1: Test Mode Testing
+- **Est. Time:** 1 hour
+- **Dependencies:** All phases complete
+- **Deliverables:**
+  - [ ] Test successful payment with `4242 4242 4242 4242`
+  - [ ] Test declined card with `4000 0000 0000 0002`
+  - [ ] Test 3D Secure with `4000 0025 0000 3155`
+  - [ ] Test expired card with `4000 0000 0000 0069`
+  - [ ] Verify order status updates correctly
+  - [ ] Verify customer receives receipt email
+  - [ ] Verify admin sees payment info
+
+#### Task 6.2: Webhook Testing
+- **Est. Time:** 45 min
+- **Dependencies:** Task 6.1
+- **Deliverables:**
+  - [ ] Install Stripe CLI: `brew install stripe/stripe-cli/stripe`
+  - [ ] Forward webhooks: `stripe listen --forward-to localhost/wp-json/eao/v1/stripe-webhook`
+  - [ ] Trigger test events: `stripe trigger payment_intent.succeeded`
+  - [ ] Verify webhook signature validation
+  - [ ] Verify order updates from webhook
+
+#### Task 6.3: Edge Cases
+- **Est. Time:** 45 min
+- **Dependencies:** Task 6.1
+- **Deliverables:**
+  - [ ] Test $0 order (fully credited) - should skip payment
+  - [ ] Test Stripe disabled - should allow free checkout
+  - [ ] Test invalid API keys - should show helpful error
+  - [ ] Test network failure during payment
+  - [ ] Test browser refresh during payment
+  - [ ] Test multiple tabs/sessions
+
+#### Task 6.4: Mobile Testing
+- **Est. Time:** 30 min
+- **Dependencies:** All phases complete
+- **Deliverables:**
+  - [ ] Test checkout modal on mobile
+  - [ ] Test card input on mobile
+  - [ ] Verify touch interactions work
+  - [ ] Check for any iOS/Android specific issues
+
+#### Task 6.5: Documentation
+- **Est. Time:** 30 min
+- **Dependencies:** All testing complete
+- **Deliverables:**
+  - [ ] Update `CHANGELOG.md` with Stripe integration
+  - [ ] Add user-facing documentation for:
+    - Setting up Stripe account
+    - Configuring API keys
+    - Setting up webhooks
+    - Test mode vs Live mode
+
+---
+
+### Implementation Checklist
+
+Use this checklist to track progress:
+
+#### Phase 1: Foundation
+- [ ] 1.1 Install Stripe PHP SDK
+- [ ] 1.2 Create `class-eao-stripe.php`
+- [ ] 1.3 Add Stripe settings tab
+- [ ] 1.4 Load Stripe class in plugin
+
+#### Phase 2: Backend
+- [ ] 2.1 Add Payment Intent endpoint
+- [ ] 2.2 Add Payment Confirmation endpoint
+- [ ] 2.3 Update existing checkout
+
+#### Phase 3: Frontend
+- [ ] 3.1 Enqueue Stripe.js
+- [ ] 3.2 Update checkout modal HTML
+- [ ] 3.3 Create EAOStripe JavaScript object
+- [ ] 3.4 Update checkout flow
+- [ ] 3.5 Add payment styles
+
+#### Phase 4: Webhooks
+- [ ] 4.1 Create webhook handler class
+- [ ] 4.2 Load webhook handler
+- [ ] 4.3 Display webhook URL in admin
+
+#### Phase 5: Admin
+- [ ] 5.1 Add payment meta box
+- [ ] 5.2 Add payment column to orders list
+- [ ] 5.3 Add payment badge styles
+
+#### Phase 6: Testing
+- [ ] 6.1 Test mode testing
+- [ ] 6.2 Webhook testing
+- [ ] 6.3 Edge cases
+- [ ] 6.4 Mobile testing
+- [ ] 6.5 Documentation
+
+---
+
+### Quick Start Command Sequence
+
+For reference, here's the order of files to create/modify:
+
+```
+1. composer.json                                    # Add Stripe dependency
+2. includes/core/class-eao-stripe.php              # Core Stripe class
+3. includes/class-eao-plugin.php                   # Load Stripe class
+4. includes/admin/views/album-options-page.php     # Settings tab
+5. assets/css/admin.css                            # Admin styles
+6. includes/public/class-eao-ajax-handler.php      # Payment endpoints
+7. includes/public/class-eao-public.php            # Enqueue Stripe.js
+8. includes/public/templates/single-client-album.php # Modal update
+9. assets/js/public.js                             # Stripe JS integration
+10. assets/css/public.css                          # Frontend styles
+11. includes/public/class-eao-stripe-webhook.php   # Webhook handler
+12. includes/admin/class-eao-album-order-meta.php  # Payment meta box
+13. includes/admin/class-eao-admin-columns.php     # Payment column
+```
 
 ---
 
