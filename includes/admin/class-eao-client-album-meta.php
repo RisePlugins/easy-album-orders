@@ -265,37 +265,46 @@ class EAO_Client_Album_Meta {
         <div class="eao-meta-box eao-orders-meta-box">
             <?php if ( ! empty( $credit_summary ) ) : ?>
                 <!-- Credit Usage Summary -->
-                <div class="eao-credit-summary" style="background: #f0f6fc; border: 1px solid #c3c4c7; border-radius: 4px; padding: 12px 15px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #1d2327;">
-                        <span class="dashicons dashicons-awards" style="color: #2271b1;"></span>
-                        <?php esc_html_e( 'Credit Usage Summary', 'easy-album-orders' ); ?>
-                    </h4>
-                    <div class="eao-credit-summary__items" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <div class="eao-credit-summary">
+                    <div class="eao-credit-summary__header">
+                        <span class="eao-credit-summary__icon dashicons dashicons-awards"></span>
+                        <h4 class="eao-credit-summary__title">
+                            <?php esc_html_e( 'Credit Usage Summary', 'easy-album-orders' ); ?>
+                        </h4>
+                    </div>
+                    <div class="eao-credit-summary__items">
                         <?php foreach ( $credit_summary as $summary ) : ?>
-                            <div class="eao-credit-summary__item" style="background: #fff; border-radius: 4px; padding: 10px 15px; flex: 1; min-width: 200px;">
-                                <div style="font-weight: 600; margin-bottom: 5px;"><?php echo esc_html( $summary['design_name'] ); ?></div>
+                            <?php
+                            // Calculate progress percentages.
+                            $free_percent   = $summary['total_free'] > 0 ? ( $summary['used_free'] / $summary['total_free'] ) * 100 : 0;
+                            $dollar_percent = $summary['total_dollar'] > 0 ? ( $summary['used_dollar'] / $summary['total_dollar'] ) * 100 : 0;
+                            ?>
+                            <div class="eao-credit-summary__item">
+                                <div class="eao-credit-summary__design-name"><?php echo esc_html( $summary['design_name'] ); ?></div>
                                 <?php if ( $summary['total_free'] > 0 ) : ?>
-                                    <div style="font-size: 12px; color: <?php echo $summary['used_free'] > 0 ? '#00a32a' : '#646970'; ?>;">
-                                        <?php
-                                        printf(
-                                            /* translators: %1$d: used free credits, %2$d: total free credits */
-                                            esc_html__( 'Free Albums: %1$d / %2$d used', 'easy-album-orders' ),
-                                            $summary['used_free'],
-                                            $summary['total_free']
-                                        );
-                                        ?>
+                                    <div class="eao-credit-summary__stat">
+                                        <div class="eao-credit-summary__stat-header">
+                                            <span class="eao-credit-summary__stat-label"><?php esc_html_e( 'Free Albums', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-credit-summary__stat-value <?php echo $summary['used_free'] > 0 ? 'eao-credit-summary__stat-value--used' : ''; ?>">
+                                                <?php echo esc_html( $summary['used_free'] ); ?> / <?php echo esc_html( $summary['total_free'] ); ?>
+                                            </span>
+                                        </div>
+                                        <div class="eao-credit-summary__progress">
+                                            <div class="eao-credit-summary__progress-bar" style="width: <?php echo esc_attr( $free_percent ); ?>%;"></div>
+                                        </div>
                                     </div>
                                 <?php endif; ?>
                                 <?php if ( $summary['total_dollar'] > 0 ) : ?>
-                                    <div style="font-size: 12px; color: <?php echo $summary['used_dollar'] > 0 ? '#00a32a' : '#646970'; ?>;">
-                                        <?php
-                                        printf(
-                                            /* translators: %1$s: used dollar credit, %2$s: total dollar credit */
-                                            esc_html__( 'Credit Budget: %1$s / %2$s used', 'easy-album-orders' ),
-                                            eao_format_price( $summary['used_dollar'] ),
-                                            eao_format_price( $summary['total_dollar'] )
-                                        );
-                                        ?>
+                                    <div class="eao-credit-summary__stat">
+                                        <div class="eao-credit-summary__stat-header">
+                                            <span class="eao-credit-summary__stat-label"><?php esc_html_e( 'Credit Budget', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-credit-summary__stat-value <?php echo $summary['used_dollar'] > 0 ? 'eao-credit-summary__stat-value--used' : ''; ?>">
+                                                <?php echo esc_html( eao_format_price( $summary['used_dollar'] ) ); ?> / <?php echo esc_html( eao_format_price( $summary['total_dollar'] ) ); ?>
+                                            </span>
+                                        </div>
+                                        <div class="eao-credit-summary__progress">
+                                            <div class="eao-credit-summary__progress-bar" style="width: <?php echo esc_attr( $dollar_percent ); ?>%;"></div>
+                                        </div>
                                     </div>
                                 <?php endif; ?>
                             </div>
