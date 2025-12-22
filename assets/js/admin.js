@@ -37,6 +37,7 @@
             this.bindCartReminderSend();
             this.reorganizeAlbumOrdersTable();
             this.bindCopyWebhookUrl();
+            this.bindStripeKeyValidation();
         },
 
         /**
@@ -1302,6 +1303,87 @@
 
             // Add class for styling.
             $searchBox.addClass('eao-search-box-inline');
+        },
+
+        /**
+         * Bind Stripe API key validation.
+         * Validates key format and provides visual feedback.
+         */
+        bindStripeKeyValidation: function() {
+            // Only run on album options page with payments tab.
+            if (!$('.eao-options-page').length) {
+                return;
+            }
+
+            const keyPatterns = {
+                'pk_test': /^pk_test_[a-zA-Z0-9]+$/,
+                'sk_test': /^sk_test_[a-zA-Z0-9]+$/,
+                'pk_live': /^pk_live_[a-zA-Z0-9]+$/,
+                'sk_live': /^sk_live_[a-zA-Z0-9]+$/
+            };
+
+            // Key format descriptions for errors.
+            const keyDescriptions = {
+                'pk_test': 'Test Publishable Key (starts with pk_test_)',
+                'sk_test': 'Test Secret Key (starts with sk_test_)',
+                'pk_live': 'Live Publishable Key (starts with pk_live_)',
+                'sk_live': 'Live Secret Key (starts with sk_live_)'
+            };
+
+            // Invalid key formats (restricted keys).
+            const invalidPatterns = [
+                { pattern: /^rk_/, message: 'This appears to be a Restricted Key. Please use the standard Secret Key instead (sk_test_ or sk_live_).' },
+                { pattern: /^sk_test_/, field: 'pk', message: 'This is a Secret Key. The Publishable Key should start with pk_test_ or pk_live_.' },
+                { pattern: /^sk_live_/, field: 'pk', message: 'This is a Secret Key. The Publishable Key should start with pk_test_ or pk_live_.' },
+                { pattern: /^pk_test_/, field: 'sk', message: 'This is a Publishable Key. The Secret Key should start with sk_test_ or sk_live_.' },
+                { pattern: /^pk_live_/, field: 'sk', message: 'This is a Publishable Key. The Secret Key should start with sk_test_ or sk_live_.' }
+            ];
+
+            function validateKeyInput($input) {
+                const value = $input.val().trim();
+                const expectedType = $input.data('key-type');
+
+                // Remove previous validation classes and error messages.
+                $input.removeClass('eao-key-valid eao-key-invalid');
+                $input.siblings('.eao-key-error').remove();
+
+                if (!value) {
+                    return; // Empty is OK (not required).
+                }
+
+                // Check for invalid patterns.
+                for (const invalid of invalidPatterns) {
+                    if (invalid.pattern.test(value)) {
+                        // Check if this invalid pattern applies to this field type.
+                        const fieldType = expectedType.startsWith('pk') ? 'pk' : 'sk';
+                        if (!invalid.field || invalid.field === fieldType) {
+                            $input.addClass('eao-key-invalid');
+                            $input.after('<span class="eao-key-error description" style="color: #dc3232; display: block; margin-top: 4px;">' + invalid.message + '</span>');
+                            return;
+                        }
+                    }
+                }
+
+                // Check for valid pattern.
+                const pattern = keyPatterns[expectedType];
+                if (pattern && pattern.test(value)) {
+                    $input.addClass('eao-key-valid');
+                } else if (pattern && value.length > 5) {
+                    // Only show invalid if they've typed enough.
+                    $input.addClass('eao-key-invalid');
+                    $input.after('<span class="eao-key-error description" style="color: #dc3232; display: block; margin-top: 4px;">Invalid format. Expected: ' + keyDescriptions[expectedType] + '</span>');
+                }
+            }
+
+            // Validate on input.
+            $(document).on('input blur', '.eao-key-input', function() {
+                validateKeyInput($(this));
+            });
+
+            // Validate existing values on page load.
+            $('.eao-key-input').each(function() {
+                validateKeyInput($(this));
+            });
         }
     };
 

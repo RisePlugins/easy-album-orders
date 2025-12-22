@@ -4408,3 +4408,167 @@
     opacity: 0.7;
 }
 
+/* ==========================================================================
+   Stripe Setup Guide
+   ========================================================================== */
+
+.eao-settings-card--guide {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: var(--eao-border);
+}
+
+.eao-settings-card--guide h3 {
+    color: var(--eao-primary);
+}
+
+.eao-setup-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-md);
+    margin-bottom: var(--eao-space-lg);
+}
+
+.eao-setup-step {
+    display: flex;
+    gap: var(--eao-space-md);
+    align-items: flex-start;
+}
+
+.eao-setup-step__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--eao-primary);
+    color: white;
+    font-size: var(--eao-font-sm);
+    font-weight: 600;
+    border-radius: 50%;
+}
+
+.eao-setup-step__content {
+    flex: 1;
+}
+
+.eao-setup-step__content strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: var(--eao-font-sm);
+    color: var(--eao-text);
+}
+
+.eao-setup-step__content p {
+    margin: 0;
+    font-size: var(--eao-font-sm);
+    color: var(--eao-text-muted);
+}
+
+.eao-setup-step__note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--eao-space-xs);
+    margin-top: var(--eao-space-sm);
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    background: #fffbeb;
+    border: 1px solid #fbbf24;
+    border-radius: var(--eao-radius-sm);
+    font-size: var(--eao-font-xs);
+    color: #92400e;
+}
+
+.eao-setup-step__note .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #f59e0b;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.eao-setup-buttons {
+    display: flex;
+    gap: var(--eao-space-sm);
+    margin-bottom: var(--eao-space-md);
+}
+
+.eao-setup-buttons .button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--eao-space-xs);
+}
+
+.eao-setup-buttons .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.eao-setup-faq {
+    margin-top: var(--eao-space-md);
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    background: white;
+    border: 1px solid var(--eao-border-light);
+    border-radius: var(--eao-radius-sm);
+}
+
+.eao-setup-faq summary {
+    cursor: pointer;
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-primary);
+    list-style: none;
+}
+
+.eao-setup-faq summary::-webkit-details-marker {
+    display: none;
+}
+
+.eao-setup-faq summary::before {
+    content: '▸';
+    display: inline-block;
+    margin-right: var(--eao-space-xs);
+    transition: transform 0.2s;
+}
+
+.eao-setup-faq[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.eao-setup-faq__content {
+    margin-top: var(--eao-space-sm);
+    padding-top: var(--eao-space-sm);
+    border-top: 1px solid var(--eao-border-light);
+    font-size: var(--eao-font-sm);
+    color: var(--eao-text-muted);
+}
+
+.eao-setup-faq__content p {
+    margin: 0 0 var(--eao-space-sm) 0;
+}
+
+.eao-setup-faq__content p:last-child {
+    margin-bottom: 0;
+}
+
+.eao-setup-faq__content ul {
+    margin: var(--eao-space-sm) 0;
+    padding-left: var(--eao-space-lg);
+}
+
+.eao-setup-faq__content li {
+    margin-bottom: var(--eao-space-xs);
+}
+
+/* Key input validation feedback */
+.eao-key-input.eao-key-valid {
+    border-color: var(--eao-success) !important;
+    background-color: var(--eao-success-light) !important;
+}
+
+.eao-key-input.eao-key-invalid {
+    border-color: var(--eao-error) !important;
+    background-color: var(--eao-error-light) !important;
+}
+

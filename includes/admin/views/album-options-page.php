@@ -646,6 +646,68 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </div>
                 </div>
 
+                <!-- Setup Guide -->
+                <div class="eao-settings-card eao-settings-card--full eao-settings-card--guide">
+                    <h3>
+                        <span class="dashicons dashicons-editor-help"></span>
+                        <?php esc_html_e( 'How to Get Your Stripe API Keys', 'easy-album-orders' ); ?>
+                    </h3>
+                    <div class="eao-settings-card__body">
+                        <div class="eao-setup-steps">
+                            <div class="eao-setup-step">
+                                <span class="eao-setup-step__number">1</span>
+                                <div class="eao-setup-step__content">
+                                    <strong><?php esc_html_e( 'Go to Stripe Dashboard', 'easy-album-orders' ); ?></strong>
+                                    <p><?php esc_html_e( 'Log in to your Stripe account (or create one if you don\'t have one).', 'easy-album-orders' ); ?></p>
+                                </div>
+                            </div>
+                            <div class="eao-setup-step">
+                                <span class="eao-setup-step__number">2</span>
+                                <div class="eao-setup-step__content">
+                                    <strong><?php esc_html_e( 'Navigate to API Keys', 'easy-album-orders' ); ?></strong>
+                                    <p><?php esc_html_e( 'Click Developers in the left menu, then API keys.', 'easy-album-orders' ); ?></p>
+                                </div>
+                            </div>
+                            <div class="eao-setup-step">
+                                <span class="eao-setup-step__number">3</span>
+                                <div class="eao-setup-step__content">
+                                    <strong><?php esc_html_e( 'Copy Your Standard Keys', 'easy-album-orders' ); ?></strong>
+                                    <p><?php esc_html_e( 'Your Publishable key and Secret key are already displayed. Click to reveal the secret key, then copy both.', 'easy-album-orders' ); ?></p>
+                                    <div class="eao-setup-step__note">
+                                        <span class="dashicons dashicons-info"></span>
+                                        <span><?php esc_html_e( 'You need the Standard keys (pk_test/sk_test or pk_live/sk_live), NOT restricted keys (rk_).', 'easy-album-orders' ); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="eao-setup-buttons">
+                            <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" rel="noopener" class="button">
+                                <span class="dashicons dashicons-external"></span>
+                                <?php esc_html_e( 'Get Test Keys', 'easy-album-orders' ); ?>
+                            </a>
+                            <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener" class="button">
+                                <span class="dashicons dashicons-external"></span>
+                                <?php esc_html_e( 'Get Live Keys', 'easy-album-orders' ); ?>
+                            </a>
+                        </div>
+
+                        <details class="eao-setup-faq">
+                            <summary><?php esc_html_e( 'Why can\'t I use Restricted Keys?', 'easy-album-orders' ); ?></summary>
+                            <div class="eao-setup-faq__content">
+                                <p><?php esc_html_e( 'Restricted keys (starting with rk_) have limited permissions and may not work correctly with this plugin. The standard Secret key provides the necessary permissions for:', 'easy-album-orders' ); ?></p>
+                                <ul>
+                                    <li><?php esc_html_e( 'Creating Payment Intents', 'easy-album-orders' ); ?></li>
+                                    <li><?php esc_html_e( 'Processing payments', 'easy-album-orders' ); ?></li>
+                                    <li><?php esc_html_e( 'Handling refunds', 'easy-album-orders' ); ?></li>
+                                    <li><?php esc_html_e( 'Verifying webhooks', 'easy-album-orders' ); ?></li>
+                                </ul>
+                                <p><strong><?php esc_html_e( 'Important:', 'easy-album-orders' ); ?></strong> <?php esc_html_e( 'If Stripe asks "Are you providing this key to another website?", select "Building your own integration" — because you\'re using the keys on YOUR OWN website, not sharing them with a third party.', 'easy-album-orders' ); ?></p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
                 <!-- Stripe API Mode -->
                 <div class="eao-settings-card eao-settings-card--full">
                     <h3>
@@ -682,23 +744,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <span class="eao-badge eao-badge--test"><?php esc_html_e( 'Test', 'easy-album-orders' ); ?></span>
                     </h3>
                     <div class="eao-settings-card__body">
-                        <p class="eao-settings-card__description">
-                            <?php
-                            printf(
-                                /* translators: %s: Stripe Dashboard URL */
-                                esc_html__( 'Find your test API keys in the %s under Developers → API Keys.', 'easy-album-orders' ),
-                                '<a href="https://dashboard.stripe.com/test/apikeys" target="_blank" rel="noopener">Stripe Dashboard</a>'
-                            );
-                            ?>
-                        </p>
                         <div class="eao-field">
                             <label for="eao_test_publishable_key"><?php esc_html_e( 'Publishable Key', 'easy-album-orders' ); ?></label>
-                            <input type="text" id="eao_test_publishable_key" name="eao_stripe_settings[test_publishable_key]" value="<?php echo esc_attr( isset( $stripe_settings['test_publishable_key'] ) ? $stripe_settings['test_publishable_key'] : '' ); ?>" placeholder="pk_test_..." class="regular-text">
+                            <input type="text" id="eao_test_publishable_key" name="eao_stripe_settings[test_publishable_key]" value="<?php echo esc_attr( isset( $stripe_settings['test_publishable_key'] ) ? $stripe_settings['test_publishable_key'] : '' ); ?>" placeholder="pk_test_..." class="regular-text eao-key-input" data-key-type="pk_test">
                             <p class="description"><?php esc_html_e( 'Starts with pk_test_', 'easy-album-orders' ); ?></p>
                         </div>
                         <div class="eao-field">
                             <label for="eao_test_secret_key"><?php esc_html_e( 'Secret Key', 'easy-album-orders' ); ?></label>
-                            <input type="password" id="eao_test_secret_key" name="eao_stripe_settings[test_secret_key]" value="<?php echo esc_attr( isset( $stripe_settings['test_secret_key'] ) ? $stripe_settings['test_secret_key'] : '' ); ?>" placeholder="sk_test_..." class="regular-text" autocomplete="off">
+                            <input type="password" id="eao_test_secret_key" name="eao_stripe_settings[test_secret_key]" value="<?php echo esc_attr( isset( $stripe_settings['test_secret_key'] ) ? $stripe_settings['test_secret_key'] : '' ); ?>" placeholder="sk_test_..." class="regular-text eao-key-input" autocomplete="off" data-key-type="sk_test">
                             <p class="description"><?php esc_html_e( 'Starts with sk_test_ — Keep this secret!', 'easy-album-orders' ); ?></p>
                         </div>
                     </div>
@@ -712,23 +765,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <span class="eao-badge eao-badge--live"><?php esc_html_e( 'Live', 'easy-album-orders' ); ?></span>
                     </h3>
                     <div class="eao-settings-card__body">
-                        <p class="eao-settings-card__description">
-                            <?php
-                            printf(
-                                /* translators: %s: Stripe Dashboard URL */
-                                esc_html__( 'Find your live API keys in the %s under Developers → API Keys.', 'easy-album-orders' ),
-                                '<a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener">Stripe Dashboard</a>'
-                            );
-                            ?>
-                        </p>
                         <div class="eao-field">
                             <label for="eao_live_publishable_key"><?php esc_html_e( 'Publishable Key', 'easy-album-orders' ); ?></label>
-                            <input type="text" id="eao_live_publishable_key" name="eao_stripe_settings[live_publishable_key]" value="<?php echo esc_attr( isset( $stripe_settings['live_publishable_key'] ) ? $stripe_settings['live_publishable_key'] : '' ); ?>" placeholder="pk_live_..." class="regular-text">
+                            <input type="text" id="eao_live_publishable_key" name="eao_stripe_settings[live_publishable_key]" value="<?php echo esc_attr( isset( $stripe_settings['live_publishable_key'] ) ? $stripe_settings['live_publishable_key'] : '' ); ?>" placeholder="pk_live_..." class="regular-text eao-key-input" data-key-type="pk_live">
                             <p class="description"><?php esc_html_e( 'Starts with pk_live_', 'easy-album-orders' ); ?></p>
                         </div>
                         <div class="eao-field">
                             <label for="eao_live_secret_key"><?php esc_html_e( 'Secret Key', 'easy-album-orders' ); ?></label>
-                            <input type="password" id="eao_live_secret_key" name="eao_stripe_settings[live_secret_key]" value="<?php echo esc_attr( isset( $stripe_settings['live_secret_key'] ) ? $stripe_settings['live_secret_key'] : '' ); ?>" placeholder="sk_live_..." class="regular-text" autocomplete="off">
+                            <input type="password" id="eao_live_secret_key" name="eao_stripe_settings[live_secret_key]" value="<?php echo esc_attr( isset( $stripe_settings['live_secret_key'] ) ? $stripe_settings['live_secret_key'] : '' ); ?>" placeholder="sk_live_..." class="regular-text eao-key-input" autocomplete="off" data-key-type="sk_live">
                             <p class="description"><?php esc_html_e( 'Starts with sk_live_ — Keep this secret!', 'easy-album-orders' ); ?></p>
                         </div>
                     </div>
