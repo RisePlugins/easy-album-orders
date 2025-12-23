@@ -183,13 +183,6 @@
     position: sticky;
     top: var(--eao-space-lg);
     align-self: start;
-    max-height: calc(100vh - var(--eao-space-xl));
-    overflow: hidden;
-}
-
-/* Prevent cart from shrinking */
-.eao-sidebar .eao-cart {
-    flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1456,16 +1449,6 @@
     box-shadow: var(--eao-shadow-md);
     border: 1px solid var(--eao-border-light);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    flex-shrink: 1;
-}
-
-/* Expand to fill remaining space only when open */
-.eao-order-history-sidebar.is-expanded {
-    flex: 1 1 0;
-    overflow: hidden;
 }
 
 .eao-order-history-sidebar__header {
@@ -1524,7 +1507,7 @@
 
 /* Accordion Content */
 .eao-order-history-sidebar__content {
-    flex: 1;
+    max-height: 300px;
     overflow-y: auto;
 }
 
