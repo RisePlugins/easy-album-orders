@@ -510,25 +510,21 @@ $completed_orders = get_posts( array(
                         $status_label     = isset( $status_labels[ $order_status ] ) ? $status_labels[ $order_status ] : $order_status;
                     ?>
                         <div class="eao-order-history-sidebar__item">
-                            <div class="eao-order-history-sidebar__item-name">
-                                <?php echo esc_html( $album_name ); ?>
-                            </div>
-                            <div class="eao-order-history-sidebar__item-details">
-                                <?php echo esc_html( $material_name . ' • ' . $size_name ); ?>
-                            </div>
-                            <div class="eao-order-history-sidebar__item-footer">
-                                <span class="eao-order-history-sidebar__item-date">
-                                    <?php 
-                                    if ( $order_status === EAO_Album_Order::STATUS_SHIPPED && $shipped_date ) {
-                                        echo esc_html( sprintf( __( 'Shipped %s', 'easy-album-orders' ), date_i18n( 'M j', strtotime( $shipped_date ) ) ) );
-                                    } elseif ( $order_date ) {
-                                        echo esc_html( date_i18n( 'M j', strtotime( $order_date ) ) );
-                                    }
-                                    ?>
-                                </span>
+                            <div class="eao-order-history-sidebar__item-row">
+                                <span class="eao-order-history-sidebar__item-name"><?php echo esc_html( $album_name ); ?></span>
+                                <span class="eao-order-history-sidebar__item-details"><?php echo esc_html( $size_name ); ?></span>
                                 <span class="eao-status-badge eao-status-badge--<?php echo esc_attr( $order_status ); ?>">
                                     <?php echo esc_html( $status_label ); ?>
                                 </span>
+                            </div>
+                            <div class="eao-order-history-sidebar__item-date">
+                                <?php 
+                                if ( $order_status === EAO_Album_Order::STATUS_SHIPPED && $shipped_date ) {
+                                    echo esc_html( sprintf( __( 'Shipped %s', 'easy-album-orders' ), date_i18n( 'M j', strtotime( $shipped_date ) ) ) );
+                                } elseif ( $order_date ) {
+                                    echo esc_html( sprintf( __( 'Ordered %s', 'easy-album-orders' ), date_i18n( 'M j', strtotime( $order_date ) ) ) );
+                                }
+                                ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

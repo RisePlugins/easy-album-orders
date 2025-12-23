@@ -183,6 +183,7 @@
     position: sticky;
     top: var(--eao-space-lg);
     align-self: start;
+    max-height: calc(100vh - var(--eao-space-xl));
 }
 
 /* ==========================================================================
@@ -1449,6 +1450,10 @@
     box-shadow: var(--eao-shadow-md);
     border: 1px solid var(--eao-border-light);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .eao-order-history-sidebar__header {
@@ -1507,20 +1512,20 @@
 
 /* Accordion Content */
 .eao-order-history-sidebar__content {
-    max-height: 350px;
+    flex: 1;
     overflow-y: auto;
-    transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+    transition: flex 0.3s ease, opacity 0.2s ease;
 }
 
 .eao-order-history-sidebar__content.is-collapsed {
-    max-height: 0;
+    flex: 0;
     overflow: hidden;
     opacity: 0;
 }
 
-/* Order Items */
+/* Order Items - Compact Layout */
 .eao-order-history-sidebar__item {
-    padding: var(--eao-space-md) var(--eao-space-lg);
+    padding: var(--eao-space-sm) var(--eao-space-md);
     border-bottom: 1px solid var(--eao-border-light);
     transition: background-color var(--eao-transition-fast);
 }
@@ -1533,35 +1538,55 @@
     background: var(--eao-bg-subtle);
 }
 
+/* Top row: Name, Details, Status */
+.eao-order-history-sidebar__item-row {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    margin-bottom: 2px;
+}
+
 .eao-order-history-sidebar__item-name {
     font-weight: 600;
     color: var(--eao-text);
-    font-size: 0.9rem;
-    margin-bottom: 2px;
+    font-size: 0.85rem;
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
 }
 
 .eao-order-history-sidebar__item-details {
-    font-size: 0.8rem;
-    color: var(--eao-text-light);
-    margin-bottom: var(--eao-space-sm);
-}
-
-.eao-order-history-sidebar__item-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.eao-order-history-sidebar__item-date {
     font-size: 0.75rem;
+    color: var(--eao-text-light);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.eao-order-history-sidebar__item-details::before {
+    content: "•";
+    margin-right: var(--eao-space-sm);
+    color: var(--eao-border);
+}
+
+/* Status badge pushed to right */
+.eao-order-history-sidebar__item-row .eao-status-badge {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Date row */
+.eao-order-history-sidebar__item-date {
+    font-size: 0.7rem;
     color: var(--eao-text-muted);
 }
 
 /* Smaller status badges for sidebar */
 .eao-order-history-sidebar .eao-status-badge {
     font-size: 0.6rem;
-    padding: 3px 8px;
+    padding: 2px 6px;
 }
 
 /* ==========================================================================
