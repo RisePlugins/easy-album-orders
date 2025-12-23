@@ -184,6 +184,12 @@
     top: var(--eao-space-lg);
     align-self: start;
     max-height: calc(100vh - var(--eao-space-xl));
+    overflow: hidden;
+}
+
+/* Prevent cart from shrinking */
+.eao-sidebar .eao-cart {
+    flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1453,12 +1459,13 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    transition: flex 0.3s ease;
+    flex-shrink: 1;
 }
 
-/* Expand to fill space only when open */
+/* Expand to fill remaining space only when open */
 .eao-order-history-sidebar.is-expanded {
-    flex: 1;
+    flex: 1 1 0;
+    overflow: hidden;
 }
 
 .eao-order-history-sidebar__header {
