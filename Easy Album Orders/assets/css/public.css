@@ -162,11 +162,27 @@
     .eao-layout {
         grid-template-columns: 1fr;
     }
+
+    .eao-sidebar {
+        position: static;
+        order: -1;
+        margin-bottom: var(--eao-space-lg);
+    }
 }
 
 .eao-form-wrapper {
     flex: 1;
     min-width: 0;
+}
+
+/* Sidebar Container */
+.eao-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-lg);
+    position: sticky;
+    top: var(--eao-space-lg);
+    align-self: start;
 }
 
 /* ==========================================================================
@@ -1218,8 +1234,6 @@
     background: var(--eao-white);
     border-radius: var(--eao-radius-xl);
     box-shadow: var(--eao-shadow-md);
-    position: sticky;
-    top: var(--eao-space-lg);
     border: 1px solid var(--eao-border-light);
     overflow: hidden;
 }
@@ -1423,6 +1437,131 @@
     margin: var(--eao-space-md) 0 0;
     text-align: center;
     line-height: 1.5;
+}
+
+/* ==========================================================================
+   Order History Sidebar Card
+   ========================================================================== */
+
+.eao-order-history-sidebar {
+    background: var(--eao-white);
+    border-radius: var(--eao-radius-xl);
+    box-shadow: var(--eao-shadow-md);
+    border: 1px solid var(--eao-border-light);
+    overflow: hidden;
+}
+
+.eao-order-history-sidebar__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    background: var(--eao-bg-subtle);
+    border: none;
+    border-bottom: 1px solid var(--eao-border-light);
+    cursor: pointer;
+    transition: background-color var(--eao-transition-fast);
+    font-family: inherit;
+}
+
+.eao-order-history-sidebar__header:hover {
+    background: var(--eao-bg);
+}
+
+.eao-order-history-sidebar__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    color: var(--eao-primary);
+}
+
+.eao-order-history-sidebar__title .eao-icon {
+    color: var(--eao-accent);
+}
+
+.eao-order-history-sidebar__count {
+    background: var(--eao-success);
+    color: var(--eao-white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: var(--eao-radius-full);
+    margin-left: var(--eao-space-sm);
+}
+
+.eao-order-history-sidebar__toggle-icon {
+    color: var(--eao-text-light);
+    transition: transform var(--eao-transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eao-order-history-sidebar__header[aria-expanded="false"] .eao-order-history-sidebar__toggle-icon {
+    transform: rotate(-90deg);
+}
+
+/* Accordion Content */
+.eao-order-history-sidebar__content {
+    max-height: 350px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+}
+
+.eao-order-history-sidebar__content.is-collapsed {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+/* Order Items */
+.eao-order-history-sidebar__item {
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    border-bottom: 1px solid var(--eao-border-light);
+    transition: background-color var(--eao-transition-fast);
+}
+
+.eao-order-history-sidebar__item:last-child {
+    border-bottom: none;
+}
+
+.eao-order-history-sidebar__item:hover {
+    background: var(--eao-bg-subtle);
+}
+
+.eao-order-history-sidebar__item-name {
+    font-weight: 600;
+    color: var(--eao-text);
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    line-height: 1.3;
+}
+
+.eao-order-history-sidebar__item-details {
+    font-size: 0.8rem;
+    color: var(--eao-text-light);
+    margin-bottom: var(--eao-space-sm);
+}
+
+.eao-order-history-sidebar__item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.eao-order-history-sidebar__item-date {
+    font-size: 0.75rem;
+    color: var(--eao-text-muted);
+}
+
+/* Smaller status badges for sidebar */
+.eao-order-history-sidebar .eao-status-badge {
+    font-size: 0.6rem;
+    padding: 3px 8px;
 }
 
 /* ==========================================================================

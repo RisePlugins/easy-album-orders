@@ -40,6 +40,26 @@ $general_settings  = get_option( 'eao_general_settings', array() );
 // Cart items are loaded via JavaScript using browser-specific cart token.
 // This ensures each browser has its own cart (bride vs. parents, etc.).
 $cart_items = array();
+
+// Get completed orders (status = ordered or shipped) for this client album.
+$completed_orders = get_posts( array(
+    'post_type'      => 'album_order',
+    'posts_per_page' => -1,
+    'meta_query'     => array(
+        'relation' => 'AND',
+        array(
+            'key'   => '_eao_client_album_id',
+            'value' => $album_id,
+        ),
+        array(
+            'key'     => '_eao_order_status',
+            'value'   => array( EAO_Album_Order::STATUS_ORDERED, EAO_Album_Order::STATUS_SHIPPED ),
+            'compare' => 'IN',
+        ),
+    ),
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+) );
 ?>
 
 <div class="eao-order-page" id="eao-order-page" data-album-id="<?php echo esc_attr( $album_id ); ?>">
@@ -414,8 +434,10 @@ $cart_items = array();
             </form>
         </main>
 
-        <!-- Cart Sidebar -->
-        <aside class="eao-cart" id="eao-cart">
+        <!-- Sidebar Column -->
+        <div class="eao-sidebar">
+            <!-- Cart Sidebar -->
+            <aside class="eao-cart" id="eao-cart">
             <div class="eao-cart__header">
                 <h3 class="eao-cart__title">
                     <?php EAO_Icons::render( 'shopping-cart', array( 'size' => 20 ) ); ?>
@@ -461,6 +483,59 @@ $cart_items = array();
                 </p>
             </div>
         </aside>
+
+        <?php if ( ! empty( $completed_orders ) ) : ?>
+            <!-- Order History Sidebar Card -->
+            <aside class="eao-order-history-sidebar" id="eao-order-history-sidebar">
+                <button type="button" class="eao-order-history-sidebar__header" id="eao-order-history-toggle" aria-expanded="<?php echo count( $completed_orders ) < 3 ? 'true' : 'false'; ?>">
+                    <h3 class="eao-order-history-sidebar__title">
+                        <?php EAO_Icons::render( 'clipboard-list', array( 'size' => 20 ) ); ?>
+                        <?php esc_html_e( 'Order History', 'easy-album-orders' ); ?>
+                        <span class="eao-order-history-sidebar__count"><?php echo count( $completed_orders ); ?></span>
+                    </h3>
+                    <span class="eao-order-history-sidebar__toggle-icon">
+                        <?php EAO_Icons::render( 'chevron-down', array( 'size' => 20 ) ); ?>
+                    </span>
+                </button>
+
+                <div class="eao-order-history-sidebar__content<?php echo count( $completed_orders ) >= 3 ? ' is-collapsed' : ''; ?>" id="eao-order-history-content">
+                    <?php foreach ( $completed_orders as $order ) : 
+                        $order_status     = EAO_Album_Order::get_order_status( $order->ID );
+                        $album_name       = get_post_meta( $order->ID, '_eao_album_name', true );
+                        $material_name    = get_post_meta( $order->ID, '_eao_material_name', true );
+                        $size_name        = get_post_meta( $order->ID, '_eao_size_name', true );
+                        $order_date       = get_post_meta( $order->ID, '_eao_order_date', true );
+                        $shipped_date     = get_post_meta( $order->ID, '_eao_shipped_date', true );
+                        $status_labels    = EAO_Album_Order::get_statuses();
+                        $status_label     = isset( $status_labels[ $order_status ] ) ? $status_labels[ $order_status ] : $order_status;
+                    ?>
+                        <div class="eao-order-history-sidebar__item">
+                            <div class="eao-order-history-sidebar__item-name">
+                                <?php echo esc_html( $album_name ); ?>
+                            </div>
+                            <div class="eao-order-history-sidebar__item-details">
+                                <?php echo esc_html( $material_name . ' • ' . $size_name ); ?>
+                            </div>
+                            <div class="eao-order-history-sidebar__item-footer">
+                                <span class="eao-order-history-sidebar__item-date">
+                                    <?php 
+                                    if ( $order_status === EAO_Album_Order::STATUS_SHIPPED && $shipped_date ) {
+                                        echo esc_html( sprintf( __( 'Shipped %s', 'easy-album-orders' ), date_i18n( 'M j', strtotime( $shipped_date ) ) ) );
+                                    } elseif ( $order_date ) {
+                                        echo esc_html( date_i18n( 'M j', strtotime( $order_date ) ) );
+                                    }
+                                    ?>
+                                </span>
+                                <span class="eao-status-badge eao-status-badge--<?php echo esc_attr( $order_status ); ?>">
+                                    <?php echo esc_html( $status_label ); ?>
+                                </span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </aside>
+        <?php endif; ?>
+        </div><!-- /.eao-sidebar -->
     </div>
 
     <!-- Checkout Modal -->
@@ -608,155 +683,6 @@ $cart_items = array();
         </div>
     </div>
 
-    <?php
-    // Get completed orders (status = ordered or shipped) for this client album.
-    $completed_orders = get_posts( array(
-        'post_type'      => 'album_order',
-        'posts_per_page' => -1,
-        'meta_query'     => array(
-            'relation' => 'AND',
-            array(
-                'key'   => '_eao_client_album_id',
-                'value' => $album_id,
-            ),
-            array(
-                'key'     => '_eao_order_status',
-                'value'   => array( EAO_Album_Order::STATUS_ORDERED, EAO_Album_Order::STATUS_SHIPPED ),
-                'compare' => 'IN',
-            ),
-        ),
-        'orderby'        => 'date',
-        'order'          => 'DESC',
-    ) );
-    ?>
-
-    <?php if ( ! empty( $completed_orders ) ) : ?>
-        <!-- Order History Section -->
-        <section class="eao-order-history" id="eao-order-history">
-            <div class="eao-order-history__header">
-                <h2 class="eao-order-history__title">
-                    <?php EAO_Icons::render( 'clipboard-list', array( 'size' => 28 ) ); ?>
-                    <?php esc_html_e( 'Your Order History', 'easy-album-orders' ); ?>
-                </h2>
-                <p class="eao-order-history__subtitle"><?php esc_html_e( 'Albums you have ordered', 'easy-album-orders' ); ?></p>
-            </div>
-
-            <div class="eao-order-history__list">
-                <?php foreach ( $completed_orders as $order ) : 
-                    $order_status     = EAO_Album_Order::get_order_status( $order->ID );
-                    $album_name       = get_post_meta( $order->ID, '_eao_album_name', true );
-                    $design_name      = get_post_meta( $order->ID, '_eao_design_name', true );
-                    $material_name    = get_post_meta( $order->ID, '_eao_material_name', true );
-                    $material_color   = get_post_meta( $order->ID, '_eao_material_color', true );
-                    $size_name        = get_post_meta( $order->ID, '_eao_size_name', true );
-                    $engraving_text   = get_post_meta( $order->ID, '_eao_engraving_text', true );
-                    $order_total      = EAO_Album_Order::calculate_total( $order->ID );
-                    $order_date       = get_post_meta( $order->ID, '_eao_order_date', true );
-                    $shipped_date     = get_post_meta( $order->ID, '_eao_shipped_date', true );
-                    $credit_type      = get_post_meta( $order->ID, '_eao_credit_type', true );
-                    $applied_credits  = floatval( get_post_meta( $order->ID, '_eao_applied_credits', true ) );
-
-                    // Shipping address.
-                    $shipping_name     = get_post_meta( $order->ID, '_eao_shipping_name', true );
-                    $shipping_address1 = get_post_meta( $order->ID, '_eao_shipping_address1', true );
-                    $shipping_address2 = get_post_meta( $order->ID, '_eao_shipping_address2', true );
-                    $shipping_city     = get_post_meta( $order->ID, '_eao_shipping_city', true );
-                    $shipping_state    = get_post_meta( $order->ID, '_eao_shipping_state', true );
-                    $shipping_zip      = get_post_meta( $order->ID, '_eao_shipping_zip', true );
-
-                    $status_labels = EAO_Album_Order::get_statuses();
-                    $status_label  = isset( $status_labels[ $order_status ] ) ? $status_labels[ $order_status ] : $order_status;
-                ?>
-                    <div class="eao-order-history__item">
-                        <div class="eao-order-history__item-header">
-                            <div class="eao-order-history__item-info">
-                                <h3 class="eao-order-history__item-name"><?php echo esc_html( $album_name ); ?></h3>
-                                <span class="eao-order-history__item-date">
-                                    <?php 
-                                    if ( $order_date ) {
-                                        echo esc_html( sprintf( __( 'Ordered %s', 'easy-album-orders' ), date_i18n( get_option( 'date_format' ), strtotime( $order_date ) ) ) );
-                                    }
-                                    ?>
-                                </span>
-                            </div>
-                            <div class="eao-order-history__item-status">
-                                <span class="eao-status-badge eao-status-badge--<?php echo esc_attr( $order_status ); ?>">
-                                    <?php echo esc_html( $status_label ); ?>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="eao-order-history__item-details">
-                            <div class="eao-order-history__item-specs">
-                                <div class="eao-order-history__spec">
-                                    <span class="eao-order-history__spec-label"><?php esc_html_e( 'Design:', 'easy-album-orders' ); ?></span>
-                                    <span class="eao-order-history__spec-value"><?php echo esc_html( $design_name ); ?></span>
-                                </div>
-                                <div class="eao-order-history__spec">
-                                    <span class="eao-order-history__spec-label"><?php esc_html_e( 'Material:', 'easy-album-orders' ); ?></span>
-                                    <span class="eao-order-history__spec-value">
-                                        <?php echo esc_html( $material_name ); ?>
-                                        <?php if ( $material_color ) : ?>
-                                            (<?php echo esc_html( $material_color ); ?>)
-                                        <?php endif; ?>
-                                    </span>
-                                </div>
-                                <div class="eao-order-history__spec">
-                                    <span class="eao-order-history__spec-label"><?php esc_html_e( 'Size:', 'easy-album-orders' ); ?></span>
-                                    <span class="eao-order-history__spec-value"><?php echo esc_html( $size_name ); ?></span>
-                                </div>
-                                <?php if ( $engraving_text ) : ?>
-                                    <div class="eao-order-history__spec">
-                                        <span class="eao-order-history__spec-label"><?php esc_html_e( 'Engraving:', 'easy-album-orders' ); ?></span>
-                                        <span class="eao-order-history__spec-value">"<?php echo esc_html( $engraving_text ); ?>"</span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="eao-order-history__item-shipping">
-                                <span class="eao-order-history__spec-label"><?php esc_html_e( 'Shipping to:', 'easy-album-orders' ); ?></span>
-                                <div class="eao-order-history__address">
-                                    <?php if ( $shipping_name ) : ?>
-                                        <strong><?php echo esc_html( $shipping_name ); ?></strong><br>
-                                    <?php endif; ?>
-                                    <?php echo esc_html( $shipping_address1 ); ?>
-                                    <?php if ( $shipping_address2 ) : ?>
-                                        <br><?php echo esc_html( $shipping_address2 ); ?>
-                                    <?php endif; ?>
-                                    <br><?php echo esc_html( $shipping_city . ', ' . $shipping_state . ' ' . $shipping_zip ); ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="eao-order-history__item-footer">
-                            <?php if ( $applied_credits > 0 ) : ?>
-                                <div class="eao-order-history__credit">
-                                    <?php if ( 'free_album' === $credit_type ) : ?>
-                                        <?php EAO_Icons::render( 'award', array( 'size' => 18 ) ); ?>
-                                        <?php echo esc_html( sprintf( __( 'Free Album Credit Applied: %s', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) ); ?>
-                                    <?php else : ?>
-                                        <?php EAO_Icons::render( 'tag', array( 'size' => 18 ) ); ?>
-                                        <?php echo esc_html( sprintf( __( 'Credit Applied: %s', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) ); ?>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                            <div class="eao-order-history__total">
-                                <span class="eao-order-history__total-label"><?php esc_html_e( 'Total:', 'easy-album-orders' ); ?></span>
-                                <span class="eao-order-history__total-value"><?php echo esc_html( eao_format_price( $order_total ) ); ?></span>
-                            </div>
-                        </div>
-
-                        <?php if ( $order_status === EAO_Album_Order::STATUS_SHIPPED && $shipped_date ) : ?>
-                            <div class="eao-order-history__shipped-notice">
-                                <?php EAO_Icons::render( 'circle-check', array( 'size' => 20 ) ); ?>
-                                <?php echo esc_html( sprintf( __( 'Shipped on %s', 'easy-album-orders' ), date_i18n( get_option( 'date_format' ), strtotime( $shipped_date ) ) ) ); ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </section>
-    <?php endif; ?>
 </div>
 
 <?php

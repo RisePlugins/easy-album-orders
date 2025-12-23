@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 30 (~120KB estimated)
+- **Icons currently used**: 31 (~124KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -62,10 +62,8 @@ Keep this list updated as you add new icons throughout development.
 | `layout-grid` | Grid view toggle in proof viewer |
 | `chevron-left` | Previous page in proof viewer |
 | `chevron-right` | Next page in proof viewer |
-| `clipboard-list` | Order history section title |
-| `award` | Free album credit applied in order history |
-| `tag` | Dollar credit applied in order history |
-| `circle-check` | Shipped notice in order history |
+| `chevron-down` | Order history sidebar accordion toggle |
+| `clipboard-list` | Order history sidebar title |
 | `shopping-cart` | Cart header and empty cart icon |
 
 ### Front-End Cart Item (`cart-item.php`)
@@ -89,6 +87,7 @@ award
 book
 books
 brand-loom
+chevron-down
 chevron-left
 chevron-right
 circle-check
@@ -114,7 +113,7 @@ writing
 x
 ```
 
-**Total: 30 icons**
+**Total: 31 icons**
 
 ---
 

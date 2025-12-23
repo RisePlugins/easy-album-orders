@@ -298,6 +298,7 @@
             this.bindFormSubmit();
             this.bindCartActions();
             this.bindCheckout();
+            this.bindOrderHistoryAccordion();
             this.checkOrderComplete();
 
             // Load saved addresses from localStorage (browser-specific).
@@ -1882,6 +1883,28 @@
                     history.replaceState(null, null, cleanUrl);
                 }
             }
+        },
+
+        /**
+         * Bind Order History sidebar accordion toggle.
+         */
+        bindOrderHistoryAccordion: function() {
+            const $toggle = $('#eao-order-history-toggle');
+            const $content = $('#eao-order-history-content');
+
+            if (!$toggle.length || !$content.length) {
+                return;
+            }
+
+            $toggle.on('click', function() {
+                const isExpanded = $(this).attr('aria-expanded') === 'true';
+                
+                // Toggle aria-expanded.
+                $(this).attr('aria-expanded', !isExpanded);
+                
+                // Toggle content visibility.
+                $content.toggleClass('is-collapsed');
+            });
         },
 
         /**
