@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Stripe Refund Feature)
+- Admin refund functionality for paid orders:
+  - "Issue Refund" button in Payment Information meta box
+  - Refund modal with full and partial refund options
+  - Reason selection (Customer requested, Duplicate, Fraudulent)
+  - Real-time validation of refund amounts
+  - Confirmation dialog before processing
+- New `create_refund()` method in `EAO_Stripe` class
+- New `get_charge()` method for retrieving charge details
+- AJAX handler for processing refunds from WordPress admin
+- Payment status automatically updates to "Refunded" or "Partial Refund"
+- Support for multiple partial refunds on a single order
+- `eao_refund_processed` action hook for custom integrations
+
 ### Added (Phase 5: Stripe Payment Integration)
 - Integrated Stripe Payment Intents API for secure, PCI-compliant payment processing
 - New `EAO_Stripe` class (`includes/core/class-eao-stripe.php`) for Stripe API interactions:

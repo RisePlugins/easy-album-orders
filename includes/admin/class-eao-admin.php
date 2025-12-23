@@ -114,6 +114,92 @@ class EAO_Admin {
     }
 
     /**
+     * AJAX handler to process a refund.
+     *
+     * @since 1.2.0
+     */
+    public function ajax_process_refund() {
+        // Verify nonce.
+        if ( ! check_ajax_referer( 'eao_refund_order', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'easy-album-orders' ) ) );
+        }
+
+        // Check permissions.
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'easy-album-orders' ) ) );
+        }
+
+        $order_id  = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+        $charge_id = isset( $_POST['charge_id'] ) ? sanitize_text_field( $_POST['charge_id'] ) : '';
+        $amount    = isset( $_POST['amount'] ) ? floatval( $_POST['amount'] ) : null;
+        $reason    = isset( $_POST['reason'] ) ? sanitize_key( $_POST['reason'] ) : 'requested_by_customer';
+        $is_full   = isset( $_POST['is_full'] ) && 'true' === $_POST['is_full'];
+
+        // Validate order exists.
+        if ( ! $order_id || 'album_order' !== get_post_type( $order_id ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid order.', 'easy-album-orders' ) ) );
+        }
+
+        // Validate charge ID matches what's stored.
+        $stored_charge = get_post_meta( $order_id, '_eao_stripe_charge_id', true );
+        if ( $charge_id !== $stored_charge ) {
+            wp_send_json_error( array( 'message' => __( 'Payment reference mismatch.', 'easy-album-orders' ) ) );
+        }
+
+        // Check payment status - only refund paid orders.
+        $payment_status = get_post_meta( $order_id, '_eao_payment_status', true );
+        if ( ! in_array( $payment_status, array( 'paid', 'partial_refund' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'This order cannot be refunded.', 'easy-album-orders' ) ) );
+        }
+
+        // Initialize Stripe and process refund.
+        $stripe = new EAO_Stripe();
+
+        // For full refund, pass null to refund entire amount.
+        $refund_amount = $is_full ? null : $amount;
+        $result = $stripe->create_refund( $charge_id, $refund_amount, $reason );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        // Update order meta.
+        $existing_refund = floatval( get_post_meta( $order_id, '_eao_refund_amount', true ) );
+        $total_refunded  = $existing_refund + $result['amount'];
+        $payment_amount  = floatval( get_post_meta( $order_id, '_eao_payment_amount', true ) );
+
+        // Determine new payment status.
+        $new_status = ( $total_refunded >= $payment_amount ) ? 'refunded' : 'partial_refund';
+
+        update_post_meta( $order_id, '_eao_payment_status', $new_status );
+        update_post_meta( $order_id, '_eao_refund_amount', $total_refunded );
+        update_post_meta( $order_id, '_eao_refund_date', current_time( 'mysql' ) );
+        update_post_meta( $order_id, '_eao_refund_id', $result['id'] );
+
+        /**
+         * Fires after a refund is processed.
+         *
+         * @since 1.2.0
+         *
+         * @param int    $order_id       Order ID.
+         * @param array  $result         Refund result from Stripe.
+         * @param float  $total_refunded Total amount refunded.
+         */
+        do_action( 'eao_refund_processed', $order_id, $result, $total_refunded );
+
+        wp_send_json_success( array(
+            'message'        => sprintf(
+                /* translators: %s: Refunded amount */
+                __( 'Successfully refunded %s', 'easy-album-orders' ),
+                eao_format_price( $result['amount'] )
+            ),
+            'refund_amount'  => $result['amount'],
+            'total_refunded' => $total_refunded,
+            'payment_status' => $new_status,
+        ) );
+    }
+
+    /**
      * AJAX handler to get attachment URL by ID.
      *
      * @since 1.0.0

@@ -1733,9 +1733,11 @@ This would be a separate product/service, not part of the WordPress plugin.
    - Payment plans
    - Subscriptions for volume clients
 
-3. **Refund Management**
+3. **Refund Management** ✅ (Implemented)
    - Admin refund button
    - Partial refunds
+   - Full refunds
+   - Reason tracking
 
 4. **Invoice Generation**
    - PDF invoices with Stripe integration
@@ -2197,6 +2199,28 @@ composer require stripe/stripe-php
   - [x] Style modifiers: `--paid`, `--failed`, `--refunded`, `--pending`, `--free`, `--none`
   - [x] Match existing admin design system
   - [x] Style payment meta box table
+
+#### Task 5.4: Add Refund Functionality ✅
+- **Dependencies:** Tasks 5.1, 5.3
+- **Files:**
+  - `includes/core/class-eao-stripe.php` - Add refund methods
+  - `includes/admin/class-eao-album-order-meta.php` - Add refund button and modal UI
+  - `includes/admin/class-eao-admin.php` - Add AJAX handler
+  - `assets/js/admin.js` - Add modal JavaScript
+  - `assets/css/admin.css` - Add refund modal styles
+- **Deliverables:**
+  - [x] Add `create_refund()` method to `EAO_Stripe` class
+  - [x] Add `get_charge()` method for charge retrieval
+  - [x] Add "Issue Refund" button to Payment Information meta box
+  - [x] Create refund modal with full/partial options
+  - [x] Add reason selection (requested_by_customer, duplicate, fraudulent)
+  - [x] Add partial refund amount input with validation
+  - [x] Add AJAX handler for processing refunds
+  - [x] Update payment status after refund (refunded/partial_refund)
+  - [x] Store refund metadata (_eao_refund_amount, _eao_refund_date, _eao_refund_id)
+  - [x] Support multiple partial refunds on same order
+  - [x] Add `eao_refund_processed` action hook
+  - [x] Style refund button and modal
 
 ---
 

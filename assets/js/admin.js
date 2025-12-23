@@ -38,6 +38,7 @@
             this.reorganizeAlbumOrdersTable();
             this.bindCopyWebhookUrl();
             this.bindStripeKeyValidation();
+            this.bindRefund();
         },
 
         /**
@@ -1383,6 +1384,118 @@
             // Validate existing values on page load.
             $('.eao-key-input').each(function() {
                 validateKeyInput($(this));
+            });
+        },
+
+        /**
+         * Bind refund modal and actions.
+         *
+         * @since 1.2.0
+         */
+        bindRefund: function() {
+            const $modal = $('#eao-refund-modal');
+            const $btn = $('#eao-refund-btn');
+
+            // Exit if no refund elements on page.
+            if (!$modal.length || !$btn.length) {
+                return;
+            }
+
+            const orderId = $btn.data('order-id');
+            const chargeId = $btn.data('charge-id');
+            const maxAmount = parseFloat($btn.data('amount'));
+            const nonce = $btn.data('nonce');
+
+            // Open modal.
+            $btn.on('click', function() {
+                $modal.fadeIn(200);
+            });
+
+            // Close modal.
+            $('#eao-refund-modal-close, #eao-refund-cancel, .eao-refund-modal__backdrop').on('click', function() {
+                $modal.fadeOut(200);
+            });
+
+            // Close on escape.
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && $modal.is(':visible')) {
+                    $modal.fadeOut(200);
+                }
+            });
+
+            // Toggle partial refund input.
+            $('input[name="eao_refund_type"]').on('change', function() {
+                if ($(this).val() === 'partial') {
+                    $('#eao-refund-partial').slideDown(200);
+                    $('#eao-refund-amount').focus();
+                } else {
+                    $('#eao-refund-partial').slideUp(200);
+                }
+            });
+
+            // Process refund.
+            $('#eao-refund-confirm').on('click', function() {
+                const $confirmBtn = $(this);
+                const $text = $confirmBtn.find('.eao-refund-confirm__text');
+                const $loading = $confirmBtn.find('.eao-refund-confirm__loading');
+                const refundType = $('input[name="eao_refund_type"]:checked').val();
+                const reason = $('#eao-refund-reason').val();
+
+                let amount = maxAmount;
+                if (refundType === 'partial') {
+                    amount = parseFloat($('#eao-refund-amount').val());
+                    if (isNaN(amount) || amount <= 0 || amount > maxAmount) {
+                        alert('Please enter a valid refund amount between $0.01 and $' + maxAmount.toFixed(2));
+                        return;
+                    }
+                }
+
+                // Confirm action.
+                const confirmMessage = refundType === 'full'
+                    ? 'Are you sure you want to refund the full amount of $' + maxAmount.toFixed(2) + '?'
+                    : 'Are you sure you want to refund $' + amount.toFixed(2) + '?';
+
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+
+                // Show loading state.
+                $confirmBtn.prop('disabled', true);
+                $text.hide();
+                $loading.show();
+
+                // Send AJAX request.
+                $.ajax({
+                    url: eaoAdmin.ajaxUrl,
+                    type: 'POST',
+                    data: {
+                        action: 'eao_process_refund',
+                        nonce: nonce,
+                        order_id: orderId,
+                        charge_id: chargeId,
+                        amount: amount,
+                        reason: reason,
+                        is_full: refundType === 'full' ? 'true' : 'false'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message and reload page.
+                            alert(response.data.message);
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + response.data.message);
+                            $confirmBtn.prop('disabled', false);
+                            $text.show();
+                            $loading.hide();
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again.');
+                        $confirmBtn.prop('disabled', false);
+                        $text.show();
+                        $loading.hide();
+                    }
+                });
             });
         }
     };

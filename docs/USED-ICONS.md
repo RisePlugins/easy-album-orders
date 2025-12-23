@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 28 (~112KB estimated)
+- **Icons currently used**: 30 (~120KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -38,6 +38,9 @@ Keep this list updated as you add new icons throughout development.
 | Icon | Usage |
 |------|-------|
 | `external-link` | View in Stripe link in Payment Information meta box |
+| `receipt-refund` | Refund button and confirm button in refund modal |
+| `x` | Close button in refund modal |
+| `alert-triangle` | Warning message in refund modal |
 
 ### Album Options Page (`album-options-page.php`)
 
@@ -79,6 +82,7 @@ Keep this list updated as you add new icons throughout development.
 ## Complete Icon List (Alphabetical)
 
 ```
+alert-triangle
 arrow-left
 arrow-right
 award
@@ -100,6 +104,7 @@ pencil
 photo
 plus
 presentation
+receipt-refund
 shopping-cart
 tag
 trash
@@ -109,7 +114,7 @@ writing
 x
 ```
 
-**Total: 28 icons**
+**Total: 30 icons**
 
 ---
 

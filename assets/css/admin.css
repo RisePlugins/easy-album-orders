@@ -4590,3 +4590,296 @@
     font-weight: 600;
 }
 
+/* ==========================================================================
+   Refund Functionality
+   ========================================================================== */
+
+.eao-refund-section {
+    margin-top: var(--eao-space-md);
+    padding-top: var(--eao-space-md);
+    border-top: 1px solid var(--eao-border-light);
+}
+
+.eao-refund-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    color: #7c3aed !important;
+    border-color: #7c3aed !important;
+    background: #faf5ff !important;
+}
+
+.eao-refund-btn:hover {
+    background: #f3e8ff !important;
+    border-color: #6d28d9 !important;
+    color: #6d28d9 !important;
+}
+
+.eao-refund-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Refund Modal */
+.eao-refund-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eao-refund-modal__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.eao-refund-modal__content {
+    position: relative;
+    background: white;
+    border-radius: var(--eao-radius-lg);
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: eao-modal-slide-up 0.2s ease-out;
+}
+
+@keyframes eao-modal-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.eao-refund-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    border-bottom: 1px solid var(--eao-border-light);
+}
+
+.eao-refund-modal__header h3 {
+    margin: 0;
+    font-size: var(--eao-font-lg);
+    font-weight: 600;
+    color: var(--eao-text);
+}
+
+.eao-refund-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--eao-text-muted);
+    cursor: pointer;
+    border-radius: var(--eao-radius-sm);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.eao-refund-modal__close:hover {
+    background: var(--eao-light);
+    color: var(--eao-text);
+}
+
+.eao-refund-modal__body {
+    padding: var(--eao-space-lg);
+}
+
+.eao-refund-modal__warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--eao-space-sm);
+    margin: 0 0 var(--eao-space-lg) 0;
+    padding: var(--eao-space-md);
+    background: var(--eao-warning-light);
+    border-radius: var(--eao-radius-md);
+    font-size: var(--eao-font-sm);
+    color: #92400e;
+}
+
+.eao-refund-modal__warning svg {
+    flex-shrink: 0;
+    color: #f59e0b;
+}
+
+.eao-refund-modal__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-sm);
+    margin-bottom: var(--eao-space-lg);
+}
+
+.eao-refund-option {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    padding: var(--eao-space-md);
+    border: 1px solid var(--eao-border);
+    border-radius: var(--eao-radius-md);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.eao-refund-option:hover {
+    border-color: var(--eao-border-dark);
+    background: var(--eao-light);
+}
+
+.eao-refund-option input[type="radio"] {
+    margin: 0;
+}
+
+.eao-refund-option input[type="radio"]:checked + .eao-refund-option__label {
+    color: var(--eao-primary);
+    font-weight: 500;
+}
+
+.eao-refund-option:has(input[type="radio"]:checked) {
+    border-color: var(--eao-primary);
+    background: #f0fdf4;
+}
+
+.eao-refund-option__label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    font-size: var(--eao-font-sm);
+}
+
+.eao-refund-option__amount {
+    font-weight: 600;
+    color: var(--eao-text);
+}
+
+.eao-refund-modal__partial {
+    margin-bottom: var(--eao-space-lg);
+    padding: var(--eao-space-md);
+    background: var(--eao-light);
+    border-radius: var(--eao-radius-md);
+}
+
+.eao-refund-modal__partial label {
+    display: block;
+    margin-bottom: var(--eao-space-xs);
+    font-size: var(--eao-font-xs);
+    font-weight: 500;
+    color: var(--eao-text-muted);
+}
+
+.eao-refund-modal__input-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--eao-border);
+    border-radius: var(--eao-radius-sm);
+    overflow: hidden;
+}
+
+.eao-refund-modal__currency {
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    background: var(--eao-light);
+    border-right: 1px solid var(--eao-border);
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-text-muted);
+}
+
+.eao-refund-modal__input-wrapper input[type="number"] {
+    flex: 1;
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    border: none;
+    font-size: var(--eao-font-md);
+    font-weight: 500;
+    outline: none;
+}
+
+.eao-refund-modal__input-wrapper input[type="number"]::-webkit-inner-spin-button,
+.eao-refund-modal__input-wrapper input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+.eao-refund-modal__help {
+    margin: var(--eao-space-xs) 0 0 0;
+    font-size: var(--eao-font-xs);
+    color: var(--eao-text-muted);
+}
+
+.eao-refund-modal__reason {
+    margin-bottom: var(--eao-space-md);
+}
+
+.eao-refund-modal__reason label {
+    display: block;
+    margin-bottom: var(--eao-space-xs);
+    font-size: var(--eao-font-xs);
+    font-weight: 500;
+    color: var(--eao-text-muted);
+}
+
+.eao-refund-modal__reason select {
+    width: 100%;
+    padding: var(--eao-space-sm) var(--eao-space-md);
+    border: 1px solid var(--eao-border);
+    border-radius: var(--eao-radius-sm);
+    font-size: var(--eao-font-sm);
+    background: white;
+}
+
+.eao-refund-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--eao-space-sm);
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    border-top: 1px solid var(--eao-border-light);
+    background: var(--eao-light);
+    border-radius: 0 0 var(--eao-radius-lg) var(--eao-radius-lg);
+}
+
+.eao-refund-confirm {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    background: #7c3aed !important;
+    border-color: #7c3aed !important;
+    color: white !important;
+}
+
+.eao-refund-confirm:hover {
+    background: #6d28d9 !important;
+    border-color: #6d28d9 !important;
+}
+
+.eao-refund-confirm:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.eao-refund-confirm__loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.eao-refund-confirm__loading .spinner {
+    margin: 0;
+    float: none;
+}
+
