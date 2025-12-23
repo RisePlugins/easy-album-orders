@@ -486,7 +486,7 @@ $completed_orders = get_posts( array(
 
         <?php if ( ! empty( $completed_orders ) ) : ?>
             <!-- Order History Sidebar Card -->
-            <aside class="eao-order-history-sidebar" id="eao-order-history-sidebar">
+            <aside class="eao-order-history-sidebar<?php echo count( $completed_orders ) < 3 ? ' is-expanded' : ''; ?>" id="eao-order-history-sidebar">
                 <button type="button" class="eao-order-history-sidebar__header" id="eao-order-history-toggle" aria-expanded="<?php echo count( $completed_orders ) < 3 ? 'true' : 'false'; ?>">
                     <h3 class="eao-order-history-sidebar__title">
                         <?php EAO_Icons::render( 'clipboard-list', array( 'size' => 20 ) ); ?>

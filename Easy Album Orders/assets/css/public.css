@@ -1452,8 +1452,13 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    flex: 1;
     min-height: 0;
+    transition: flex 0.3s ease;
+}
+
+/* Expand to fill space only when open */
+.eao-order-history-sidebar.is-expanded {
+    flex: 1;
 }
 
 .eao-order-history-sidebar__header {

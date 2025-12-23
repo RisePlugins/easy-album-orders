@@ -1891,9 +1891,15 @@
         bindOrderHistoryAccordion: function() {
             const $toggle = $('#eao-order-history-toggle');
             const $content = $('#eao-order-history-content');
+            const $sidebar = $('#eao-order-history-sidebar');
 
             if (!$toggle.length || !$content.length) {
                 return;
+            }
+
+            // Set initial expanded state based on aria-expanded.
+            if ($toggle.attr('aria-expanded') === 'true') {
+                $sidebar.addClass('is-expanded');
             }
 
             $toggle.on('click', function() {
@@ -1904,6 +1910,9 @@
                 
                 // Toggle content visibility.
                 $content.toggleClass('is-collapsed');
+                
+                // Toggle sidebar expansion.
+                $sidebar.toggleClass('is-expanded');
             });
         },
 
