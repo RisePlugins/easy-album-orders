@@ -197,6 +197,19 @@ Respect the status progression:
 - Browse available icons at: https://tabler.io/icons
 - See `docs/DESIGN-SYSTEM.md` for full iconography guidelines
 
+#### Folder Structure
+```
+Easy Album Orders Plugin/
+├── Easy Album Orders/                    ← The actual WordPress plugin
+│   └── assets/icons/tabler/              ← ONLY contains icons in use (~30 icons)
+│       ├── outline/
+│       └── filled/
+└── tabler-icons-full/                    ← Full icon library (~5,984 icons, gitignored)
+    └── tabler/
+        ├── outline/
+        └── filled/
+```
+
 #### Icon Do's and Don'ts:
 - ✅ Use Tabler Icons exclusively for visual consistency
 - ✅ Use outline icons for most UI elements
@@ -207,11 +220,20 @@ Respect the status progression:
 - ❌ Don't rely solely on icons without text labels for important actions
 
 #### When Adding a New Icon:
-1. Add the icon using `EAO_Icons::render()` or `EAO_Icons::get()`
-2. Open `docs/USED-ICONS.md`
-3. Add the icon name to the appropriate file section
-4. Add the icon name to the "Complete Icon List" (alphabetical order)
-5. Update the icon count
+1. **Copy the SVG file** from `tabler-icons-full/tabler/` to the plugin's icon folder:
+   ```bash
+   # Copy outline version (required)
+   cp tabler-icons-full/tabler/outline/icon-name.svg "Easy Album Orders/assets/icons/tabler/outline/"
+   
+   # Copy filled version (optional, if needed)
+   cp tabler-icons-full/tabler/filled/icon-name.svg "Easy Album Orders/assets/icons/tabler/filled/"
+   ```
+2. Use the icon in code with `EAO_Icons::render()` or `EAO_Icons::get()`
+3. Open `docs/USED-ICONS.md`
+4. Add the icon name to the appropriate file section
+5. Add the icon name to the "Complete Icon List" (alphabetical order)
+6. Update the icon count
+7. Commit both the SVG file(s) and documentation update
 
 #### Icon Size Options:
 ```php
