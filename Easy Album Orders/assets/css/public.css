@@ -1519,13 +1519,10 @@
 .eao-order-history-sidebar__content {
     flex: 1;
     overflow-y: auto;
-    transition: flex 0.3s ease, opacity 0.2s ease;
 }
 
 .eao-order-history-sidebar__content.is-collapsed {
-    flex: 0;
-    overflow: hidden;
-    opacity: 0;
+    display: none;
 }
 
 /* Order Items - Compact Layout */
