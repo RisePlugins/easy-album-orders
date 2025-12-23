@@ -396,5 +396,105 @@ class EAO_Stripe {
         $this->settings    = get_option( 'eao_stripe_settings', array() );
         $this->initialized = false;
     }
+
+    /**
+     * Create a refund for a payment.
+     *
+     * Refunds a charge, either fully or partially.
+     *
+     * @since 1.2.0
+     *
+     * @param string $charge_id Stripe Charge ID (starts with ch_).
+     * @param float  $amount    Optional. Amount to refund in dollars. If null, full refund.
+     * @param string $reason    Optional. Reason for refund: 'duplicate', 'fraudulent', or 'requested_by_customer'.
+     * @return array|\WP_Error Refund data or error.
+     */
+    public function create_refund( $charge_id, $amount = null, $reason = 'requested_by_customer' ) {
+        if ( ! $this->init_stripe() ) {
+            return new \WP_Error(
+                'stripe_disabled',
+                __( 'Payment processing is not available.', 'easy-album-orders' )
+            );
+        }
+
+        // Validate Charge ID format.
+        if ( empty( $charge_id ) || 0 !== strpos( $charge_id, 'ch_' ) ) {
+            return new \WP_Error(
+                'invalid_charge',
+                __( 'Invalid payment reference.', 'easy-album-orders' )
+            );
+        }
+
+        // Validate reason.
+        $valid_reasons = array( 'duplicate', 'fraudulent', 'requested_by_customer' );
+        if ( ! in_array( $reason, $valid_reasons, true ) ) {
+            $reason = 'requested_by_customer';
+        }
+
+        try {
+            $params = array(
+                'charge' => $charge_id,
+                'reason' => $reason,
+            );
+
+            // If amount specified, add it (partial refund).
+            if ( null !== $amount ) {
+                $amount = floatval( $amount );
+                if ( $amount <= 0 ) {
+                    return new \WP_Error(
+                        'invalid_amount',
+                        __( 'Invalid refund amount.', 'easy-album-orders' )
+                    );
+                }
+                $params['amount'] = $this->convert_to_cents( $amount );
+            }
+
+            $refund = \Stripe\Refund::create( $params );
+
+            return array(
+                'id'     => $refund->id,
+                'amount' => $refund->amount / 100,
+                'status' => $refund->status,
+            );
+
+        } catch ( \Stripe\Exception\CardException $e ) {
+            return new \WP_Error( 'card_error', $e->getMessage() );
+        } catch ( \Stripe\Exception\InvalidRequestException $e ) {
+            // Common errors: charge already refunded, charge too old, etc.
+            return new \WP_Error( 'invalid_request', $e->getMessage() );
+        } catch ( \Stripe\Exception\ApiErrorException $e ) {
+            return new \WP_Error( 'stripe_error', $e->getMessage() );
+        }
+    }
+
+    /**
+     * Get a charge to check refund status.
+     *
+     * @since 1.2.0
+     *
+     * @param string $charge_id Stripe Charge ID.
+     * @return \Stripe\Charge|\WP_Error The charge or error.
+     */
+    public function get_charge( $charge_id ) {
+        if ( ! $this->init_stripe() ) {
+            return new \WP_Error(
+                'stripe_disabled',
+                __( 'Payment processing is not available.', 'easy-album-orders' )
+            );
+        }
+
+        if ( empty( $charge_id ) || 0 !== strpos( $charge_id, 'ch_' ) ) {
+            return new \WP_Error(
+                'invalid_charge',
+                __( 'Invalid payment reference.', 'easy-album-orders' )
+            );
+        }
+
+        try {
+            return \Stripe\Charge::retrieve( $charge_id );
+        } catch ( \Stripe\Exception\ApiErrorException $e ) {
+            return new \WP_Error( 'stripe_error', $e->getMessage() );
+        }
+    }
 }
 

@@ -2207,8 +2207,8 @@ composer require stripe/stripe-php
 #### Task 6.1: Test Mode Testing
 - **Dependencies:** All phases complete
 - **Deliverables:**
-  - [ ] Test successful payment with `4242 4242 4242 4242`
-  - [ ] Test declined card with `4000 0000 0000 0002`
+  - [x] Test successful payment with `4242 4242 4242 4242` ✅
+  - [x] Test declined card with `4000 0000 0000 0002` ✅
   - [ ] Test 3D Secure with `4000 0025 0000 3155`
   - [ ] Test expired card with `4000 0000 0000 0069`
   - [ ] Verify order status updates correctly

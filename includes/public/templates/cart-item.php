@@ -51,7 +51,7 @@ $total             = EAO_Album_Order::calculate_total( $order_id );
                 <?php 
                 echo esc_html( $material_name );
                 if ( $color_name ) {
-                    echo ' - ' . esc_html( $color_name );
+                    echo ' · ' . esc_html( $color_name );
                 }
                 ?>
             </div>
@@ -63,9 +63,12 @@ $total             = EAO_Album_Order::calculate_total( $order_id );
             <div><?php echo esc_html( sprintf( __( 'Engraving: %s', 'easy-album-orders' ), $engraving ) ); ?></div>
         <?php endif; ?>
         <?php if ( $shipping_name ) : ?>
-            <div class="eao-cart__item-shipping" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e4e7;">
-                <strong style="font-size: 11px; text-transform: uppercase; color: #999;"><?php esc_html_e( 'Ship to:', 'easy-album-orders' ); ?></strong>
-                <div style="font-size: 12px;">
+            <div class="eao-cart__item-shipping">
+                <div class="eao-cart__item-shipping-label">
+                    <?php EAO_Icons::render( 'truck', array( 'size' => 14 ) ); ?>
+                    <?php esc_html_e( 'Ship to:', 'easy-album-orders' ); ?>
+                </div>
+                <div>
                     <?php echo esc_html( $shipping_name ); ?><br>
                     <?php echo esc_html( $shipping_address1 ); ?>
                     <?php if ( $shipping_address2 ) : ?>
@@ -77,11 +80,12 @@ $total             = EAO_Album_Order::calculate_total( $order_id );
         <?php endif; ?>
         <?php if ( $applied_credits > 0 ) : ?>
             <div class="eao-cart__item-credit">
+                <?php EAO_Icons::render( 'circle-check', array( 'size' => 14 ) ); ?>
                 <?php
                 if ( 'free_album' === $credit_type ) {
-                    esc_html_e( '✓ Free Album Credit Applied', 'easy-album-orders' );
+                    esc_html_e( 'Free Album Credit Applied', 'easy-album-orders' );
                 } else {
-                    echo esc_html( sprintf( __( '✓ %s credit applied', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) );
+                    echo esc_html( sprintf( __( '%s credit applied', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) );
                 }
                 ?>
             </div>
@@ -89,11 +93,12 @@ $total             = EAO_Album_Order::calculate_total( $order_id );
     </div>
     <div class="eao-cart__item-actions">
         <button type="button" class="eao-cart__item-btn eao-cart__item-btn--edit" data-order-id="<?php echo esc_attr( $order_id ); ?>">
+            <?php EAO_Icons::render( 'pencil', array( 'size' => 14 ) ); ?>
             <?php esc_html_e( 'Edit', 'easy-album-orders' ); ?>
         </button>
         <button type="button" class="eao-cart__item-btn eao-cart__item-btn--remove" data-order-id="<?php echo esc_attr( $order_id ); ?>">
+            <?php EAO_Icons::render( 'trash', array( 'size' => 14 ) ); ?>
             <?php esc_html_e( 'Remove', 'easy-album-orders' ); ?>
         </button>
     </div>
 </div>
-

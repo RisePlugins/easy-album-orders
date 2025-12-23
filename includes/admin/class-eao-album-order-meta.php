@@ -697,7 +697,119 @@ class EAO_Album_Order_Meta {
                     <?php esc_html_e( 'No payment information recorded for this order.', 'easy-album-orders' ); ?>
                 </p>
             <?php endif; ?>
+
+            <?php
+            // Show refund button for paid orders that have a charge ID.
+            $can_refund = 'paid' === $payment_status && $charge_id && $stripe->is_enabled();
+            $already_refunded = in_array( $payment_status, array( 'refunded', 'partial_refund' ), true );
+            
+            if ( $can_refund || $already_refunded ) :
+                $refundable_amount = $payment_amount - ( $refund_amount ? $refund_amount : 0 );
+            ?>
+                <div class="eao-refund-section">
+                    <?php if ( $can_refund && $refundable_amount > 0 ) : ?>
+                        <button type="button" 
+                                class="button eao-refund-btn" 
+                                id="eao-refund-btn"
+                                data-order-id="<?php echo esc_attr( $post->ID ); ?>"
+                                data-charge-id="<?php echo esc_attr( $charge_id ); ?>"
+                                data-amount="<?php echo esc_attr( $refundable_amount ); ?>"
+                                data-nonce="<?php echo esc_attr( wp_create_nonce( 'eao_refund_order' ) ); ?>">
+                            <?php EAO_Icons::render( 'receipt-refund', array( 'size' => 16 ) ); ?>
+                            <?php esc_html_e( 'Issue Refund', 'easy-album-orders' ); ?>
+                        </button>
+                    <?php elseif ( $already_refunded && $refundable_amount > 0 ) : ?>
+                        <button type="button" 
+                                class="button eao-refund-btn" 
+                                id="eao-refund-btn"
+                                data-order-id="<?php echo esc_attr( $post->ID ); ?>"
+                                data-charge-id="<?php echo esc_attr( $charge_id ); ?>"
+                                data-amount="<?php echo esc_attr( $refundable_amount ); ?>"
+                                data-nonce="<?php echo esc_attr( wp_create_nonce( 'eao_refund_order' ) ); ?>">
+                            <?php EAO_Icons::render( 'receipt-refund', array( 'size' => 16 ) ); ?>
+                            <?php esc_html_e( 'Refund Remaining', 'easy-album-orders' ); ?>
+                            (<?php echo esc_html( eao_format_price( $refundable_amount ) ); ?>)
+                        </button>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
+
+        <!-- Refund Modal -->
+        <?php if ( $can_refund || ( $already_refunded && $refundable_amount > 0 ) ) : ?>
+        <div class="eao-refund-modal" id="eao-refund-modal" style="display: none;">
+            <div class="eao-refund-modal__backdrop"></div>
+            <div class="eao-refund-modal__content">
+                <div class="eao-refund-modal__header">
+                    <h3><?php esc_html_e( 'Issue Refund', 'easy-album-orders' ); ?></h3>
+                    <button type="button" class="eao-refund-modal__close" id="eao-refund-modal-close">
+                        <?php EAO_Icons::render( 'x', array( 'size' => 20 ) ); ?>
+                    </button>
+                </div>
+                <div class="eao-refund-modal__body">
+                    <p class="eao-refund-modal__warning">
+                        <?php EAO_Icons::render( 'alert-triangle', array( 'size' => 18 ) ); ?>
+                        <?php esc_html_e( 'This action cannot be undone. The customer will be refunded through Stripe.', 'easy-album-orders' ); ?>
+                    </p>
+                    
+                    <div class="eao-refund-modal__options">
+                        <label class="eao-refund-option">
+                            <input type="radio" name="eao_refund_type" value="full" checked>
+                            <span class="eao-refund-option__label">
+                                <?php esc_html_e( 'Full Refund', 'easy-album-orders' ); ?>
+                                <span class="eao-refund-option__amount"><?php echo esc_html( eao_format_price( $refundable_amount ) ); ?></span>
+                            </span>
+                        </label>
+                        <label class="eao-refund-option">
+                            <input type="radio" name="eao_refund_type" value="partial">
+                            <span class="eao-refund-option__label">
+                                <?php esc_html_e( 'Partial Refund', 'easy-album-orders' ); ?>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <div class="eao-refund-modal__partial" id="eao-refund-partial" style="display: none;">
+                        <label for="eao-refund-amount"><?php esc_html_e( 'Refund Amount', 'easy-album-orders' ); ?></label>
+                        <div class="eao-refund-modal__input-wrapper">
+                            <span class="eao-refund-modal__currency"><?php echo esc_html( eao_get_currency_symbol() ); ?></span>
+                            <input type="number" 
+                                   id="eao-refund-amount" 
+                                   name="eao_refund_amount" 
+                                   step="0.01" 
+                                   min="0.01" 
+                                   max="<?php echo esc_attr( $refundable_amount ); ?>"
+                                   value="<?php echo esc_attr( $refundable_amount ); ?>">
+                        </div>
+                        <p class="eao-refund-modal__help">
+                            <?php echo esc_html( sprintf( __( 'Maximum refundable: %s', 'easy-album-orders' ), eao_format_price( $refundable_amount ) ) ); ?>
+                        </p>
+                    </div>
+                    
+                    <div class="eao-refund-modal__reason">
+                        <label for="eao-refund-reason"><?php esc_html_e( 'Reason', 'easy-album-orders' ); ?></label>
+                        <select id="eao-refund-reason" name="eao_refund_reason">
+                            <option value="requested_by_customer"><?php esc_html_e( 'Requested by customer', 'easy-album-orders' ); ?></option>
+                            <option value="duplicate"><?php esc_html_e( 'Duplicate charge', 'easy-album-orders' ); ?></option>
+                            <option value="fraudulent"><?php esc_html_e( 'Fraudulent', 'easy-album-orders' ); ?></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="eao-refund-modal__footer">
+                    <button type="button" class="button" id="eao-refund-cancel">
+                        <?php esc_html_e( 'Cancel', 'easy-album-orders' ); ?>
+                    </button>
+                    <button type="button" class="button button-primary eao-refund-confirm" id="eao-refund-confirm">
+                        <?php EAO_Icons::render( 'receipt-refund', array( 'size' => 16 ) ); ?>
+                        <span class="eao-refund-confirm__text"><?php esc_html_e( 'Process Refund', 'easy-album-orders' ); ?></span>
+                        <span class="eao-refund-confirm__loading" style="display: none;">
+                            <span class="spinner is-active"></span>
+                            <?php esc_html_e( 'Processing...', 'easy-album-orders' ); ?>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
         <?php
     }
 

@@ -111,7 +111,7 @@ $cart_items = array();
                                         <img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $design['name'] ); ?>" class="eao-selection-card__image">
                                     <?php else : ?>
                                         <div class="eao-selection-card__image eao-selection-card__image--placeholder">
-                                            <span class="dashicons dashicons-format-gallery"></span>
+                                            <?php EAO_Icons::render( 'photo', array( 'size' => 40 ) ); ?>
                                         </div>
                                     <?php endif; ?>
                                     <div class="eao-selection-card__name"><?php echo esc_html( $design['name'] ); ?></div>
@@ -166,7 +166,7 @@ $cart_items = array();
                                         <img src="<?php echo esc_url( $material_image ); ?>" alt="<?php echo esc_attr( $material['name'] ); ?>" class="eao-selection-card__image">
                                     <?php else : ?>
                                         <div class="eao-selection-card__image eao-selection-card__image--placeholder">
-                                            <span class="dashicons dashicons-art"></span>
+                                            <?php EAO_Icons::render( 'palette', array( 'size' => 40 ) ); ?>
                                         </div>
                                     <?php endif; ?>
                                     <div class="eao-selection-card__name"><?php echo esc_html( $material['name'] ); ?></div>
@@ -233,7 +233,7 @@ $cart_items = array();
                                    data-fonts="">
                                 <input type="radio" name="engraving_method" value="" checked>
                                 <div class="eao-engraving-card__icon">
-                                    <span class="dashicons dashicons-no-alt"></span>
+                                    <?php EAO_Icons::render( 'x', array( 'size' => 24 ) ); ?>
                                 </div>
                                 <div class="eao-selection-card__name"><?php esc_html_e( 'No Engraving', 'easy-album-orders' ); ?></div>
                                 <div class="eao-selection-card__price eao-selection-card__price--included"><?php esc_html_e( 'Included', 'easy-album-orders' ); ?></div>
@@ -253,7 +253,7 @@ $cart_items = array();
                                         <img src="<?php echo esc_url( $engraving_image ); ?>" alt="<?php echo esc_attr( $option['name'] ); ?>" class="eao-selection-card__image">
                                     <?php else : ?>
                                         <div class="eao-engraving-card__icon">
-                                            <span class="dashicons dashicons-edit"></span>
+                                            <?php EAO_Icons::render( 'writing', array( 'size' => 24 ) ); ?>
                                         </div>
                                     <?php endif; ?>
                                     <div class="eao-selection-card__name"><?php echo esc_html( $option['name'] ); ?></div>
@@ -320,7 +320,7 @@ $cart_items = array();
                             <!-- Add New Address Card -->
                             <div class="eao-address-card eao-address-card--new is-selected" data-address-id="new">
                                 <div class="eao-address-card__icon">
-                                    <span class="dashicons dashicons-plus-alt2"></span>
+                                    <?php EAO_Icons::render( 'plus', array( 'size' => 28 ) ); ?>
                                 </div>
                                 <div class="eao-address-card__label"><?php esc_html_e( 'New Address', 'easy-album-orders' ); ?></div>
                             </div>
@@ -418,6 +418,7 @@ $cart_items = array();
         <aside class="eao-cart" id="eao-cart">
             <div class="eao-cart__header">
                 <h3 class="eao-cart__title">
+                    <?php EAO_Icons::render( 'shopping-cart', array( 'size' => 20 ) ); ?>
                     <?php esc_html_e( 'Your Cart', 'easy-album-orders' ); ?>
                     <span class="eao-cart__count" id="eao-cart-count"><?php echo count( $cart_items ); ?></span>
                 </h3>
@@ -426,6 +427,9 @@ $cart_items = array();
             <div class="eao-cart__items" id="eao-cart-items">
                 <?php if ( empty( $cart_items ) ) : ?>
                     <div class="eao-cart__empty" id="eao-cart-empty">
+                        <div class="eao-cart__empty-icon">
+                            <?php EAO_Icons::render( 'shopping-cart', array( 'size' => 48 ) ); ?>
+                        </div>
                         <p><?php esc_html_e( 'Your cart is empty.', 'easy-album-orders' ); ?></p>
                         <p class="eao-cart__empty-hint"><?php esc_html_e( 'Configure an album above and click "Add to Cart" to get started.', 'easy-album-orders' ); ?></p>
                     </div>
@@ -466,7 +470,7 @@ $cart_items = array();
             <div class="eao-modal__header">
                 <h2 class="eao-modal__title"><?php esc_html_e( 'Complete Your Order', 'easy-album-orders' ); ?></h2>
                 <button type="button" class="eao-modal__close" id="eao-modal-close">
-                    <span class="dashicons dashicons-no-alt"></span>
+                    <?php EAO_Icons::render( 'x', array( 'size' => 24 ) ); ?>
                 </button>
             </div>
             <div class="eao-modal__body">
@@ -543,20 +547,20 @@ $cart_items = array();
             <!-- Header -->
             <div class="eao-proof-viewer__header">
                 <div class="eao-proof-viewer__title">
-                    <span class="dashicons dashicons-pdf"></span>
+                    <?php EAO_Icons::render( 'file-type-pdf', array( 'size' => 24 ) ); ?>
                     <span id="eao-proof-viewer-title"><?php esc_html_e( 'Proof Viewer', 'easy-album-orders' ); ?></span>
                 </div>
                 <div class="eao-proof-viewer__controls">
                     <div class="eao-proof-viewer__view-toggle">
                         <button type="button" class="eao-proof-viewer__view-btn is-active" data-view="slide" title="<?php esc_attr_e( 'Slide View', 'easy-album-orders' ); ?>">
-                            <span class="dashicons dashicons-slides"></span>
+                            <?php EAO_Icons::render( 'presentation', array( 'size' => 20 ) ); ?>
                         </button>
                         <button type="button" class="eao-proof-viewer__view-btn" data-view="grid" title="<?php esc_attr_e( 'Grid View', 'easy-album-orders' ); ?>">
-                            <span class="dashicons dashicons-grid-view"></span>
+                            <?php EAO_Icons::render( 'layout-grid', array( 'size' => 20 ) ); ?>
                         </button>
                     </div>
                     <button type="button" class="eao-proof-viewer__close" title="<?php esc_attr_e( 'Close', 'easy-album-orders' ); ?>">
-                        <span class="dashicons dashicons-no-alt"></span>
+                        <?php EAO_Icons::render( 'x', array( 'size' => 28 ) ); ?>
                     </button>
                 </div>
             </div>
@@ -572,13 +576,13 @@ $cart_items = array();
                 <!-- Slide View -->
                 <div class="eao-proof-viewer__slide-view" id="eao-proof-slide-view">
                     <button type="button" class="eao-proof-viewer__nav eao-proof-viewer__nav--prev" id="eao-proof-prev" title="<?php esc_attr_e( 'Previous', 'easy-album-orders' ); ?>">
-                        <span class="dashicons dashicons-arrow-left-alt2"></span>
+                        <?php EAO_Icons::render( 'chevron-left', array( 'size' => 28 ) ); ?>
                     </button>
                     <div class="eao-proof-viewer__canvas-wrapper">
                         <canvas id="eao-proof-canvas"></canvas>
                     </div>
                     <button type="button" class="eao-proof-viewer__nav eao-proof-viewer__nav--next" id="eao-proof-next" title="<?php esc_attr_e( 'Next', 'easy-album-orders' ); ?>">
-                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                        <?php EAO_Icons::render( 'chevron-right', array( 'size' => 28 ) ); ?>
                     </button>
                 </div>
 
@@ -631,7 +635,7 @@ $cart_items = array();
         <section class="eao-order-history" id="eao-order-history">
             <div class="eao-order-history__header">
                 <h2 class="eao-order-history__title">
-                    <span class="dashicons dashicons-clipboard"></span>
+                    <?php EAO_Icons::render( 'clipboard-list', array( 'size' => 28 ) ); ?>
                     <?php esc_html_e( 'Your Order History', 'easy-album-orders' ); ?>
                 </h2>
                 <p class="eao-order-history__subtitle"><?php esc_html_e( 'Albums you have ordered', 'easy-album-orders' ); ?></p>
@@ -728,10 +732,10 @@ $cart_items = array();
                             <?php if ( $applied_credits > 0 ) : ?>
                                 <div class="eao-order-history__credit">
                                     <?php if ( 'free_album' === $credit_type ) : ?>
-                                        <span class="dashicons dashicons-awards"></span>
+                                        <?php EAO_Icons::render( 'award', array( 'size' => 18 ) ); ?>
                                         <?php echo esc_html( sprintf( __( 'Free Album Credit Applied: %s', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) ); ?>
                                     <?php else : ?>
-                                        <span class="dashicons dashicons-tag"></span>
+                                        <?php EAO_Icons::render( 'tag', array( 'size' => 18 ) ); ?>
                                         <?php echo esc_html( sprintf( __( 'Credit Applied: %s', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) ); ?>
                                     <?php endif; ?>
                                 </div>
@@ -744,7 +748,7 @@ $cart_items = array();
 
                         <?php if ( $order_status === EAO_Album_Order::STATUS_SHIPPED && $shipped_date ) : ?>
                             <div class="eao-order-history__shipped-notice">
-                                <span class="dashicons dashicons-yes-alt"></span>
+                                <?php EAO_Icons::render( 'circle-check', array( 'size' => 20 ) ); ?>
                                 <?php echo esc_html( sprintf( __( 'Shipped on %s', 'easy-album-orders' ), date_i18n( get_option( 'date_format' ), strtotime( $shipped_date ) ) ) ); ?>
                             </div>
                         <?php endif; ?>

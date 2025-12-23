@@ -5,8 +5,8 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 16 (~64KB estimated)
-- **Potential savings**: ~22.9MB
+- **Icons currently used**: 28 (~112KB estimated)
+- **Potential savings**: ~22.8MB
 
 ---
 
@@ -47,8 +47,32 @@ Keep this list updated as you add new icons throughout development.
 
 | Icon | Usage |
 |------|-------|
+| `photo` | Placeholder for design images without cover |
+| `palette` | Placeholder for material images |
+| `x` | No engraving card, modal close buttons, proof viewer close |
+| `writing` | Engraving option icon |
+| `plus` | New address card icon |
 | `lock` | Secure payment badge in checkout modal |
 | `arrow-left` | Back button in payment step |
+| `file-type-pdf` | Proof viewer title |
+| `presentation` | Slide view toggle in proof viewer |
+| `layout-grid` | Grid view toggle in proof viewer |
+| `chevron-left` | Previous page in proof viewer |
+| `chevron-right` | Next page in proof viewer |
+| `clipboard-list` | Order history section title |
+| `award` | Free album credit applied in order history |
+| `tag` | Dollar credit applied in order history |
+| `circle-check` | Shipped notice in order history |
+| `shopping-cart` | Cart header and empty cart icon |
+
+### Front-End Cart Item (`cart-item.php`)
+
+| Icon | Usage |
+|------|-------|
+| `truck` | Ship to label in cart item |
+| `circle-check` | Credit applied indicator in cart item |
+| `pencil` | Edit button in cart item |
+| `trash` | Remove button in cart item |
 
 ---
 
@@ -61,19 +85,31 @@ award
 book
 books
 brand-loom
+chevron-left
+chevron-right
 circle-check
+clipboard-list
 copy
 external-link
 file-type-pdf
+layout-grid
 link
 lock
+palette
+pencil
+photo
 plus
+presentation
 shopping-cart
+tag
 trash
+truck
 user
+writing
+x
 ```
 
-**Total: 16 icons**
+**Total: 28 icons**
 
 ---
 
@@ -153,5 +189,4 @@ Common categories for this plugin:
 
 ---
 
-*Last updated: December 21, 2025*
-
+*Last updated: December 23, 2025*

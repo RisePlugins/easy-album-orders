@@ -66,6 +66,7 @@ class EAO_Admin {
 
         // AJAX handlers.
         add_action( 'wp_ajax_eao_get_attachment_url', array( $this, 'ajax_get_attachment_url' ) );
+        add_action( 'wp_ajax_eao_process_refund', array( $this, 'ajax_process_refund' ) );
 
         // Admin notices for status updates.
         add_action( 'admin_notices', array( $this, 'status_update_notices' ) );
