@@ -1,5 +1,8 @@
 # Easy Album Orders - Git Ignore
 
+# Full Tabler Icons library (keep only in dev folder, not in plugin)
+tabler-icons-full/
+
 # OS generated files
 .DS_Store
 .DS_Store?
