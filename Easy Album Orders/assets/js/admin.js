@@ -39,6 +39,7 @@
             this.bindCopyWebhookUrl();
             this.bindStripeKeyValidation();
             this.bindRefund();
+            this.bindBrandColorPicker();
         },
 
         /**
@@ -1496,6 +1497,75 @@
                         $loading.hide();
                     }
                 });
+            });
+        },
+
+        /**
+         * Bind brand color picker functionality.
+         * Syncs color input with hex text input and handles reset.
+         */
+        bindBrandColorPicker: function() {
+            const $colorInput = $('#eao_brand_color');
+            const $hexInput = $('#eao_brand_color_hex');
+            const $resetBtn = $('.eao-color-reset');
+
+            if (!$colorInput.length) {
+                return;
+            }
+
+            // Sync color picker to hex input.
+            $colorInput.on('input change', function() {
+                $hexInput.val($(this).val().toUpperCase());
+            });
+
+            // Sync hex input to color picker.
+            $hexInput.on('input', function() {
+                let hex = $(this).val().trim();
+                
+                // Add # if missing.
+                if (hex && !hex.startsWith('#')) {
+                    hex = '#' + hex;
+                }
+
+                // Validate hex format.
+                if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) {
+                    // Expand 3-char hex to 6-char.
+                    if (hex.length === 4) {
+                        hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+                    }
+                    $colorInput.val(hex.toLowerCase());
+                    $(this).val(hex.toUpperCase());
+                }
+            });
+
+            // Handle blur to format/validate.
+            $hexInput.on('blur', function() {
+                let hex = $(this).val().trim();
+                
+                // Add # if missing.
+                if (hex && !hex.startsWith('#')) {
+                    hex = '#' + hex;
+                }
+
+                // Validate and fix format.
+                if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) {
+                    // Expand 3-char hex to 6-char.
+                    if (hex.length === 4) {
+                        hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+                    }
+                    $(this).val(hex.toUpperCase());
+                    $colorInput.val(hex.toLowerCase());
+                } else if (hex) {
+                    // Invalid - reset to current color input value.
+                    $(this).val($colorInput.val().toUpperCase());
+                }
+            });
+
+            // Reset button.
+            $resetBtn.on('click', function() {
+                const defaultColor = $(this).data('default');
+                $colorInput.val(defaultColor);
+                $hexInput.val(defaultColor.toUpperCase());
             });
         }
     };

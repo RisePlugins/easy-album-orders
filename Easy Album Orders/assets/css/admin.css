@@ -1399,6 +1399,73 @@
 }
 
 /* ==========================================================================
+   Color Field (Brand Settings)
+   ========================================================================== */
+
+.eao-color-field {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    flex-wrap: wrap;
+}
+
+.eao-color-input {
+    width: 50px;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid var(--eao-gray-300);
+    border-radius: var(--eao-radius-sm);
+    cursor: pointer;
+    background: var(--eao-white);
+}
+
+.eao-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.eao-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+.eao-color-input::-moz-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+.eao-color-hex-input {
+    width: 100px;
+    font-family: var(--eao-font-mono);
+    text-transform: uppercase;
+}
+
+.eao-color-reset {
+    flex-shrink: 0;
+}
+
+.eao-color-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-md);
+    margin-top: var(--eao-space-md);
+    padding: var(--eao-space-md);
+    background: var(--eao-gray-50);
+    border-radius: var(--eao-radius-sm);
+}
+
+.eao-color-preview__swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--eao-radius-sm);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.eao-color-preview__label {
+    font-size: var(--eao-font-sm);
+    color: var(--eao-gray-600);
+}
+
+/* ==========================================================================
    Sub-Repeater (Legacy)
    ========================================================================== */
 

@@ -70,6 +70,96 @@ class EAO_Public {
             $this->version,
             'all'
         );
+
+        // Add dynamic brand color CSS.
+        $this->add_brand_color_css();
+    }
+
+    /**
+     * Add dynamic brand color CSS variables.
+     *
+     * Outputs inline CSS to override the default accent color with
+     * the photographer's custom brand color from settings.
+     *
+     * @since 1.0.0
+     */
+    private function add_brand_color_css() {
+        $general_settings = get_option( 'eao_general_settings', array() );
+        $brand_color      = isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#e67e22';
+
+        // Only output custom CSS if the color differs from default.
+        if ( '#e67e22' === $brand_color ) {
+            return;
+        }
+
+        // Calculate hover color (10% darker).
+        $hover_color = $this->darken_color( $brand_color, 15 );
+        
+        // Calculate light color (10% opacity).
+        $light_color = $this->hex_to_rgba( $brand_color, 0.1 );
+
+        $custom_css = sprintf(
+            ':root {
+                --eao-accent: %1$s;
+                --eao-accent-hover: %2$s;
+                --eao-accent-light: %3$s;
+            }',
+            esc_attr( $brand_color ),
+            esc_attr( $hover_color ),
+            esc_attr( $light_color )
+        );
+
+        wp_add_inline_style( $this->plugin_name . '-public', $custom_css );
+    }
+
+    /**
+     * Darken a hex color by a percentage.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $hex     Hex color code.
+     * @param int    $percent Percentage to darken (0-100).
+     * @return string Darkened hex color.
+     */
+    private function darken_color( $hex, $percent ) {
+        // Remove # if present.
+        $hex = ltrim( $hex, '#' );
+
+        // Convert to RGB.
+        $r = hexdec( substr( $hex, 0, 2 ) );
+        $g = hexdec( substr( $hex, 2, 2 ) );
+        $b = hexdec( substr( $hex, 4, 2 ) );
+
+        // Darken.
+        $r = max( 0, min( 255, $r - ( $r * $percent / 100 ) ) );
+        $g = max( 0, min( 255, $g - ( $g * $percent / 100 ) ) );
+        $b = max( 0, min( 255, $b - ( $b * $percent / 100 ) ) );
+
+        // Convert back to hex.
+        return sprintf( '#%02x%02x%02x', $r, $g, $b );
+    }
+
+    /**
+     * Convert hex color to rgba.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $hex   Hex color code.
+     * @param float  $alpha Alpha transparency (0-1).
+     * @return string RGBA color string.
+     */
+    private function hex_to_rgba( $hex, $alpha = 1 ) {
+        // Remove # if present.
+        $hex = ltrim( $hex, '#' );
+
+        // Convert to RGB.
+        $r = hexdec( substr( $hex, 0, 2 ) );
+        $g = hexdec( substr( $hex, 2, 2 ) );
+        $b = hexdec( substr( $hex, 4, 2 ) );
+
+        return sprintf( 'rgba(%d, %d, %d, %s)', $r, $g, $b, $alpha );
     }
 
     /**

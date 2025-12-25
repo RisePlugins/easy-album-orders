@@ -896,6 +896,37 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
 
             <div class="eao-settings-grid">
+                <!-- Brand Settings Card -->
+                <div class="eao-settings-card">
+                    <h3><?php esc_html_e( 'Brand', 'easy-album-orders' ); ?></h3>
+                    <div class="eao-settings-card__body">
+                        <div class="eao-field">
+                            <label for="eao_brand_color"><?php esc_html_e( 'Primary Brand Color', 'easy-album-orders' ); ?></label>
+                            <div class="eao-color-field">
+                                <input 
+                                    type="color" 
+                                    id="eao_brand_color" 
+                                    name="eao_general_settings[brand_color]" 
+                                    value="<?php echo esc_attr( isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#e67e22' ); ?>"
+                                    class="eao-color-input"
+                                >
+                                <input 
+                                    type="text" 
+                                    id="eao_brand_color_hex" 
+                                    class="eao-color-hex-input" 
+                                    value="<?php echo esc_attr( isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#e67e22' ); ?>"
+                                    pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                                    placeholder="#e67e22"
+                                >
+                                <button type="button" class="button eao-color-reset" data-default="#e67e22">
+                                    <?php esc_html_e( 'Reset', 'easy-album-orders' ); ?>
+                                </button>
+                            </div>
+                            <p class="description"><?php esc_html_e( 'This color is used for buttons, links, and accent elements throughout the client album interface.', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="eao-settings-card">
                     <h3><?php esc_html_e( 'Currency', 'easy-album-orders' ); ?></h3>
                     <div class="eao-settings-card__body">

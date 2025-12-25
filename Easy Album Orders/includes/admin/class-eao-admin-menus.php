@@ -338,6 +338,7 @@ class EAO_Admin_Menus {
                 : 'before',
             'email_notifications' => isset( $settings['email_notifications'] ) ? true : false,
             'admin_email'         => isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' ),
+            'brand_color'         => isset( $settings['brand_color'] ) ? sanitize_hex_color( $settings['brand_color'] ) : '#e67e22',
         );
     }
 
