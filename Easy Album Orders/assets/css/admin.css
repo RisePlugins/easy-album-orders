@@ -96,7 +96,103 @@
 }
 
 /* ==========================================================================
-   Tab Navigation
+   Options Page Layout (Sidebar + Content)
+   ========================================================================== */
+
+.eao-options-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: var(--eao-space-lg);
+    align-items: start;
+}
+
+/* Sidebar Navigation Card */
+.eao-options-nav {
+    position: sticky;
+    top: 32px;
+    background: #fff;
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-xl);
+    box-shadow: var(--eao-shadow-sm);
+    overflow: hidden;
+}
+
+.eao-options-nav__inner {
+    display: flex;
+    flex-direction: column;
+    padding: var(--eao-space-sm);
+}
+
+.eao-options-nav__item {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-md);
+    padding: var(--eao-space-md) var(--eao-space-md);
+    font-size: var(--eao-font-md);
+    font-weight: 500;
+    color: var(--eao-gray-600);
+    text-decoration: none;
+    border-radius: var(--eao-radius-lg);
+    transition: all var(--eao-transition);
+    cursor: pointer;
+}
+
+.eao-options-nav__item:hover {
+    color: var(--eao-gray-900);
+    background: var(--eao-gray-50);
+}
+
+.eao-options-nav__item:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--eao-primary-light);
+}
+
+.eao-options-nav__item--active,
+.eao-options-nav__item--active:hover {
+    color: var(--eao-primary);
+    background: var(--eao-primary-light);
+}
+
+.eao-options-nav__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--eao-gray-100);
+    border-radius: var(--eao-radius-md);
+    color: var(--eao-gray-500);
+    transition: all var(--eao-transition);
+    flex-shrink: 0;
+}
+
+.eao-options-nav__item:hover .eao-options-nav__icon {
+    color: var(--eao-gray-700);
+    background: var(--eao-gray-200);
+}
+
+.eao-options-nav__item--active .eao-options-nav__icon,
+.eao-options-nav__item--active:hover .eao-options-nav__icon {
+    color: var(--eao-primary);
+    background: rgba(56, 88, 233, 0.15);
+}
+
+.eao-options-nav__icon .eao-icon {
+    display: block;
+}
+
+.eao-options-nav__label {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* Main Content Area */
+.eao-options-content {
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Legacy Tab Navigation (for backward compatibility)
    ========================================================================== */
 
 .eao-tabs {
@@ -135,7 +231,7 @@
 }
 
 /* ==========================================================================
-   Tab Content
+   Tab/Section Content
    ========================================================================== */
 
 .eao-tab-content {
@@ -143,8 +239,8 @@
     padding: var(--eao-space-lg);
     background: #fff;
     border: var(--eao-border);
-    border-top: none;
-    border-radius: 0 0 var(--eao-radius-lg) var(--eao-radius-lg);
+    border-radius: var(--eao-radius-xl);
+    box-shadow: var(--eao-shadow-sm);
 }
 
 .eao-tab-content.active {
@@ -2918,9 +3014,56 @@
    Responsive
    ========================================================================== */
 
+/* Tablet breakpoint - collapse sidebar to horizontal */
+@media screen and (max-width: 960px) {
+    .eao-options-layout {
+        grid-template-columns: 1fr;
+        gap: var(--eao-space-md);
+    }
+    
+    .eao-options-nav {
+        position: static;
+    }
+    
+    .eao-options-nav__inner {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: var(--eao-space-xs);
+        padding: var(--eao-space-sm);
+    }
+    
+    .eao-options-nav__item {
+        flex: 0 0 auto;
+        padding: var(--eao-space-sm) var(--eao-space-md);
+        gap: var(--eao-space-sm);
+    }
+    
+    .eao-options-nav__icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Mobile breakpoint */
 @media screen and (max-width: 782px) {
     .eao-admin-wrap {
         margin-right: 10px;
+    }
+    
+    /* Sidebar nav on mobile - icon-only or compact */
+    .eao-options-nav__inner {
+        justify-content: center;
+    }
+    
+    .eao-options-nav__item {
+        padding: var(--eao-space-sm);
+        flex-direction: column;
+        gap: var(--eao-space-xs);
+        text-align: center;
+    }
+    
+    .eao-options-nav__label {
+        font-size: var(--eao-font-xs);
     }
     
     .eao-tab-header {

@@ -19,26 +19,39 @@ if ( ! defined( 'ABSPATH' ) ) {
     <form method="post" action="" class="eao-options-form">
         <?php wp_nonce_field( 'eao_album_options_nonce', 'eao_nonce' ); ?>
 
-        <nav class="nav-tab-wrapper eao-tabs">
-            <a href="#materials" class="nav-tab nav-tab-active" data-tab="materials">
-                <?php esc_html_e( 'Materials', 'easy-album-orders' ); ?>
-            </a>
-            <a href="#sizes" class="nav-tab" data-tab="sizes">
-                <?php esc_html_e( 'Sizes', 'easy-album-orders' ); ?>
-            </a>
-            <a href="#engraving" class="nav-tab" data-tab="engraving">
-                <?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?>
-            </a>
-            <a href="#emails" class="nav-tab" data-tab="emails">
-                <?php esc_html_e( 'Emails', 'easy-album-orders' ); ?>
-            </a>
-            <a href="#payments" class="nav-tab" data-tab="payments">
-                <?php esc_html_e( 'Payments', 'easy-album-orders' ); ?>
-            </a>
-            <a href="#general" class="nav-tab" data-tab="general">
-                <?php esc_html_e( 'General', 'easy-album-orders' ); ?>
-            </a>
-        </nav>
+        <div class="eao-options-layout">
+            <!-- Sidebar Navigation -->
+            <nav class="eao-options-nav" role="navigation" aria-label="<?php esc_attr_e( 'Album Options Navigation', 'easy-album-orders' ); ?>">
+                <div class="eao-options-nav__inner">
+                    <a href="#materials" class="eao-options-nav__item eao-options-nav__item--active" data-tab="materials">
+                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'palette', array( 'size' => 20 ) ); ?></span>
+                        <span class="eao-options-nav__label"><?php esc_html_e( 'Materials', 'easy-album-orders' ); ?></span>
+                    </a>
+                    <a href="#sizes" class="eao-options-nav__item" data-tab="sizes">
+                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'ruler-2', array( 'size' => 20 ) ); ?></span>
+                        <span class="eao-options-nav__label"><?php esc_html_e( 'Sizes', 'easy-album-orders' ); ?></span>
+                    </a>
+                    <a href="#engraving" class="eao-options-nav__item" data-tab="engraving">
+                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'writing', array( 'size' => 20 ) ); ?></span>
+                        <span class="eao-options-nav__label"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></span>
+                    </a>
+                    <a href="#emails" class="eao-options-nav__item" data-tab="emails">
+                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'mail', array( 'size' => 20 ) ); ?></span>
+                        <span class="eao-options-nav__label"><?php esc_html_e( 'Emails', 'easy-album-orders' ); ?></span>
+                    </a>
+                    <a href="#payments" class="eao-options-nav__item" data-tab="payments">
+                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'credit-card', array( 'size' => 20 ) ); ?></span>
+                        <span class="eao-options-nav__label"><?php esc_html_e( 'Payments', 'easy-album-orders' ); ?></span>
+                    </a>
+                    <a href="#general" class="eao-options-nav__item" data-tab="general">
+                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'settings', array( 'size' => 20 ) ); ?></span>
+                        <span class="eao-options-nav__label"><?php esc_html_e( 'General', 'easy-album-orders' ); ?></span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <div class="eao-options-content">
 
         <!-- Materials Tab -->
         <div id="materials" class="eao-tab-content active">
@@ -972,6 +985,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
             </div>
         </div>
+
+            </div><!-- .eao-options-content -->
+        </div><!-- .eao-options-layout -->
 
         <div class="eao-form-footer">
             <input type="submit" name="eao_save_options" class="button button-primary button-large" value="<?php esc_attr_e( 'Save Changes', 'easy-album-orders' ); ?>">

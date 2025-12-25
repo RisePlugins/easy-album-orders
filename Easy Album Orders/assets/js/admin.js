@@ -56,9 +56,39 @@
         },
 
         /**
-         * Bind tab navigation.
+         * Bind tab/section navigation.
+         * Supports both old tab style (.eao-tabs .nav-tab) and new sidebar nav (.eao-options-nav__item).
          */
         bindTabs: function() {
+            const self = this;
+
+            // New sidebar navigation.
+            $('.eao-options-nav__item').on('click', function(e) {
+                e.preventDefault();
+                const tab = $(this).data('tab');
+
+                // Update active nav item.
+                $('.eao-options-nav__item').removeClass('eao-options-nav__item--active');
+                $(this).addClass('eao-options-nav__item--active');
+
+                // Show corresponding content.
+                $('.eao-tab-content').removeClass('active');
+                $('#' + tab).addClass('active');
+
+                // Update URL hash.
+                if (history.pushState) {
+                    history.pushState(null, null, '#' + tab);
+                }
+
+                // Scroll to top of content on mobile.
+                if (window.innerWidth <= 960) {
+                    $('html, body').animate({
+                        scrollTop: $('.eao-options-content').offset().top - 50
+                    }, 200);
+                }
+            });
+
+            // Legacy tab navigation (for backward compatibility).
             $('.eao-tabs .nav-tab').on('click', function(e) {
                 e.preventDefault();
                 const tab = $(this).data('tab');
@@ -79,8 +109,13 @@
 
             // Check URL hash on load.
             const hash = window.location.hash.replace('#', '');
-            if (hash && $('.eao-tabs .nav-tab[data-tab="' + hash + '"]').length) {
-                $('.eao-tabs .nav-tab[data-tab="' + hash + '"]').trigger('click');
+            if (hash) {
+                // Try new nav first, then legacy tabs.
+                if ($('.eao-options-nav__item[data-tab="' + hash + '"]').length) {
+                    $('.eao-options-nav__item[data-tab="' + hash + '"]').trigger('click');
+                } else if ($('.eao-tabs .nav-tab[data-tab="' + hash + '"]').length) {
+                    $('.eao-tabs .nav-tab[data-tab="' + hash + '"]').trigger('click');
+                }
             }
         },
 
