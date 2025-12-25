@@ -101,7 +101,7 @@
 
 .eao-options-layout {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 260px 1fr;
     gap: var(--eao-space-lg);
     align-items: start;
 }
@@ -115,6 +115,20 @@
     border-radius: var(--eao-radius-xl);
     box-shadow: var(--eao-shadow-sm);
     overflow: hidden;
+}
+
+.eao-options-nav__header {
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    border-bottom: var(--eao-border);
+}
+
+.eao-options-nav__title {
+    margin: 0;
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--eao-gray-400);
 }
 
 .eao-options-nav__inner {
@@ -3023,6 +3037,10 @@
     
     .eao-options-nav {
         position: static;
+    }
+    
+    .eao-options-nav__header {
+        display: none;
     }
     
     .eao-options-nav__inner {

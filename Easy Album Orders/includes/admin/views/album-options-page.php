@@ -22,6 +22,9 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="eao-options-layout">
             <!-- Sidebar Navigation -->
             <nav class="eao-options-nav" role="navigation" aria-label="<?php esc_attr_e( 'Album Options Navigation', 'easy-album-orders' ); ?>">
+                <div class="eao-options-nav__header">
+                    <h2 class="eao-options-nav__title"><?php esc_html_e( 'Settings', 'easy-album-orders' ); ?></h2>
+                </div>
                 <div class="eao-options-nav__inner">
                     <a href="#materials" class="eao-options-nav__item eao-options-nav__item--active" data-tab="materials">
                         <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'palette', array( 'size' => 20 ) ); ?></span>
