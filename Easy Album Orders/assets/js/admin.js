@@ -1661,13 +1661,13 @@
             $('#engraving-repeater').sortable({
                 items: '.eao-engraving-card',
                 handle: '.eao-sortable-handle',
+                axis: 'y',
                 cursor: 'grabbing',
                 opacity: 0.8,
                 placeholder: 'eao-sortable-placeholder eao-sortable-placeholder--engraving',
                 tolerance: 'pointer',
                 start: function(e, ui) {
                     ui.placeholder.height(ui.item.outerHeight());
-                    ui.placeholder.width(ui.item.outerWidth());
                     ui.item.addClass('eao-is-dragging');
                 },
                 stop: function(e, ui) {

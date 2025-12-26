@@ -1140,13 +1140,13 @@
    ========================================================================== */
 
 .eao-engraving-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--eao-space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-md);
 }
 
 .eao-engraving-card {
-    position: relative;
+    display: flex;
     background: #fff;
     border: var(--eao-border);
     border-radius: var(--eao-radius-lg);
@@ -1154,81 +1154,31 @@
     transition: box-shadow var(--eao-transition);
 }
 
+.eao-engraving-card > .eao-sortable-handle {
+    width: 28px;
+}
+
+.eao-engraving-card__wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
 .eao-engraving-card:hover {
     box-shadow: var(--eao-shadow-sm);
 }
 
-.eao-engraving-card__header {
-    display: flex;
-    align-items: center;
-    gap: var(--eao-space-md);
-    padding: var(--eao-space-md) var(--eao-space-lg);
-    background: var(--eao-gray-50);
-    border-bottom: var(--eao-border);
-}
-
-.eao-engraving-card__header .eao-engraving-name-input {
-    flex: 1;
-    font-size: var(--eao-font-lg);
-    font-weight: 600;
-    padding: var(--eao-space-xs) 0;
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-}
-
-.eao-engraving-card__header .eao-engraving-name-input:focus {
-    border-bottom-color: var(--eao-primary);
-    box-shadow: none;
-}
-
-.eao-engraving-card__delete {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background: transparent;
-    border: none;
-    border-radius: var(--eao-radius-md);
-    color: var(--eao-gray-400);
-    cursor: pointer;
-    transition: color var(--eao-transition), background var(--eao-transition);
-}
-
-.eao-engraving-card__delete:hover {
-    color: var(--eao-error);
-    background: var(--eao-error-light);
-}
-
-.eao-engraving-card__body {
-    padding: var(--eao-space-lg);
-}
-
-.eao-engraving-card__row {
-    display: flex;
-    gap: var(--eao-space-md);
-    margin-bottom: var(--eao-space-md);
-}
-
-.eao-engraving-card__row .eao-field {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-/* Engraving Card Content Layout */
+/* Engraving Card Content Layout (Row) */
 .eao-engraving-card__content {
     display: flex;
+    align-items: flex-end;
     gap: var(--eao-space-lg);
-    align-items: flex-start;
+    padding: var(--eao-space-lg);
 }
 
 /* Engraving Card Image */
 .eao-engraving-card__image {
     flex-shrink: 0;
+    padding-bottom: var(--eao-space-xs);
 }
 
 .eao-engraving-card__image .eao-image-upload {
@@ -1251,9 +1201,8 @@
     height: 24px;
     padding: 0;
     background: #fff;
-    border: none;
-    border-radius: 50%;
-    box-shadow: var(--eao-shadow-md);
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-full);
     color: var(--eao-gray-500);
     cursor: pointer;
     transition: color var(--eao-transition), background var(--eao-transition);
@@ -1270,10 +1219,67 @@
     height: 14px;
 }
 
-/* Engraving Card Fields */
-.eao-engraving-card__fields {
+/* Engraving Card Name Field */
+.eao-engraving-card__name {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-xs);
     flex: 1;
-    min-width: 0;
+    min-width: 150px;
+}
+
+.eao-engraving-card__name label {
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    color: var(--eao-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.eao-engraving-card__name input {
+    font-weight: 500;
+}
+
+/* Engraving Card Fields */
+.eao-engraving-card__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-xs);
+}
+
+.eao-engraving-card__field label {
+    font-size: var(--eao-font-xs);
+    font-weight: 600;
+    color: var(--eao-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.eao-engraving-card__field--grow {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Engraving Card Delete Button */
+.eao-engraving-card__delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    margin-bottom: var(--eao-space-xs);
+    background: transparent;
+    border: none;
+    border-radius: var(--eao-radius-md);
+    color: var(--eao-gray-400);
+    cursor: pointer;
+    transition: color var(--eao-transition), background var(--eao-transition);
+}
+
+.eao-engraving-card__delete:hover {
+    color: var(--eao-error);
+    background: var(--eao-error-light);
 }
 
 /* ==========================================================================
@@ -3226,16 +3232,18 @@
         height: 60px;
     }
     
-    .eao-engraving-grid {
-        grid-template-columns: 1fr;
-    }
-    
     .eao-engraving-card__content {
-        flex-direction: column;
+        flex-wrap: wrap;
     }
     
-    .eao-engraving-card__image {
-        align-self: flex-start;
+    .eao-engraving-card__name {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .eao-engraving-card__field--grow {
+        width: 100%;
+        min-width: 100%;
     }
     
     .eao-settings-grid {

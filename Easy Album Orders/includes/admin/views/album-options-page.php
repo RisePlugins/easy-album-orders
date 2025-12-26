@@ -321,17 +321,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <div class="eao-engraving-card" data-index="<?php echo esc_attr( $index ); ?>">
                             <input type="hidden" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][id]" value="<?php echo esc_attr( $option['id'] ); ?>">
                             
-                            <div class="eao-sortable-handle eao-sortable-handle--corner" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
-                                <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 16 ) ); ?>
+                            <div class="eao-sortable-handle" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 18 ) ); ?>
                             </div>
-                            <div class="eao-engraving-card__header">
-                                <input type="text" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $option['name'] ); ?>" class="eao-engraving-name-input" placeholder="<?php esc_attr_e( 'Method Name', 'easy-album-orders' ); ?>" required>
-                                <button type="button" class="eao-engraving-card__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
-                                    <span class="dashicons dashicons-trash"></span>
-                                </button>
-                            </div>
-
-                            <div class="eao-engraving-card__body">
+                            <div class="eao-engraving-card__wrapper">
                                 <div class="eao-engraving-card__content">
                                     <!-- Thumbnail Image -->
                                     <div class="eao-engraving-card__image">
@@ -348,30 +341,37 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         </div>
                                     </div>
 
-                                    <!-- Fields -->
-                                    <div class="eao-engraving-card__fields">
-                                        <div class="eao-engraving-card__row">
-                                            <div class="eao-field">
-                                                <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
-                                                <div class="eao-input-prefix">
-                                                    <span>$</span>
-                                                    <input type="number" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][upcharge]" value="<?php echo esc_attr( $option['upcharge'] ); ?>" step="0.01" min="0">
-                                                </div>
-                                            </div>
-                                            <div class="eao-field">
-                                                <label><?php esc_html_e( 'Character Limit', 'easy-album-orders' ); ?></label>
-                                                <input type="number" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][character_limit]" value="<?php echo esc_attr( $option['character_limit'] ); ?>" min="0" placeholder="0 = unlimited">
-                                            </div>
-                                        </div>
-                                        <div class="eao-field">
-                                            <label><?php esc_html_e( 'Available Fonts', 'easy-album-orders' ); ?></label>
-                                            <textarea name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][fonts]" rows="2" placeholder="<?php esc_attr_e( 'One font per line', 'easy-album-orders' ); ?>"><?php echo esc_textarea( $option['fonts'] ); ?></textarea>
-                                        </div>
-                                        <div class="eao-field">
-                                            <label><?php esc_html_e( 'Description', 'easy-album-orders' ); ?></label>
-                                            <textarea name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][description]" rows="2" placeholder="<?php esc_attr_e( 'Optional description for customers', 'easy-album-orders' ); ?>"><?php echo esc_textarea( $option['description'] ); ?></textarea>
+                                    <!-- Name Field -->
+                                    <div class="eao-engraving-card__name">
+                                        <label><?php esc_html_e( 'Method Name', 'easy-album-orders' ); ?></label>
+                                        <input type="text" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $option['name'] ); ?>" class="eao-engraving-name-input" placeholder="<?php esc_attr_e( 'e.g., Laser Engraving', 'easy-album-orders' ); ?>" required>
+                                    </div>
+
+                                    <!-- Upcharge Field -->
+                                    <div class="eao-engraving-card__field">
+                                        <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
+                                        <div class="eao-input-prefix">
+                                            <span>$</span>
+                                            <input type="number" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][upcharge]" value="<?php echo esc_attr( $option['upcharge'] ); ?>" step="0.01" min="0">
                                         </div>
                                     </div>
+
+                                    <!-- Character Limit Field -->
+                                    <div class="eao-engraving-card__field">
+                                        <label><?php esc_html_e( 'Char Limit', 'easy-album-orders' ); ?></label>
+                                        <input type="number" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][character_limit]" value="<?php echo esc_attr( $option['character_limit'] ); ?>" min="0" placeholder="0 = ∞">
+                                    </div>
+
+                                    <!-- Fonts Field -->
+                                    <div class="eao-engraving-card__field eao-engraving-card__field--grow">
+                                        <label><?php esc_html_e( 'Fonts', 'easy-album-orders' ); ?></label>
+                                        <input type="text" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][fonts]" value="<?php echo esc_attr( $option['fonts'] ); ?>" placeholder="<?php esc_attr_e( 'Comma-separated font names', 'easy-album-orders' ); ?>">
+                                    </div>
+
+                                    <!-- Delete Button -->
+                                    <button type="button" class="eao-engraving-card__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
+                                        <span class="dashicons dashicons-trash"></span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1256,17 +1256,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="eao-engraving-card" data-index="{{data.index}}">
         <input type="hidden" name="eao_engraving_options[{{data.index}}][id]" value="{{data.id}}">
         
-        <div class="eao-sortable-handle eao-sortable-handle--corner" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
-            <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 16 ) ); ?>
+        <div class="eao-sortable-handle" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+            <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 18 ) ); ?>
         </div>
-        <div class="eao-engraving-card__header">
-            <input type="text" name="eao_engraving_options[{{data.index}}][name]" value="" class="eao-engraving-name-input" placeholder="<?php esc_attr_e( 'Method Name', 'easy-album-orders' ); ?>" required>
-            <button type="button" class="eao-engraving-card__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
-                <span class="dashicons dashicons-trash"></span>
-            </button>
-        </div>
-
-        <div class="eao-engraving-card__body">
+        <div class="eao-engraving-card__wrapper">
             <div class="eao-engraving-card__content">
                 <!-- Thumbnail Image -->
                 <div class="eao-engraving-card__image">
@@ -1279,30 +1272,37 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </div>
                 </div>
 
-                <!-- Fields -->
-                <div class="eao-engraving-card__fields">
-                    <div class="eao-engraving-card__row">
-                        <div class="eao-field">
-                            <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
-                            <div class="eao-input-prefix">
-                                <span>$</span>
-                                <input type="number" name="eao_engraving_options[{{data.index}}][upcharge]" value="0" step="0.01" min="0">
-                            </div>
-                        </div>
-                        <div class="eao-field">
-                            <label><?php esc_html_e( 'Character Limit', 'easy-album-orders' ); ?></label>
-                            <input type="number" name="eao_engraving_options[{{data.index}}][character_limit]" value="" min="0" placeholder="0 = unlimited">
-                        </div>
-                    </div>
-                    <div class="eao-field">
-                        <label><?php esc_html_e( 'Available Fonts', 'easy-album-orders' ); ?></label>
-                        <textarea name="eao_engraving_options[{{data.index}}][fonts]" rows="2" placeholder="<?php esc_attr_e( 'One font per line', 'easy-album-orders' ); ?>"></textarea>
-                    </div>
-                    <div class="eao-field">
-                        <label><?php esc_html_e( 'Description', 'easy-album-orders' ); ?></label>
-                        <textarea name="eao_engraving_options[{{data.index}}][description]" rows="2" placeholder="<?php esc_attr_e( 'Optional description for customers', 'easy-album-orders' ); ?>"></textarea>
+                <!-- Name Field -->
+                <div class="eao-engraving-card__name">
+                    <label><?php esc_html_e( 'Method Name', 'easy-album-orders' ); ?></label>
+                    <input type="text" name="eao_engraving_options[{{data.index}}][name]" value="" class="eao-engraving-name-input" placeholder="<?php esc_attr_e( 'e.g., Laser Engraving', 'easy-album-orders' ); ?>" required>
+                </div>
+
+                <!-- Upcharge Field -->
+                <div class="eao-engraving-card__field">
+                    <label><?php esc_html_e( 'Upcharge', 'easy-album-orders' ); ?></label>
+                    <div class="eao-input-prefix">
+                        <span>$</span>
+                        <input type="number" name="eao_engraving_options[{{data.index}}][upcharge]" value="0" step="0.01" min="0">
                     </div>
                 </div>
+
+                <!-- Character Limit Field -->
+                <div class="eao-engraving-card__field">
+                    <label><?php esc_html_e( 'Char Limit', 'easy-album-orders' ); ?></label>
+                    <input type="number" name="eao_engraving_options[{{data.index}}][character_limit]" value="" min="0" placeholder="0 = ∞">
+                </div>
+
+                <!-- Fonts Field -->
+                <div class="eao-engraving-card__field eao-engraving-card__field--grow">
+                    <label><?php esc_html_e( 'Fonts', 'easy-album-orders' ); ?></label>
+                    <input type="text" name="eao_engraving_options[{{data.index}}][fonts]" value="" placeholder="<?php esc_attr_e( 'Comma-separated font names', 'easy-album-orders' ); ?>">
+                </div>
+
+                <!-- Delete Button -->
+                <button type="button" class="eao-engraving-card__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
+                    <span class="dashicons dashicons-trash"></span>
+                </button>
             </div>
         </div>
     </div>
