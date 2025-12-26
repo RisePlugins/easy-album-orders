@@ -34,6 +34,7 @@
             this.bindCopyLink();
             this.bindLegacyRepeaters();
             this.bindEmailPreview();
+            this.bindEmailMasterToggle();
             this.bindCartReminderSend();
             this.reorganizeAlbumOrdersTable();
             this.bindCopyWebhookUrl();
@@ -1143,6 +1144,51 @@
                     const name = $(this).attr('name');
                     $(this).attr('name', name.replace(/eao_designs\[\d+\]/, 'eao_designs[' + index + ']'));
                 });
+            });
+        },
+
+        /**
+         * Bind email master toggle functionality.
+         * Shows/hides individual email type cards based on master toggle state.
+         */
+        bindEmailMasterToggle: function() {
+            const $masterToggle = $('#eao-email-master-toggle');
+            const $emailTypeCards = $('.eao-email-type-card');
+
+            if (!$masterToggle.length || !$emailTypeCards.length) {
+                return;
+            }
+
+            /**
+             * Update visibility of email type cards based on toggle state.
+             *
+             * @param {boolean} animate Whether to animate the transition.
+             */
+            function updateEmailCardsVisibility(animate) {
+                const isEnabled = $masterToggle.is(':checked');
+
+                if (animate) {
+                    if (isEnabled) {
+                        $emailTypeCards.slideDown(200);
+                    } else {
+                        $emailTypeCards.slideUp(200);
+                    }
+                } else {
+                    // No animation on initial load.
+                    if (isEnabled) {
+                        $emailTypeCards.show();
+                    } else {
+                        $emailTypeCards.hide();
+                    }
+                }
+            }
+
+            // Set initial state (no animation).
+            updateEmailCardsVisibility(false);
+
+            // Listen for changes.
+            $masterToggle.on('change', function() {
+                updateEmailCardsVisibility(true);
             });
         },
 

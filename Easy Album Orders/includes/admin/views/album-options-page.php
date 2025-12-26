@@ -475,7 +475,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                     <h3><?php esc_html_e( 'Notifications', 'easy-album-orders' ); ?></h3>
                     <div class="eao-settings-card__body">
                         <label class="eao-toggle eao-toggle--block">
-                            <input type="checkbox" name="eao_email_settings[email_notifications]" value="1" <?php checked( ! isset( $email_settings['email_notifications'] ) || ! empty( $email_settings['email_notifications'] ) ); ?>>
+                            <input type="checkbox" id="eao-email-master-toggle" name="eao_email_settings[email_notifications]" value="1" <?php checked( ! isset( $email_settings['email_notifications'] ) || ! empty( $email_settings['email_notifications'] ) ); ?>>
                             <span class="eao-toggle__label"><?php esc_html_e( 'Enable email notifications', 'easy-album-orders' ); ?></span>
                         </label>
                         <p class="description"><?php esc_html_e( 'Master toggle for all email notifications. When disabled, no emails will be sent.', 'easy-album-orders' ); ?></p>
@@ -525,7 +525,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 </div>
 
                 <!-- Order Confirmation Email -->
-                <div class="eao-settings-card eao-settings-card--full">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
                     <h3>
                         <span class="dashicons dashicons-email-alt"></span>
                         <?php esc_html_e( 'Order Confirmation Email', 'easy-album-orders' ); ?>
@@ -552,7 +552,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 </div>
 
                 <!-- New Order Alert Email -->
-                <div class="eao-settings-card eao-settings-card--full">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
                     <h3>
                         <span class="dashicons dashicons-megaphone"></span>
                         <?php esc_html_e( 'New Order Alert', 'easy-album-orders' ); ?>
@@ -579,7 +579,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 </div>
 
                 <!-- Shipped Notification Email -->
-                <div class="eao-settings-card eao-settings-card--full">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
                     <h3>
                         <span class="dashicons dashicons-airplane"></span>
                         <?php esc_html_e( 'Shipped Notification', 'easy-album-orders' ); ?>
@@ -646,7 +646,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                     }
                 }
                 ?>
-                <div class="eao-settings-card eao-settings-card--full">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
                     <h3>
                         <span class="dashicons dashicons-clock"></span>
                         <?php esc_html_e( 'Cart Reminder', 'easy-album-orders' ); ?>
