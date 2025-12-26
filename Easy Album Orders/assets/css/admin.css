@@ -88,6 +88,11 @@
     margin: 20px 20px 20px 0;
 }
 
+/* Options page: full width layout */
+.eao-admin-wrap.eao-options-page {
+    max-width: none;
+}
+
 .eao-admin-wrap h1 {
     font-size: 24px;
     font-weight: 600;
