@@ -40,6 +40,7 @@
             this.bindStripeKeyValidation();
             this.bindRefund();
             this.bindBrandColorPicker();
+            this.initSortable();
         },
 
         /**
@@ -1601,6 +1602,78 @@
                 const defaultColor = $(this).data('default');
                 $colorInput.val(defaultColor);
                 $hexInput.val(defaultColor.toUpperCase());
+            });
+        },
+
+        /**
+         * Initialize sortable functionality for Materials, Sizes, and Engravings.
+         * Uses jQuery UI Sortable for drag and drop reordering.
+         *
+         * @since 1.0.0
+         */
+        initSortable: function() {
+            const self = this;
+
+            // Only initialize if jQuery UI Sortable is available.
+            if (typeof $.fn.sortable !== 'function') {
+                return;
+            }
+
+            // Materials sortable.
+            $('#materials-repeater').sortable({
+                items: '.eao-material-card',
+                handle: '.eao-sortable-handle',
+                axis: 'y',
+                cursor: 'grabbing',
+                opacity: 0.8,
+                placeholder: 'eao-sortable-placeholder eao-sortable-placeholder--material',
+                tolerance: 'pointer',
+                start: function(e, ui) {
+                    ui.placeholder.height(ui.item.outerHeight());
+                    ui.item.addClass('eao-is-dragging');
+                },
+                stop: function(e, ui) {
+                    ui.item.removeClass('eao-is-dragging');
+                    self.reindexMaterials();
+                }
+            });
+
+            // Sizes sortable.
+            $('#sizes-repeater').sortable({
+                items: '.eao-size-card',
+                handle: '.eao-sortable-handle',
+                axis: 'y',
+                cursor: 'grabbing',
+                opacity: 0.8,
+                placeholder: 'eao-sortable-placeholder eao-sortable-placeholder--size',
+                tolerance: 'pointer',
+                start: function(e, ui) {
+                    ui.placeholder.height(ui.item.outerHeight());
+                    ui.item.addClass('eao-is-dragging');
+                },
+                stop: function(e, ui) {
+                    ui.item.removeClass('eao-is-dragging');
+                    self.reindexSizes();
+                }
+            });
+
+            // Engraving sortable.
+            $('#engraving-repeater').sortable({
+                items: '.eao-engraving-card',
+                handle: '.eao-sortable-handle',
+                cursor: 'grabbing',
+                opacity: 0.8,
+                placeholder: 'eao-sortable-placeholder eao-sortable-placeholder--engraving',
+                tolerance: 'pointer',
+                start: function(e, ui) {
+                    ui.placeholder.height(ui.item.outerHeight());
+                    ui.placeholder.width(ui.item.outerWidth());
+                    ui.item.addClass('eao-is-dragging');
+                },
+                stop: function(e, ui) {
+                    ui.item.removeClass('eao-is-dragging');
+                    self.reindexEngraving();
+                }
             });
         }
     };

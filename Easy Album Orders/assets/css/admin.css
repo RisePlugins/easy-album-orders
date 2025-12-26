@@ -539,6 +539,78 @@
 }
 
 /* ==========================================================================
+   Sortable / Drag & Drop
+   ========================================================================== */
+
+.eao-sortable-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    min-height: 100%;
+    background: var(--eao-gray-50);
+    border-right: var(--eao-border);
+    cursor: grab;
+    color: var(--eao-gray-400);
+    transition: background var(--eao-transition), color var(--eao-transition);
+    flex-shrink: 0;
+}
+
+.eao-sortable-handle:hover {
+    background: var(--eao-gray-100);
+    color: var(--eao-gray-600);
+}
+
+.eao-sortable-handle:active {
+    cursor: grabbing;
+}
+
+.eao-sortable-handle svg {
+    flex-shrink: 0;
+}
+
+/* Corner-positioned handle (for grid layouts like engraving) */
+.eao-sortable-handle--corner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 28px;
+    height: 28px;
+    min-height: auto;
+    border-right: none;
+    border-bottom: var(--eao-border);
+    border-radius: var(--eao-radius-lg) 0 var(--eao-radius-sm) 0;
+    z-index: 5;
+}
+
+/* Dragging states */
+.eao-is-dragging {
+    box-shadow: var(--eao-shadow-lg) !important;
+    opacity: 0.95;
+    z-index: 100;
+}
+
+.eao-sortable-placeholder {
+    background: var(--eao-primary-light);
+    border: 2px dashed var(--eao-primary);
+    border-radius: var(--eao-radius-lg);
+    margin: var(--eao-space-sm) 0;
+    box-sizing: border-box;
+}
+
+.eao-sortable-placeholder--material {
+    border-radius: var(--eao-radius-xl);
+}
+
+.eao-sortable-placeholder--size {
+    border-radius: var(--eao-radius-lg);
+}
+
+.eao-sortable-placeholder--engraving {
+    border-radius: var(--eao-radius-lg);
+}
+
+/* ==========================================================================
    Material Cards (Album Options)
    ========================================================================== */
 
@@ -549,6 +621,7 @@
 }
 
 .eao-material-card {
+    display: flex;
     background: #fff;
     border: var(--eao-border);
     border-radius: var(--eao-radius-xl);
@@ -915,13 +988,16 @@
 
 .eao-size-card {
     display: flex;
-    align-items: flex-start;
-    gap: var(--eao-space-lg);
-    padding: var(--eao-space-lg);
+    align-items: stretch;
     background: #fff;
     border: var(--eao-border);
     border-radius: var(--eao-radius-lg);
+    overflow: hidden;
     transition: box-shadow var(--eao-transition);
+}
+
+.eao-size-card > .eao-sortable-handle {
+    width: 28px;
 }
 
 .eao-size-card:hover {
@@ -931,6 +1007,8 @@
 /* Size Card Image */
 .eao-size-card__image {
     flex-shrink: 0;
+    margin-left: var(--eao-space-lg);
+    padding: var(--eao-space-lg) 0;
 }
 
 .eao-size-card__image .eao-image-upload {
@@ -1009,6 +1087,7 @@
     flex-wrap: wrap;
     gap: var(--eao-space-lg);
     align-items: flex-end;
+    padding: var(--eao-space-lg);
 }
 
 .eao-size-card__field {
@@ -1067,6 +1146,7 @@
 }
 
 .eao-engraving-card {
+    position: relative;
     background: #fff;
     border: var(--eao-border);
     border-radius: var(--eao-radius-lg);

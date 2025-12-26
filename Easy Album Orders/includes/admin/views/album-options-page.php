@@ -77,6 +77,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <div class="eao-material-card" data-index="<?php echo esc_attr( $index ); ?>">
                             <input type="hidden" name="eao_materials[<?php echo esc_attr( $index ); ?>][id]" value="<?php echo esc_attr( $material['id'] ); ?>">
                             
+                            <div class="eao-sortable-handle" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 20 ) ); ?>
+                            </div>
                             <div class="eao-material-card__body">
                                 <!-- Column 1: Image -->
                                 <div class="eao-material-card__image">
@@ -246,6 +249,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php foreach ( $sizes as $index => $size ) : ?>
                         <div class="eao-size-card" data-index="<?php echo esc_attr( $index ); ?>">
                             <input type="hidden" name="eao_sizes[<?php echo esc_attr( $index ); ?>][id]" value="<?php echo esc_attr( $size['id'] ); ?>">
+                            <div class="eao-sortable-handle" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 18 ) ); ?>
+                            </div>
                             <div class="eao-size-card__image">
                                 <div class="eao-image-upload">
                                     <input type="hidden" name="eao_sizes[<?php echo esc_attr( $index ); ?>][image_id]" value="<?php echo esc_attr( isset( $size['image_id'] ) ? $size['image_id'] : '' ); ?>" class="eao-image-id">
@@ -315,6 +321,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <div class="eao-engraving-card" data-index="<?php echo esc_attr( $index ); ?>">
                             <input type="hidden" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][id]" value="<?php echo esc_attr( $option['id'] ); ?>">
                             
+                            <div class="eao-sortable-handle eao-sortable-handle--corner" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 16 ) ); ?>
+                            </div>
                             <div class="eao-engraving-card__header">
                                 <input type="text" name="eao_engraving_options[<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $option['name'] ); ?>" class="eao-engraving-name-input" placeholder="<?php esc_attr_e( 'Method Name', 'easy-album-orders' ); ?>" required>
                                 <button type="button" class="eao-engraving-card__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">
@@ -1105,6 +1114,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="eao-material-card" data-index="{{data.index}}">
         <input type="hidden" name="eao_materials[{{data.index}}][id]" value="{{data.id}}">
         
+        <div class="eao-sortable-handle" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+            <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 20 ) ); ?>
+        </div>
         <div class="eao-material-card__body">
             <!-- Column 1: Image -->
             <div class="eao-material-card__image">
@@ -1205,6 +1217,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script type="text/html" id="tmpl-eao-size-card">
     <div class="eao-size-card" data-index="{{data.index}}">
         <input type="hidden" name="eao_sizes[{{data.index}}][id]" value="{{data.id}}">
+        <div class="eao-sortable-handle" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+            <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 18 ) ); ?>
+        </div>
         <div class="eao-size-card__image">
             <div class="eao-image-upload">
                 <input type="hidden" name="eao_sizes[{{data.index}}][image_id]" value="" class="eao-image-id">
@@ -1241,6 +1256,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="eao-engraving-card" data-index="{{data.index}}">
         <input type="hidden" name="eao_engraving_options[{{data.index}}][id]" value="{{data.id}}">
         
+        <div class="eao-sortable-handle eao-sortable-handle--corner" title="<?php esc_attr_e( 'Drag to reorder', 'easy-album-orders' ); ?>">
+            <?php EAO_Icons::render( 'grip-vertical', array( 'size' => 16 ) ); ?>
+        </div>
         <div class="eao-engraving-card__header">
             <input type="text" name="eao_engraving_options[{{data.index}}][name]" value="" class="eao-engraving-name-input" placeholder="<?php esc_attr_e( 'Method Name', 'easy-album-orders' ); ?>" required>
             <button type="button" class="eao-engraving-card__delete" title="<?php esc_attr_e( 'Delete', 'easy-album-orders' ); ?>">

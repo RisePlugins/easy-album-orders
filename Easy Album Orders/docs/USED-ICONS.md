@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 35 (~140KB estimated)
+- **Icons currently used**: 36 (~144KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -52,6 +52,7 @@ Keep this list updated as you add new icons throughout development.
 | `mail` | Emails navigation item icon |
 | `credit-card` | Payments navigation item icon |
 | `settings` | General navigation item icon |
+| `grip-vertical` | Drag handle for reordering materials, sizes, and engravings |
 
 ### Front-End Templates (`single-client-album.php`)
 
@@ -103,6 +104,7 @@ copy
 credit-card
 external-link
 file-type-pdf
+grip-vertical
 layout-grid
 link
 lock
@@ -124,7 +126,7 @@ writing
 x
 ```
 
-**Total: 35 icons**
+**Total: 36 icons**
 
 ---
 
@@ -204,4 +206,4 @@ Common categories for this plugin:
 
 ---
 
-*Last updated: December 25, 2025*
+*Last updated: December 26, 2025*
