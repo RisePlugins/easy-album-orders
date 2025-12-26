@@ -211,6 +211,24 @@ class EAO_Email {
             foreach ( $order_ids as $order_id ) {
                 update_post_meta( $order_id, '_eao_cart_reminder_sent', current_time( 'mysql' ) );
             }
+
+            // Invalidate the pending reminders cache.
+            $this->invalidate_pending_reminders_cache();
+        }
+    }
+
+    /**
+     * Invalidate the pending cart reminders cache.
+     *
+     * Called after reminders are sent to ensure the admin UI shows accurate counts.
+     *
+     * @since 1.0.0
+     * @access private
+     */
+    private function invalidate_pending_reminders_cache() {
+        // Delete all possible cached counts (days 1-30).
+        for ( $days = 1; $days <= 30; $days++ ) {
+            delete_transient( 'eao_pending_cart_reminders_' . $days );
         }
     }
 

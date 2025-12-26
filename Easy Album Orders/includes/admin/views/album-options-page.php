@@ -610,34 +610,40 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 $next_scheduled = wp_next_scheduled( 'eao_cart_reminder_check' );
                 $pending_count  = 0;
                 $days_setting   = isset( $email_settings['cart_reminder_days'] ) ? absint( $email_settings['cart_reminder_days'] ) : 3;
-                
-                // Count pending reminders.
+
+                // Count pending reminders - use cached count for performance.
+                // This query is expensive, so we cache it for 5 minutes.
                 if ( ! empty( $email_settings['enable_cart_reminder'] ) ) {
-                    $date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days_setting} days" ) );
-                    $pending_args   = array(
-                        'post_type'      => 'album_order',
-                        'post_status'    => 'publish',
-                        'posts_per_page' => -1,
-                        'fields'         => 'ids',
-                        'meta_query'     => array(
-                            'relation' => 'AND',
-                            array(
-                                'key'     => '_eao_order_status',
-                                'value'   => 'submitted',
-                                'compare' => '=',
-                            ),
-                            array(
-                                'key'     => '_eao_cart_reminder_sent',
-                                'compare' => 'NOT EXISTS',
-                            ),
-                        ),
-                        'date_query'     => array(
-                            array(
-                                'before' => $date_threshold,
-                            ),
-                        ),
-                    );
-                    $pending_count = count( get_posts( $pending_args ) );
+                    $cache_key     = 'eao_pending_cart_reminders_' . $days_setting;
+                    $pending_count = get_transient( $cache_key );
+
+                    if ( false === $pending_count ) {
+                        global $wpdb;
+
+                        // Use optimized COUNT query instead of fetching all post IDs.
+                        $date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days_setting} days" ) );
+
+                        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $pending_count = (int) $wpdb->get_var(
+                            $wpdb->prepare(
+                                "SELECT COUNT(DISTINCT p.ID)
+                                FROM {$wpdb->posts} p
+                                INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
+                                    AND pm_status.meta_key = '_eao_order_status'
+                                    AND pm_status.meta_value = 'submitted'
+                                LEFT JOIN {$wpdb->postmeta} pm_sent ON p.ID = pm_sent.post_id
+                                    AND pm_sent.meta_key = '_eao_cart_reminder_sent'
+                                WHERE p.post_type = 'album_order'
+                                    AND p.post_status = 'publish'
+                                    AND p.post_date < %s
+                                    AND pm_sent.meta_id IS NULL",
+                                $date_threshold
+                            )
+                        );
+
+                        // Cache for 5 minutes to reduce database load.
+                        set_transient( $cache_key, $pending_count, 5 * MINUTE_IN_SECONDS );
+                    }
                 }
                 ?>
                 <div class="eao-settings-card eao-settings-card--full">
