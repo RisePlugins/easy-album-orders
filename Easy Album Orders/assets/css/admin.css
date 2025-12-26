@@ -207,6 +207,7 @@
 
 /* Main Content Area */
 .eao-options-content {
+    width: 100%;
     min-width: 0;
     max-width: 1350px;
     margin: 0 auto;
