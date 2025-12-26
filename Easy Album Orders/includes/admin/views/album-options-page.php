@@ -402,6 +402,23 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
 
             <div class="eao-settings-grid">
+                <!-- Master Email Toggle -->
+                <div class="eao-settings-card">
+                    <h3><?php esc_html_e( 'Notifications', 'easy-album-orders' ); ?></h3>
+                    <div class="eao-settings-card__body">
+                        <label class="eao-toggle eao-toggle--block">
+                            <input type="checkbox" name="eao_email_settings[email_notifications]" value="1" <?php checked( ! isset( $email_settings['email_notifications'] ) || ! empty( $email_settings['email_notifications'] ) ); ?>>
+                            <span class="eao-toggle__label"><?php esc_html_e( 'Enable email notifications', 'easy-album-orders' ); ?></span>
+                        </label>
+                        <p class="description"><?php esc_html_e( 'Master toggle for all email notifications. When disabled, no emails will be sent.', 'easy-album-orders' ); ?></p>
+                        <div class="eao-field" style="margin-top: 16px;">
+                            <label for="eao_admin_email"><?php esc_html_e( 'Admin Email', 'easy-album-orders' ); ?></label>
+                            <input type="email" id="eao_admin_email" name="eao_email_settings[admin_email]" value="<?php echo esc_attr( isset( $email_settings['admin_email'] ) ? $email_settings['admin_email'] : get_option( 'admin_email' ) ); ?>" placeholder="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>">
+                            <p class="description"><?php esc_html_e( 'Email address for order notifications (New Order Alert).', 'easy-album-orders' ); ?></p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Sender Settings -->
                 <div class="eao-settings-card">
                     <h3><?php esc_html_e( 'Email Sender', 'easy-album-orders' ); ?></h3>
@@ -981,20 +998,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </div>
                 </div>
 
-                <div class="eao-settings-card">
-                    <h3><?php esc_html_e( 'Notifications', 'easy-album-orders' ); ?></h3>
-                    <div class="eao-settings-card__body">
-                        <label class="eao-toggle eao-toggle--block">
-                            <input type="checkbox" name="eao_general_settings[email_notifications]" value="1" <?php checked( ! empty( $general_settings['email_notifications'] ) ); ?>>
-                            <span class="eao-toggle__label"><?php esc_html_e( 'Send email notifications for new orders', 'easy-album-orders' ); ?></span>
-                        </label>
-                        <div class="eao-field">
-                            <label for="eao_admin_email"><?php esc_html_e( 'Admin Email', 'easy-album-orders' ); ?></label>
-                            <input type="email" id="eao_admin_email" name="eao_general_settings[admin_email]" value="<?php echo esc_attr( isset( $general_settings['admin_email'] ) ? $general_settings['admin_email'] : get_option( 'admin_email' ) ); ?>" placeholder="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>">
-                            <p class="description"><?php esc_html_e( 'Email address for order notifications.', 'easy-album-orders' ); ?></p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 

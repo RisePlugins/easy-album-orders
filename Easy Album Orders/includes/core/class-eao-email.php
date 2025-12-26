@@ -563,8 +563,7 @@ class EAO_Email {
      * @return string Admin email.
      */
     private function get_admin_email() {
-        $general_settings = get_option( 'eao_general_settings', array() );
-        $admin_email      = isset( $general_settings['admin_email'] ) ? $general_settings['admin_email'] : '';
+        $admin_email = $this->get_setting( 'admin_email', '' );
         return ! empty( $admin_email ) ? $admin_email : get_option( 'admin_email' );
     }
 
@@ -577,10 +576,8 @@ class EAO_Email {
      * @return bool True if enabled.
      */
     private function is_email_enabled( $type ) {
-        $general_settings = get_option( 'eao_general_settings', array() );
-        
-        // Check master toggle first.
-        if ( empty( $general_settings['email_notifications'] ) ) {
+        // Check master toggle first (defaults to enabled if not set).
+        if ( isset( $this->settings['email_notifications'] ) && empty( $this->settings['email_notifications'] ) ) {
             return false;
         }
 

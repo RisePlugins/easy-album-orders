@@ -72,17 +72,26 @@ class EAO_Activator {
      */
     private static function set_default_options() {
         // Default general settings.
-        $default_settings = array(
-            'currency'             => 'USD',
-            'currency_symbol'      => '$',
-            'currency_position'    => 'before',
-            'email_notifications'  => true,
-            'admin_email'          => get_option( 'admin_email' ),
+        $default_general_settings = array(
+            'currency'          => 'USD',
+            'currency_symbol'   => '$',
+            'currency_position' => 'before',
         );
 
         // Only set defaults if option doesn't exist.
         if ( false === get_option( 'eao_general_settings' ) ) {
-            update_option( 'eao_general_settings', $default_settings );
+            update_option( 'eao_general_settings', $default_general_settings );
+        }
+
+        // Default email settings.
+        $default_email_settings = array(
+            'email_notifications' => true,
+            'admin_email'         => get_option( 'admin_email' ),
+        );
+
+        // Only set defaults if option doesn't exist.
+        if ( false === get_option( 'eao_email_settings' ) ) {
+            update_option( 'eao_email_settings', $default_email_settings );
         }
 
         // Default materials (empty array).

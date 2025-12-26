@@ -331,14 +331,12 @@ class EAO_Admin_Menus {
      */
     private function sanitize_general_settings( $settings ) {
         return array(
-            'currency'            => isset( $settings['currency'] ) ? sanitize_text_field( $settings['currency'] ) : 'USD',
-            'currency_symbol'     => isset( $settings['currency_symbol'] ) ? sanitize_text_field( $settings['currency_symbol'] ) : '$',
-            'currency_position'   => isset( $settings['currency_position'] ) && in_array( $settings['currency_position'], array( 'before', 'after' ), true )
+            'currency'          => isset( $settings['currency'] ) ? sanitize_text_field( $settings['currency'] ) : 'USD',
+            'currency_symbol'   => isset( $settings['currency_symbol'] ) ? sanitize_text_field( $settings['currency_symbol'] ) : '$',
+            'currency_position' => isset( $settings['currency_position'] ) && in_array( $settings['currency_position'], array( 'before', 'after' ), true )
                 ? $settings['currency_position']
                 : 'before',
-            'email_notifications' => isset( $settings['email_notifications'] ) ? true : false,
-            'admin_email'         => isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' ),
-            'brand_color'         => isset( $settings['brand_color'] ) ? sanitize_hex_color( $settings['brand_color'] ) : '#e67e22',
+            'brand_color'       => isset( $settings['brand_color'] ) ? sanitize_hex_color( $settings['brand_color'] ) : '#e67e22',
         );
     }
 
@@ -353,6 +351,10 @@ class EAO_Admin_Menus {
      */
     private function sanitize_email_settings( $settings ) {
         return array(
+            // Master toggle.
+            'email_notifications'           => isset( $settings['email_notifications'] ) ? true : false,
+            'admin_email'                   => isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' ),
+
             // Sender settings.
             'from_name'                     => isset( $settings['from_name'] ) ? sanitize_text_field( $settings['from_name'] ) : '',
             'from_email'                    => isset( $settings['from_email'] ) ? sanitize_email( $settings['from_email'] ) : '',
