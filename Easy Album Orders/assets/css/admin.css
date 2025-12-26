@@ -208,6 +208,8 @@
 /* Main Content Area */
 .eao-options-content {
     min-width: 0;
+    max-width: 1350px;
+    margin: 0 auto;
 }
 
 /* ==========================================================================
