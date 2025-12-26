@@ -10,7 +10,63 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+// Valid tab IDs for validation.
+$valid_tabs = array( 'materials', 'sizes', 'engraving', 'emails', 'payments', 'general' );
 ?>
+
+<?php
+/**
+ * Inline script to prevent FOUC (Flash of Unstyled Content).
+ * This runs BEFORE the page renders to immediately show the correct tab.
+ */
+?>
+<script>
+(function() {
+    var hash = window.location.hash.replace('#', '');
+    var validTabs = <?php echo wp_json_encode( $valid_tabs ); ?>;
+    var activeTab = (hash && validTabs.indexOf(hash) !== -1) ? hash : 'materials';
+    
+    // Store for CSS to use immediately.
+    document.documentElement.setAttribute('data-eao-active-tab', activeTab);
+})();
+</script>
+
+<style>
+/* Prevent flash of wrong content - hide all tabs initially except the active one */
+.eao-options-page:not(.eao-tabs-initialized) .eao-tab-content {
+    display: none !important;
+}
+/* Show active tab based on data attribute set by inline script */
+html[data-eao-active-tab="materials"] .eao-options-page:not(.eao-tabs-initialized) #materials,
+html[data-eao-active-tab="sizes"] .eao-options-page:not(.eao-tabs-initialized) #sizes,
+html[data-eao-active-tab="engraving"] .eao-options-page:not(.eao-tabs-initialized) #engraving,
+html[data-eao-active-tab="emails"] .eao-options-page:not(.eao-tabs-initialized) #emails,
+html[data-eao-active-tab="payments"] .eao-options-page:not(.eao-tabs-initialized) #payments,
+html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized) #general {
+    display: block !important;
+}
+/* Highlight active nav item before JS takes over */
+html[data-eao-active-tab="materials"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="materials"],
+html[data-eao-active-tab="sizes"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="sizes"],
+html[data-eao-active-tab="engraving"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="engraving"],
+html[data-eao-active-tab="emails"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="emails"],
+html[data-eao-active-tab="payments"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="payments"],
+html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="general"] {
+    color: var(--eao-primary, #3858e9);
+    background: var(--eao-primary-light, #eef2ff);
+}
+html[data-eao-active-tab="materials"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="materials"] .eao-options-nav__icon,
+html[data-eao-active-tab="sizes"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="sizes"] .eao-options-nav__icon,
+html[data-eao-active-tab="engraving"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="engraving"] .eao-options-nav__icon,
+html[data-eao-active-tab="emails"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="emails"] .eao-options-nav__icon,
+html[data-eao-active-tab="payments"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="payments"] .eao-options-nav__icon,
+html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized) .eao-options-nav__item[data-tab="general"] .eao-options-nav__icon {
+    color: var(--eao-primary, #3858e9);
+    background: rgba(56, 88, 233, 0.15);
+}
+</style>
+
 <div class="wrap eao-admin-wrap eao-options-page">
     <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
@@ -26,30 +82,42 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <h2 class="eao-options-nav__title"><?php esc_html_e( 'Settings', 'easy-album-orders' ); ?></h2>
                 </div>
                 <div class="eao-options-nav__inner">
-                    <a href="#materials" class="eao-options-nav__item eao-options-nav__item--active" data-tab="materials">
-                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'palette', array( 'size' => 20 ) ); ?></span>
-                        <span class="eao-options-nav__label"><?php esc_html_e( 'Materials', 'easy-album-orders' ); ?></span>
-                    </a>
-                    <a href="#sizes" class="eao-options-nav__item" data-tab="sizes">
-                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'ruler-2', array( 'size' => 20 ) ); ?></span>
-                        <span class="eao-options-nav__label"><?php esc_html_e( 'Sizes', 'easy-album-orders' ); ?></span>
-                    </a>
-                    <a href="#engraving" class="eao-options-nav__item" data-tab="engraving">
-                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'writing', array( 'size' => 20 ) ); ?></span>
-                        <span class="eao-options-nav__label"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></span>
-                    </a>
-                    <a href="#emails" class="eao-options-nav__item" data-tab="emails">
-                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'mail', array( 'size' => 20 ) ); ?></span>
-                        <span class="eao-options-nav__label"><?php esc_html_e( 'Emails', 'easy-album-orders' ); ?></span>
-                    </a>
-                    <a href="#payments" class="eao-options-nav__item" data-tab="payments">
-                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'credit-card', array( 'size' => 20 ) ); ?></span>
-                        <span class="eao-options-nav__label"><?php esc_html_e( 'Payments', 'easy-album-orders' ); ?></span>
-                    </a>
-                    <a href="#general" class="eao-options-nav__item" data-tab="general">
-                        <span class="eao-options-nav__icon"><?php EAO_Icons::render( 'settings', array( 'size' => 20 ) ); ?></span>
-                        <span class="eao-options-nav__label"><?php esc_html_e( 'General', 'easy-album-orders' ); ?></span>
-                    </a>
+                    <?php foreach ( $valid_tabs as $tab_id ) : ?>
+                        <?php
+                        // Tab configuration.
+                        $tab_config = array(
+                            'materials' => array(
+                                'icon'  => 'palette',
+                                'label' => __( 'Materials', 'easy-album-orders' ),
+                            ),
+                            'sizes'     => array(
+                                'icon'  => 'ruler-2',
+                                'label' => __( 'Sizes', 'easy-album-orders' ),
+                            ),
+                            'engraving' => array(
+                                'icon'  => 'writing',
+                                'label' => __( 'Engraving', 'easy-album-orders' ),
+                            ),
+                            'emails'    => array(
+                                'icon'  => 'mail',
+                                'label' => __( 'Emails', 'easy-album-orders' ),
+                            ),
+                            'payments'  => array(
+                                'icon'  => 'credit-card',
+                                'label' => __( 'Payments', 'easy-album-orders' ),
+                            ),
+                            'general'   => array(
+                                'icon'  => 'settings',
+                                'label' => __( 'General', 'easy-album-orders' ),
+                            ),
+                        );
+                        $config = $tab_config[ $tab_id ];
+                        ?>
+                        <a href="#<?php echo esc_attr( $tab_id ); ?>" class="eao-options-nav__item" data-tab="<?php echo esc_attr( $tab_id ); ?>">
+                            <span class="eao-options-nav__icon"><?php EAO_Icons::render( $config['icon'], array( 'size' => 20 ) ); ?></span>
+                            <span class="eao-options-nav__label"><?php echo esc_html( $config['label'] ); ?></span>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
             </nav>
 
@@ -57,7 +125,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <div class="eao-options-content">
 
         <!-- Materials Tab -->
-        <div id="materials" class="eao-tab-content active">
+        <div id="materials" class="eao-tab-content">
             <div class="eao-tab-header">
                 <div class="eao-tab-header__text">
                     <h2><?php esc_html_e( 'Materials', 'easy-album-orders' ); ?></h2>

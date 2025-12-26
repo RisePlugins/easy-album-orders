@@ -62,6 +62,28 @@
          */
         bindTabs: function() {
             const self = this;
+            const $optionsPage = $('.eao-options-page');
+            const validTabs = ['materials', 'sizes', 'engraving', 'emails', 'payments', 'general'];
+
+            // Determine active tab from URL hash (default to materials).
+            let activeTab = window.location.hash.replace('#', '');
+            if (!activeTab || validTabs.indexOf(activeTab) === -1) {
+                activeTab = 'materials';
+            }
+
+            // Initialize tab state immediately (before any animations).
+            if ($optionsPage.length) {
+                // Set active nav item.
+                $('.eao-options-nav__item').removeClass('eao-options-nav__item--active');
+                $('.eao-options-nav__item[data-tab="' + activeTab + '"]').addClass('eao-options-nav__item--active');
+
+                // Set active tab content.
+                $('.eao-tab-content').removeClass('active');
+                $('#' + activeTab).addClass('active');
+
+                // Mark as initialized - allows normal CSS to take over.
+                $optionsPage.addClass('eao-tabs-initialized');
+            }
 
             // New sidebar navigation.
             $('.eao-options-nav__item').on('click', function(e) {
@@ -108,16 +130,19 @@
                 }
             });
 
-            // Check URL hash on load.
-            const hash = window.location.hash.replace('#', '');
-            if (hash) {
-                // Try new nav first, then legacy tabs.
-                if ($('.eao-options-nav__item[data-tab="' + hash + '"]').length) {
-                    $('.eao-options-nav__item[data-tab="' + hash + '"]').trigger('click');
-                } else if ($('.eao-tabs .nav-tab[data-tab="' + hash + '"]').length) {
-                    $('.eao-tabs .nav-tab[data-tab="' + hash + '"]').trigger('click');
+            // Handle browser back/forward navigation.
+            $(window).on('popstate', function() {
+                const hash = window.location.hash.replace('#', '');
+                if (hash && validTabs.indexOf(hash) !== -1) {
+                    // Update active nav item.
+                    $('.eao-options-nav__item').removeClass('eao-options-nav__item--active');
+                    $('.eao-options-nav__item[data-tab="' + hash + '"]').addClass('eao-options-nav__item--active');
+
+                    // Show corresponding content.
+                    $('.eao-tab-content').removeClass('active');
+                    $('#' + hash).addClass('active');
                 }
-            }
+            });
         },
 
         /**
