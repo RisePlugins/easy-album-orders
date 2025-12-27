@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 36 (~144KB estimated)
+- **Icons currently used**: 39 (~156KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -73,6 +73,20 @@ Keep this list updated as you add new icons throughout development.
 | `chevron-down` | Order history sidebar accordion toggle |
 | `clipboard-list` | Order history sidebar title |
 | `shopping-cart` | Cart header and empty cart icon |
+| `arrow-right` | View All Order Details link in order history sidebar |
+
+### Order History Page (`single-client-album-order-history.php`)
+
+| Icon | Usage |
+|------|-------|
+| `arrow-left` | Back to Order Form link |
+| `clipboard-list` | Empty state icon |
+| `hash` | Order number display |
+| `calendar` | Order date display |
+| `book` | Album Details section header |
+| `writing` | Engraving section header |
+| `truck` | Shipping section header |
+| `receipt` | Price Breakdown section header |
 
 ### Front-End Cart Item (`cart-item.php`)
 
@@ -95,6 +109,7 @@ award
 book
 books
 brand-loom
+calendar
 chevron-down
 chevron-left
 chevron-right
@@ -105,6 +120,7 @@ credit-card
 external-link
 file-type-pdf
 grip-vertical
+hash
 layout-grid
 link
 lock
@@ -114,6 +130,7 @@ pencil
 photo
 plus
 presentation
+receipt
 receipt-refund
 ruler-2
 settings
@@ -126,7 +143,7 @@ writing
 x
 ```
 
-**Total: 36 icons**
+**Total: 39 icons**
 
 ---
 
@@ -206,4 +223,4 @@ Common categories for this plugin:
 
 ---
 
-*Last updated: December 26, 2025*
+*Last updated: December 26, 2025 - Added Order History Page icons*
