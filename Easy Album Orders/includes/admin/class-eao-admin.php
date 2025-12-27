@@ -276,11 +276,11 @@ class EAO_Admin {
         // Enqueue WordPress media uploader.
         wp_enqueue_media();
 
-        // Enqueue Chart.js on reports page.
-        if ( 'album_order_page_eao-reports' === $hook ) {
+        // Enqueue Chart.js on reports page (local copy for reliability).
+        if ( 'album_order_page_eao-reports' === $hook || strpos( $hook, 'eao-reports' ) !== false ) {
             wp_enqueue_script(
                 'chartjs',
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
+                EAO_PLUGIN_URL . 'assets/js/chart.min.js',
                 array(),
                 '4.4.1',
                 true
