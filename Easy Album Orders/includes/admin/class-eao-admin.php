@@ -71,8 +71,8 @@ class EAO_Admin {
         // Admin notices for status updates.
         add_action( 'admin_notices', array( $this, 'status_update_notices' ) );
 
-        // KPI section on album orders list page.
-        add_action( 'admin_notices', array( $this, 'render_order_kpis' ) );
+        // KPI section on album orders list page (before subsubsub views).
+        add_filter( 'views_edit-album_order', array( $this, 'render_order_kpis' ) );
     }
 
     /**
@@ -384,24 +384,20 @@ class EAO_Admin {
      * Render KPI section on album orders list page.
      *
      * Displays quick statistics about album orders including
-     * total revenue, orders today, pending orders, and orders to ship.
-     * Uses JavaScript to position the KPIs after the title but before subsubsub.
+     * total revenue, orders this month, pending orders, and orders to ship.
+     * Hooked into views_edit-album_order filter to render before subsubsub.
      *
      * @since 1.0.0
+     *
+     * @param array $views The list table views.
+     * @return array The unmodified views array.
      */
-    public function render_order_kpis() {
-        $screen = get_current_screen();
-
-        // Only show on album_order list page.
-        if ( ! $screen || 'edit-album_order' !== $screen->id ) {
-            return;
-        }
-
+    public function render_order_kpis( $views ) {
         // Calculate KPIs.
         $kpis = $this->calculate_order_kpis();
 
         ?>
-        <div class="eao-kpi-section" id="eao-kpi-section" style="display: none;">
+        <div class="eao-kpi-section">
             <div class="eao-kpi-grid">
                 <!-- Total Revenue -->
                 <div class="eao-kpi-card">
@@ -448,26 +444,9 @@ class EAO_Admin {
                 </div>
             </div>
         </div>
-        <script>
-        (function() {
-            // Move KPI section to correct position: after hr.wp-header-end, before subsubsub.
-            var kpiSection = document.getElementById('eao-kpi-section');
-            var subsubsub = document.querySelector('.subsubsub');
-            
-            if (kpiSection && subsubsub) {
-                subsubsub.parentNode.insertBefore(kpiSection, subsubsub);
-                kpiSection.style.display = '';
-            } else if (kpiSection) {
-                // Fallback: insert after hr.wp-header-end.
-                var headerEnd = document.querySelector('hr.wp-header-end');
-                if (headerEnd && headerEnd.nextSibling) {
-                    headerEnd.parentNode.insertBefore(kpiSection, headerEnd.nextSibling);
-                }
-                kpiSection.style.display = '';
-            }
-        })();
-        </script>
         <?php
+
+        return $views;
     }
 
     /**
