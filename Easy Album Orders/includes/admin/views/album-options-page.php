@@ -458,7 +458,11 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
         </div>
 
         <!-- Emails Tab -->
-        <?php $email_settings = get_option( 'eao_email_settings', array() ); ?>
+        <?php
+        $email_settings        = get_option( 'eao_email_settings', array() );
+        $emails_enabled        = ! isset( $email_settings['email_notifications'] ) || ! empty( $email_settings['email_notifications'] );
+        $email_cards_style     = $emails_enabled ? '' : ' style="display: none;"';
+        ?>
         <div id="emails" class="eao-tab-content">
             <div class="eao-tab-header">
                 <div class="eao-tab-header__text">
@@ -525,7 +529,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 </div>
 
                 <!-- Order Confirmation Email -->
-                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card"<?php echo $email_cards_style; ?>>
                     <h3>
                         <span class="dashicons dashicons-email-alt"></span>
                         <?php esc_html_e( 'Order Confirmation Email', 'easy-album-orders' ); ?>
@@ -552,7 +556,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 </div>
 
                 <!-- New Order Alert Email -->
-                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card"<?php echo $email_cards_style; ?>>
                     <h3>
                         <span class="dashicons dashicons-megaphone"></span>
                         <?php esc_html_e( 'New Order Alert', 'easy-album-orders' ); ?>
@@ -579,7 +583,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                 </div>
 
                 <!-- Shipped Notification Email -->
-                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card"<?php echo $email_cards_style; ?>>
                     <h3>
                         <span class="dashicons dashicons-airplane"></span>
                         <?php esc_html_e( 'Shipped Notification', 'easy-album-orders' ); ?>
@@ -646,7 +650,7 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                     }
                 }
                 ?>
-                <div class="eao-settings-card eao-settings-card--full eao-email-type-card">
+                <div class="eao-settings-card eao-settings-card--full eao-email-type-card"<?php echo $email_cards_style; ?>>
                     <h3>
                         <span class="dashicons dashicons-clock"></span>
                         <?php esc_html_e( 'Cart Reminder', 'easy-album-orders' ); ?>
