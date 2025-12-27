@@ -206,11 +206,18 @@ $date_ranges = array(
 
 <script>
 (function() {
-    // Wait for Chart.js to load.
-    if (typeof Chart === 'undefined') {
-        console.warn('Chart.js not loaded');
-        return;
+    // Wait for Chart.js to load with retry mechanism.
+    function initCharts() {
+        if (typeof Chart === 'undefined') {
+            // Chart.js not loaded yet, retry in 100ms.
+            setTimeout(initCharts, 100);
+            return;
+        }
+        
+        runCharts();
     }
+    
+    function runCharts() {
 
     // Chart.js defaults.
     Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -429,6 +436,14 @@ $date_ranges = array(
                 }
             }
         });
+    }
+    } // End runCharts function
+    
+    // Initialize charts when DOM is ready.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCharts);
+    } else {
+        initCharts();
     }
 })();
 </script>
