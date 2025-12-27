@@ -352,6 +352,11 @@ class EAO_Admin {
             return true;
         }
 
+        // Check if hook contains our plugin identifiers (catches submenu pages).
+        if ( strpos( $hook, 'eao-' ) !== false ) {
+            return true;
+        }
+
         // Check if we're editing our post types.
         global $post_type;
         $our_post_types = array( 'client_album', 'album_order' );
