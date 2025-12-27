@@ -2658,17 +2658,11 @@
     color: var(--eao-text-muted);
 }
 
-/* Order Body */
+/* Order Body - 3 column layout */
 .eao-order-card__body {
     padding: var(--eao-space-lg);
     display: grid;
-    grid-template-columns: 1fr 280px;
-    gap: var(--eao-space-xl);
-}
-
-.eao-order-card__details {
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: var(--eao-space-lg);
 }
 
@@ -2782,6 +2776,16 @@
 }
 
 /* Order History Page Responsive */
+@media (max-width: 900px) {
+    .eao-order-card__body {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .eao-order-card__pricing {
+        grid-column: span 2;
+    }
+}
+
 @media (max-width: 768px) {
     .eao-order-history-page {
         padding: var(--eao-space-lg) var(--eao-space-md);
@@ -2796,7 +2800,7 @@
     }
 
     .eao-order-card__pricing {
-        order: -1;
+        grid-column: span 1;
     }
 
     .eao-order-card__meta {

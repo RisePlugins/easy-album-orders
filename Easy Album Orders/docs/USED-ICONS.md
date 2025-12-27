@@ -84,9 +84,8 @@ Keep this list updated as you add new icons throughout development.
 | `hash` | Order number display |
 | `calendar` | Order date display |
 | `book` | Album Details section header |
-| `writing` | Engraving section header |
 | `truck` | Shipping section header |
-| `receipt` | Price Breakdown section header |
+| `receipt` | Order Total section header |
 
 ### Front-End Cart Item (`cart-item.php`)
 
