@@ -2658,11 +2658,11 @@
     color: var(--eao-text-muted);
 }
 
-/* Order Body - 3 column layout */
+/* Order Body - 3 column layout with fixed right pricing */
 .eao-order-card__body {
     padding: var(--eao-space-lg);
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 240px;
     gap: var(--eao-space-lg);
 }
 
@@ -2778,15 +2778,30 @@
 /* Order History Page Responsive */
 @media (max-width: 900px) {
     .eao-order-card__body {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 200px;
+        grid-template-rows: auto auto;
     }
 
+    /* Album Details takes first column, first row */
+    .eao-order-card__section:first-child {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    /* Shipping takes first column, second row */
+    .eao-order-card__section:nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    /* Order Total spans right column, both rows */
     .eao-order-card__pricing {
-        grid-column: span 2;
+        grid-column: 2;
+        grid-row: 1 / -1;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     .eao-order-history-page {
         padding: var(--eao-space-lg) var(--eao-space-md);
     }
@@ -2796,11 +2811,7 @@
     }
 
     .eao-order-card__body {
-        grid-template-columns: 1fr;
-    }
-
-    .eao-order-card__pricing {
-        grid-column: span 1;
+        grid-template-columns: 1fr 160px;
     }
 
     .eao-order-card__meta {
@@ -2812,6 +2823,20 @@
     .eao-order-card__title-row {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .eao-order-card__body {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    .eao-order-card__section:first-child,
+    .eao-order-card__section:nth-child(2),
+    .eao-order-card__pricing {
+        grid-column: 1;
+        grid-row: auto;
     }
 }
 
