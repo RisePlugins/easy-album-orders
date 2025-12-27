@@ -341,6 +341,7 @@ class EAO_Admin {
         $plugin_pages = array(
             'toplevel_page_eao-client-albums',
             'client-albums_page_eao-album-options',
+            'album_order_page_eao-reports',
             'edit.php',
             'post.php',
             'post-new.php',
