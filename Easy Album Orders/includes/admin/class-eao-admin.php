@@ -385,6 +385,7 @@ class EAO_Admin {
      *
      * Displays quick statistics about album orders including
      * total revenue, orders today, pending orders, and orders to ship.
+     * Uses JavaScript to position the KPIs after the title but before subsubsub.
      *
      * @since 1.0.0
      */
@@ -400,7 +401,7 @@ class EAO_Admin {
         $kpis = $this->calculate_order_kpis();
 
         ?>
-        <div class="eao-kpi-section">
+        <div class="eao-kpi-section" id="eao-kpi-section" style="display: none;">
             <div class="eao-kpi-grid">
                 <!-- Total Revenue -->
                 <div class="eao-kpi-card">
@@ -447,6 +448,25 @@ class EAO_Admin {
                 </div>
             </div>
         </div>
+        <script>
+        (function() {
+            // Move KPI section to correct position: after hr.wp-header-end, before subsubsub.
+            var kpiSection = document.getElementById('eao-kpi-section');
+            var subsubsub = document.querySelector('.subsubsub');
+            
+            if (kpiSection && subsubsub) {
+                subsubsub.parentNode.insertBefore(kpiSection, subsubsub);
+                kpiSection.style.display = '';
+            } else if (kpiSection) {
+                // Fallback: insert after hr.wp-header-end.
+                var headerEnd = document.querySelector('hr.wp-header-end');
+                if (headerEnd && headerEnd.nextSibling) {
+                    headerEnd.parentNode.insertBefore(kpiSection, headerEnd.nextSibling);
+                }
+                kpiSection.style.display = '';
+            }
+        })();
+        </script>
         <?php
     }
 
