@@ -2550,6 +2550,121 @@ input[type=checkbox]:checked::before {
 }
 
 /* ==========================================================================
+   Album Orders KPI Section
+   ========================================================================== */
+
+.eao-kpi-section {
+    margin: 0 0 var(--eao-space-lg);
+    padding: 0;
+}
+
+.eao-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--eao-space-md);
+}
+
+.eao-kpi-card {
+    display: flex;
+    align-items: center;
+    gap: var(--eao-space-md);
+    padding: var(--eao-space-lg);
+    background: #fff;
+    border: var(--eao-border);
+    border-radius: var(--eao-radius-xl);
+    box-shadow: var(--eao-shadow-sm);
+    transition: box-shadow var(--eao-transition), transform var(--eao-transition);
+}
+
+.eao-kpi-card:hover {
+    box-shadow: var(--eao-shadow-md);
+    transform: translateY(-1px);
+}
+
+.eao-kpi-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--eao-radius-lg);
+    flex-shrink: 0;
+}
+
+.eao-kpi-card__icon .eao-icon {
+    display: block;
+}
+
+/* Icon color variants */
+.eao-kpi-card__icon--revenue {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #16a34a;
+}
+
+.eao-kpi-card__icon--month {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+}
+
+.eao-kpi-card__icon--pending {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+}
+
+.eao-kpi-card__icon--ship {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    color: #9333ea;
+}
+
+.eao-kpi-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.eao-kpi-card__value {
+    font-size: var(--eao-font-2xl);
+    font-weight: 700;
+    color: var(--eao-gray-900);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.eao-kpi-card__label {
+    font-size: var(--eao-font-sm);
+    font-weight: 500;
+    color: var(--eao-gray-500);
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .eao-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .eao-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .eao-kpi-card {
+        padding: var(--eao-space-md);
+    }
+
+    .eao-kpi-card__icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .eao-kpi-card__value {
+        font-size: var(--eao-font-lg);
+    }
+}
+
+/* ==========================================================================
    Admin List Columns
    ========================================================================== */
 

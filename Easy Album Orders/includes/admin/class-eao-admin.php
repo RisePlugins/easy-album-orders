@@ -70,6 +70,9 @@ class EAO_Admin {
 
         // Admin notices for status updates.
         add_action( 'admin_notices', array( $this, 'status_update_notices' ) );
+
+        // KPI section on album orders list page.
+        add_action( 'admin_notices', array( $this, 'render_order_kpis' ) );
     }
 
     /**
@@ -375,6 +378,127 @@ class EAO_Admin {
             </p>
         </div>
         <?php
+    }
+
+    /**
+     * Render KPI section on album orders list page.
+     *
+     * Displays quick statistics about album orders including
+     * total revenue, orders today, pending orders, and orders to ship.
+     *
+     * @since 1.0.0
+     */
+    public function render_order_kpis() {
+        $screen = get_current_screen();
+
+        // Only show on album_order list page.
+        if ( ! $screen || 'edit-album_order' !== $screen->id ) {
+            return;
+        }
+
+        // Calculate KPIs.
+        $kpis = $this->calculate_order_kpis();
+
+        ?>
+        <div class="eao-kpi-section">
+            <div class="eao-kpi-grid">
+                <!-- Total Revenue -->
+                <div class="eao-kpi-card">
+                    <div class="eao-kpi-card__icon eao-kpi-card__icon--revenue">
+                        <?php EAO_Icons::render( 'credit-card', array( 'size' => 20 ) ); ?>
+                    </div>
+                    <div class="eao-kpi-card__content">
+                        <span class="eao-kpi-card__value"><?php echo esc_html( eao_format_price( $kpis['total_revenue'] ) ); ?></span>
+                        <span class="eao-kpi-card__label"><?php esc_html_e( 'Total Revenue', 'easy-album-orders' ); ?></span>
+                    </div>
+                </div>
+
+                <!-- Orders This Month -->
+                <div class="eao-kpi-card">
+                    <div class="eao-kpi-card__icon eao-kpi-card__icon--month">
+                        <?php EAO_Icons::render( 'calendar', array( 'size' => 20 ) ); ?>
+                    </div>
+                    <div class="eao-kpi-card__content">
+                        <span class="eao-kpi-card__value"><?php echo esc_html( $kpis['orders_this_month'] ); ?></span>
+                        <span class="eao-kpi-card__label"><?php esc_html_e( 'This Month', 'easy-album-orders' ); ?></span>
+                    </div>
+                </div>
+
+                <!-- Pending (In Cart) -->
+                <div class="eao-kpi-card">
+                    <div class="eao-kpi-card__icon eao-kpi-card__icon--pending">
+                        <?php EAO_Icons::render( 'shopping-cart', array( 'size' => 20 ) ); ?>
+                    </div>
+                    <div class="eao-kpi-card__content">
+                        <span class="eao-kpi-card__value"><?php echo esc_html( $kpis['pending_orders'] ); ?></span>
+                        <span class="eao-kpi-card__label"><?php esc_html_e( 'In Cart', 'easy-album-orders' ); ?></span>
+                    </div>
+                </div>
+
+                <!-- Ready to Ship -->
+                <div class="eao-kpi-card">
+                    <div class="eao-kpi-card__icon eao-kpi-card__icon--ship">
+                        <?php EAO_Icons::render( 'truck', array( 'size' => 20 ) ); ?>
+                    </div>
+                    <div class="eao-kpi-card__content">
+                        <span class="eao-kpi-card__value"><?php echo esc_html( $kpis['ready_to_ship'] ); ?></span>
+                        <span class="eao-kpi-card__label"><?php esc_html_e( 'Ready to Ship', 'easy-album-orders' ); ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Calculate KPIs for album orders.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @return array Array of KPI values.
+     */
+    private function calculate_order_kpis() {
+        global $wpdb;
+
+        // Get counts by status.
+        $pending_orders = count( EAO_Album_Order::get_by_status( EAO_Album_Order::STATUS_SUBMITTED ) );
+        $ready_to_ship  = count( EAO_Album_Order::get_by_status( EAO_Album_Order::STATUS_ORDERED ) );
+
+        // Get orders this month (ordered or shipped only - not just submitted).
+        $first_day_of_month = date( 'Y-m-01 00:00:00' );
+        $orders_this_month = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+                WHERE p.post_type = 'album_order'
+                AND p.post_status = 'publish'
+                AND pm.meta_value IN ('ordered', 'shipped')
+                AND p.post_date >= %s",
+                $first_day_of_month
+            )
+        );
+
+        // Calculate total revenue from paid orders.
+        $paid_order_ids = $wpdb->get_col(
+            "SELECT DISTINCT p.ID FROM {$wpdb->posts} p
+            INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+            WHERE p.post_type = 'album_order'
+            AND p.post_status = 'publish'
+            AND pm.meta_value IN ('ordered', 'shipped')"
+        );
+
+        $total_revenue = 0;
+        foreach ( $paid_order_ids as $order_id ) {
+            $total_revenue += EAO_Album_Order::calculate_total( $order_id );
+        }
+
+        return array(
+            'total_revenue'     => $total_revenue,
+            'orders_this_month' => absint( $orders_this_month ),
+            'pending_orders'    => $pending_orders,
+            'ready_to_ship'     => $ready_to_ship,
+        );
     }
 }
 
