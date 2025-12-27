@@ -276,6 +276,17 @@ class EAO_Admin {
         // Enqueue WordPress media uploader.
         wp_enqueue_media();
 
+        // Enqueue Chart.js on reports page.
+        if ( 'album_order_page_eao-reports' === $hook ) {
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
+                array(),
+                '4.4.1',
+                true
+            );
+        }
+
         wp_enqueue_script(
             $this->plugin_name . '-admin',
             EAO_PLUGIN_URL . 'assets/js/admin.js',

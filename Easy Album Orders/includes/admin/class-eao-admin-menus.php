@@ -89,6 +89,367 @@ class EAO_Admin_Menus {
             'dashicons-cart',
             27
         );
+
+        // Reports submenu under Album Orders.
+        add_submenu_page(
+            'edit.php?post_type=album_order',
+            __( 'Reports', 'easy-album-orders' ),
+            __( 'Reports', 'easy-album-orders' ),
+            'manage_options',
+            'eao-reports',
+            array( $this, 'render_reports_page' )
+        );
+    }
+
+    /**
+     * Render the Reports page.
+     *
+     * @since 1.0.0
+     */
+    public function render_reports_page() {
+        // Check user capabilities.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        // Get date range from query params.
+        $range = isset( $_GET['range'] ) ? sanitize_key( $_GET['range'] ) : '30days';
+        
+        // Calculate date boundaries based on range.
+        $date_boundaries = $this->get_date_boundaries( $range );
+        $start_date      = $date_boundaries['start'];
+        $end_date        = $date_boundaries['end'];
+        $range_label     = $date_boundaries['label'];
+
+        // Get report data.
+        $report_data = $this->get_report_data( $start_date, $end_date );
+
+        // Include the view.
+        include EAO_PLUGIN_DIR . 'includes/admin/views/reports-page.php';
+    }
+
+    /**
+     * Get date boundaries for a given range.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $range The date range identifier.
+     * @return array Array with start, end dates and label.
+     */
+    private function get_date_boundaries( $range ) {
+        $today = current_time( 'Y-m-d' );
+        
+        switch ( $range ) {
+            case 'today':
+                return array(
+                    'start' => $today,
+                    'end'   => $today,
+                    'label' => __( 'Today', 'easy-album-orders' ),
+                );
+
+            case '7days':
+                return array(
+                    'start' => date( 'Y-m-d', strtotime( '-6 days', strtotime( $today ) ) ),
+                    'end'   => $today,
+                    'label' => __( 'Last 7 Days', 'easy-album-orders' ),
+                );
+
+            case '30days':
+                return array(
+                    'start' => date( 'Y-m-d', strtotime( '-29 days', strtotime( $today ) ) ),
+                    'end'   => $today,
+                    'label' => __( 'Last 30 Days', 'easy-album-orders' ),
+                );
+
+            case 'this_month':
+                return array(
+                    'start' => date( 'Y-m-01', strtotime( $today ) ),
+                    'end'   => $today,
+                    'label' => __( 'This Month', 'easy-album-orders' ),
+                );
+
+            case 'last_month':
+                $first_of_last = date( 'Y-m-01', strtotime( 'first day of last month' ) );
+                $last_of_last  = date( 'Y-m-t', strtotime( 'last day of last month' ) );
+                return array(
+                    'start' => $first_of_last,
+                    'end'   => $last_of_last,
+                    'label' => __( 'Last Month', 'easy-album-orders' ),
+                );
+
+            case 'this_quarter':
+                $month   = date( 'n', strtotime( $today ) );
+                $quarter = ceil( $month / 3 );
+                $start_month = ( ( $quarter - 1 ) * 3 ) + 1;
+                return array(
+                    'start' => date( 'Y-m-01', strtotime( date( 'Y' ) . '-' . $start_month . '-01' ) ),
+                    'end'   => $today,
+                    'label' => __( 'This Quarter', 'easy-album-orders' ),
+                );
+
+            case 'this_year':
+                return array(
+                    'start' => date( 'Y-01-01', strtotime( $today ) ),
+                    'end'   => $today,
+                    'label' => __( 'This Year', 'easy-album-orders' ),
+                );
+
+            case 'all_time':
+                return array(
+                    'start' => '2000-01-01',
+                    'end'   => $today,
+                    'label' => __( 'All Time', 'easy-album-orders' ),
+                );
+
+            default:
+                return array(
+                    'start' => date( 'Y-m-d', strtotime( '-29 days', strtotime( $today ) ) ),
+                    'end'   => $today,
+                    'label' => __( 'Last 30 Days', 'easy-album-orders' ),
+                );
+        }
+    }
+
+    /**
+     * Get report data for the given date range.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $start_date Start date (Y-m-d).
+     * @param string $end_date   End date (Y-m-d).
+     * @return array Report data.
+     */
+    private function get_report_data( $start_date, $end_date ) {
+        global $wpdb;
+
+        $start_datetime = $start_date . ' 00:00:00';
+        $end_datetime   = $end_date . ' 23:59:59';
+
+        // Get orders in range (only ordered/shipped - not submitted/cart items).
+        $order_ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+                WHERE p.post_type = 'album_order'
+                AND p.post_status = 'publish'
+                AND pm.meta_value IN ('ordered', 'shipped')
+                AND p.post_date >= %s
+                AND p.post_date <= %s",
+                $start_datetime,
+                $end_datetime
+            )
+        );
+
+        // Calculate totals.
+        $total_revenue = 0;
+        $total_orders  = count( $order_ids );
+
+        foreach ( $order_ids as $order_id ) {
+            $total_revenue += EAO_Album_Order::calculate_total( $order_id );
+        }
+
+        $avg_order_value = $total_orders > 0 ? $total_revenue / $total_orders : 0;
+
+        // Orders by status (all time for status breakdown).
+        $submitted_count = count( EAO_Album_Order::get_by_status( EAO_Album_Order::STATUS_SUBMITTED ) );
+        $ordered_count   = count( EAO_Album_Order::get_by_status( EAO_Album_Order::STATUS_ORDERED ) );
+        $shipped_count   = count( EAO_Album_Order::get_by_status( EAO_Album_Order::STATUS_SHIPPED ) );
+
+        // Revenue by day for chart.
+        $revenue_by_day = $this->get_revenue_by_day( $start_date, $end_date );
+
+        // Top materials.
+        $top_materials = $this->get_top_materials( $start_date, $end_date );
+
+        // Top sizes.
+        $top_sizes = $this->get_top_sizes( $start_date, $end_date );
+
+        // Monthly comparison (current vs previous).
+        $monthly_comparison = $this->get_monthly_comparison();
+
+        return array(
+            'total_revenue'      => $total_revenue,
+            'total_orders'       => $total_orders,
+            'avg_order_value'    => $avg_order_value,
+            'submitted_count'    => $submitted_count,
+            'ordered_count'      => $ordered_count,
+            'shipped_count'      => $shipped_count,
+            'revenue_by_day'     => $revenue_by_day,
+            'top_materials'      => $top_materials,
+            'top_sizes'          => $top_sizes,
+            'monthly_comparison' => $monthly_comparison,
+        );
+    }
+
+    /**
+     * Get revenue by day for chart.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $start_date Start date.
+     * @param string $end_date   End date.
+     * @return array Revenue by day.
+     */
+    private function get_revenue_by_day( $start_date, $end_date ) {
+        global $wpdb;
+
+        $data = array();
+        $current = strtotime( $start_date );
+        $end     = strtotime( $end_date );
+
+        while ( $current <= $end ) {
+            $day = date( 'Y-m-d', $current );
+            $data[ $day ] = 0;
+            $current = strtotime( '+1 day', $current );
+        }
+
+        // Get orders with their dates.
+        $orders = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT p.ID, DATE(p.post_date) as order_date FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+                WHERE p.post_type = 'album_order'
+                AND p.post_status = 'publish'
+                AND pm.meta_value IN ('ordered', 'shipped')
+                AND p.post_date >= %s
+                AND p.post_date <= %s",
+                $start_date . ' 00:00:00',
+                $end_date . ' 23:59:59'
+            )
+        );
+
+        foreach ( $orders as $order ) {
+            if ( isset( $data[ $order->order_date ] ) ) {
+                $data[ $order->order_date ] += EAO_Album_Order::calculate_total( $order->ID );
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get top materials by order count.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $start_date Start date.
+     * @param string $end_date   End date.
+     * @return array Top materials.
+     */
+    private function get_top_materials( $start_date, $end_date ) {
+        global $wpdb;
+
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT pm2.meta_value as material, COUNT(*) as count
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+                INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_eao_material_name'
+                WHERE p.post_type = 'album_order'
+                AND p.post_status = 'publish'
+                AND pm.meta_value IN ('ordered', 'shipped')
+                AND p.post_date >= %s
+                AND p.post_date <= %s
+                AND pm2.meta_value != ''
+                GROUP BY pm2.meta_value
+                ORDER BY count DESC
+                LIMIT 5",
+                $start_date . ' 00:00:00',
+                $end_date . ' 23:59:59'
+            ),
+            ARRAY_A
+        );
+
+        return $results ? $results : array();
+    }
+
+    /**
+     * Get top sizes by order count.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $start_date Start date.
+     * @param string $end_date   End date.
+     * @return array Top sizes.
+     */
+    private function get_top_sizes( $start_date, $end_date ) {
+        global $wpdb;
+
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT pm2.meta_value as size, COUNT(*) as count
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+                INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_eao_size_name'
+                WHERE p.post_type = 'album_order'
+                AND p.post_status = 'publish'
+                AND pm.meta_value IN ('ordered', 'shipped')
+                AND p.post_date >= %s
+                AND p.post_date <= %s
+                AND pm2.meta_value != ''
+                GROUP BY pm2.meta_value
+                ORDER BY count DESC
+                LIMIT 5",
+                $start_date . ' 00:00:00',
+                $end_date . ' 23:59:59'
+            ),
+            ARRAY_A
+        );
+
+        return $results ? $results : array();
+    }
+
+    /**
+     * Get monthly comparison data.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @return array Monthly comparison.
+     */
+    private function get_monthly_comparison() {
+        global $wpdb;
+
+        $data = array();
+
+        // Get last 6 months.
+        for ( $i = 5; $i >= 0; $i-- ) {
+            $month_start = date( 'Y-m-01', strtotime( "-{$i} months" ) );
+            $month_end   = date( 'Y-m-t', strtotime( "-{$i} months" ) );
+            $month_label = date_i18n( 'M', strtotime( $month_start ) );
+
+            $order_ids = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT DISTINCT p.ID FROM {$wpdb->posts} p
+                    INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_eao_order_status'
+                    WHERE p.post_type = 'album_order'
+                    AND p.post_status = 'publish'
+                    AND pm.meta_value IN ('ordered', 'shipped')
+                    AND p.post_date >= %s
+                    AND p.post_date <= %s",
+                    $month_start . ' 00:00:00',
+                    $month_end . ' 23:59:59'
+                )
+            );
+
+            $revenue = 0;
+            foreach ( $order_ids as $order_id ) {
+                $revenue += EAO_Album_Order::calculate_total( $order_id );
+            }
+
+            $data[] = array(
+                'month'   => $month_label,
+                'revenue' => $revenue,
+                'orders'  => count( $order_ids ),
+            );
+        }
+
+        return $data;
     }
 
     /**

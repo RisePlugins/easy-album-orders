@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 39 (~156KB estimated)
+- **Icons currently used**: 43 (~172KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -96,6 +96,29 @@ Keep this list updated as you add new icons throughout development.
 | `pencil` | Edit button in cart item |
 | `trash` | Remove button in cart item |
 
+### Album Orders KPI Section (`class-eao-admin.php`)
+
+| Icon | Usage |
+|------|-------|
+| `credit-card` | Total Revenue KPI icon |
+| `calendar` | Orders This Month KPI icon |
+| `shopping-cart` | In Cart KPI icon |
+| `truck` | Ready to Ship KPI icon |
+
+### Reports Page (`reports-page.php`)
+
+| Icon | Usage |
+|------|-------|
+| `credit-card` | Total Revenue KPI icon |
+| `shopping-cart` | Total Orders KPI icon |
+| `receipt` | Avg. Order Value KPI icon |
+| `truck` | Awaiting Shipment KPI icon |
+| `chart-line` | Revenue Over Time chart header |
+| `chart-pie` | Orders by Status chart header |
+| `chart-bar` | Monthly Performance chart header |
+| `chart-dots` | Empty state icon in Popular Choices |
+| `award` | Popular Choices card header |
+
 ---
 
 ## Complete Icon List (Alphabetical)
@@ -109,6 +132,10 @@ book
 books
 brand-loom
 calendar
+chart-bar
+chart-dots
+chart-line
+chart-pie
 chevron-down
 chevron-left
 chevron-right
@@ -142,7 +169,7 @@ writing
 x
 ```
 
-**Total: 39 icons**
+**Total: 43 icons**
 
 ---
 
@@ -222,4 +249,4 @@ Common categories for this plugin:
 
 ---
 
-*Last updated: December 26, 2025 - Added Order History Page icons*
+*Last updated: December 27, 2025 - Added Reports Page and KPI section icons*
