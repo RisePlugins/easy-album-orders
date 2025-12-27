@@ -46,6 +46,8 @@ uploads/
 # Compiled files
 *.min.css
 *.min.js
+# Exception: Chart.js library is needed for reports
+!Easy Album Orders/assets/js/chart.min.js
 
 # Temporary files
 tmp/
