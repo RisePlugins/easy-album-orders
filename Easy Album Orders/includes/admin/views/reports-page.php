@@ -31,21 +31,17 @@ $date_ranges = array(
 ?>
 <div class="wrap eao-admin-wrap eao-reports-page">
     <div class="eao-reports-header">
-        <div class="eao-reports-header__title">
-            <h1><?php esc_html_e( 'Reports', 'easy-album-orders' ); ?></h1>
-            <span class="eao-reports-header__range"><?php echo esc_html( $range_label ); ?></span>
-        </div>
-        
-        <div class="eao-reports-header__filters">
-            <div class="eao-date-filters">
-                <?php foreach ( $date_ranges as $range_key => $range_name ) : ?>
-                    <a href="<?php echo esc_url( add_query_arg( 'range', $range_key, $base_url ) ); ?>" 
-                       class="eao-date-filter <?php echo $current_range === $range_key ? 'eao-date-filter--active' : ''; ?>">
-                        <?php echo esc_html( $range_name ); ?>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
+        <h1><?php esc_html_e( 'Reports', 'easy-album-orders' ); ?></h1>
+    </div>
+
+    <!-- Date Filters -->
+    <div class="eao-date-filters">
+        <?php foreach ( $date_ranges as $range_key => $range_name ) : ?>
+            <a href="<?php echo esc_url( add_query_arg( 'range', $range_key, $base_url ) ); ?>" 
+               class="eao-date-filter <?php echo $current_range === $range_key ? 'eao-date-filter--active' : ''; ?>">
+                <?php echo esc_html( $range_name ); ?>
+            </a>
+        <?php endforeach; ?>
     </div>
 
     <!-- KPI Cards -->

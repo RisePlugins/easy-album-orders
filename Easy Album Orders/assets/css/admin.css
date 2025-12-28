@@ -5336,41 +5336,25 @@ input[type=checkbox]:checked::before {
 
 /* Reports Header */
 .eao-reports-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--eao-space-lg);
-    margin-bottom: var(--eao-space-xl);
+    margin-bottom: var(--eao-space-lg);
 }
 
-.eao-reports-header__title {
-    display: flex;
-    flex-direction: column;
-    gap: var(--eao-space-xs);
-}
-
-.eao-reports-header__title h1 {
+.eao-reports-header h1 {
     margin: 0;
     font-size: 28px;
     font-weight: 700;
     color: var(--eao-gray-900);
 }
 
-.eao-reports-header__range {
-    font-size: var(--eao-font-md);
-    font-weight: 500;
-    color: var(--eao-gray-500);
-}
-
 /* Date Filters */
 .eao-date-filters {
-    display: flex;
+    display: inline-flex;
     flex-wrap: wrap;
     gap: var(--eao-space-xs);
     padding: var(--eao-space-xs);
     background: var(--eao-gray-100);
     border-radius: var(--eao-radius-lg);
+    margin-bottom: var(--eao-space-lg);
 }
 
 .eao-date-filter {
@@ -5659,10 +5643,6 @@ input[type=checkbox]:checked::before {
 }
 
 @media (max-width: 768px) {
-    .eao-reports-header {
-        flex-direction: column;
-    }
-
     .eao-reports-kpis {
         grid-template-columns: 1fr;
     }
@@ -5681,8 +5661,8 @@ input[type=checkbox]:checked::before {
     }
 
     .eao-date-filters {
+        display: flex;
         width: 100%;
-        justify-content: center;
     }
 }
 
