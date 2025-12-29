@@ -58,11 +58,12 @@ Keep this list updated as you add new icons throughout development.
 
 | Icon | Usage |
 |------|-------|
+| `plus` | Page tab "Create an Album", New address card icon, Empty orders state button |
+| `clipboard-list` | Page tab "View Album Orders", Order history sidebar title, Empty orders state icon |
 | `photo` | Placeholder for design images without cover |
 | `palette` | Placeholder for material images |
 | `x` | No engraving card, modal close buttons, proof viewer close |
 | `writing` | Engraving option icon |
-| `plus` | New address card icon |
 | `lock` | Secure payment badge in checkout modal |
 | `arrow-left` | Back button in payment step |
 | `file-type-pdf` | Proof viewer title |
@@ -71,9 +72,13 @@ Keep this list updated as you add new icons throughout development.
 | `chevron-left` | Previous page in proof viewer |
 | `chevron-right` | Next page in proof viewer |
 | `chevron-down` | Order history sidebar accordion toggle |
-| `clipboard-list` | Order history sidebar title |
 | `shopping-cart` | Cart header and empty cart icon |
 | `arrow-right` | View All Order Details link in order history sidebar |
+| `hash` | Order number in View Album Orders tab |
+| `calendar` | Order date in View Album Orders tab |
+| `book` | Album Details section in View Album Orders tab |
+| `truck` | Shipping section in View Album Orders tab |
+| `receipt` | Order Total section in View Album Orders tab |
 
 ### Order History Page (`single-client-album-order-history.php`)
 
@@ -249,4 +254,4 @@ Common categories for this plugin:
 
 ---
 
-*Last updated: December 27, 2025 - Added Reports Page and KPI section icons*
+*Last updated: December 28, 2025 - Added Page Tabs (Create an Album / View Album Orders)*

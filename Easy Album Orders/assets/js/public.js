@@ -2299,10 +2299,131 @@
         }
     };
 
+    /**
+     * Page Tabs Handler.
+     *
+     * Manages the main page tabs (Create an Album / View Album Orders).
+     *
+     * @since 1.2.0
+     */
+    const EAOTabs = {
+        /**
+         * Initialize tabs functionality.
+         */
+        init: function() {
+            const self = this;
+            const $tabsContainer = $('.eao-page-tabs');
+
+            if (!$tabsContainer.length) {
+                return;
+            }
+
+            // Handle tab clicks.
+            $tabsContainer.on('click', '.eao-page-tabs__tab', function(e) {
+                e.preventDefault();
+                self.switchTab($(this));
+            });
+
+            // Handle keyboard navigation for accessibility.
+            $tabsContainer.on('keydown', '.eao-page-tabs__tab', function(e) {
+                const $tabs = $tabsContainer.find('.eao-page-tabs__tab');
+                const currentIndex = $tabs.index(this);
+                let newIndex = currentIndex;
+
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        newIndex = currentIndex - 1;
+                        if (newIndex < 0) newIndex = $tabs.length - 1;
+                        break;
+                    case 'ArrowRight':
+                        newIndex = currentIndex + 1;
+                        if (newIndex >= $tabs.length) newIndex = 0;
+                        break;
+                    case 'Home':
+                        newIndex = 0;
+                        break;
+                    case 'End':
+                        newIndex = $tabs.length - 1;
+                        break;
+                    default:
+                        return;
+                }
+
+                e.preventDefault();
+                $tabs.eq(newIndex).focus();
+                self.switchTab($tabs.eq(newIndex));
+            });
+
+            // Handle "Create an Album" button in empty state.
+            $(document).on('click', '[data-switch-tab]', function(e) {
+                e.preventDefault();
+                const targetTabId = $(this).data('switch-tab');
+                const $targetTab = $('#' + targetTabId);
+                if ($targetTab.length) {
+                    self.switchTab($targetTab);
+                }
+            });
+
+            // Check URL hash for initial tab.
+            this.handleInitialTab();
+        },
+
+        /**
+         * Switch to a specific tab.
+         *
+         * @param {jQuery} $tab The tab button to activate.
+         */
+        switchTab: function($tab) {
+            if ($tab.hasClass('is-active')) {
+                return;
+            }
+
+            const panelId = $tab.attr('aria-controls');
+            const $panel = $('#' + panelId);
+
+            if (!$panel.length) {
+                return;
+            }
+
+            // Update tab states.
+            $('.eao-page-tabs__tab').removeClass('is-active').attr('aria-selected', 'false');
+            $tab.addClass('is-active').attr('aria-selected', 'true');
+
+            // Update panel states.
+            $('.eao-tab-panel').removeClass('is-active').attr('hidden', true);
+            $panel.addClass('is-active').removeAttr('hidden');
+
+            // Update URL hash for bookmarking.
+            const tabId = $tab.attr('id');
+            if (tabId) {
+                const hash = tabId.replace('eao-tab-', '');
+                history.replaceState(null, '', '#' + hash);
+            }
+
+            // Trigger event for other scripts.
+            $(document).trigger('eao:tab-switched', [panelId, $tab]);
+        },
+
+        /**
+         * Handle initial tab based on URL hash.
+         */
+        handleInitialTab: function() {
+            const hash = window.location.hash.substring(1);
+            
+            if (hash) {
+                const $targetTab = $('#eao-tab-' + hash);
+                if ($targetTab.length && !$targetTab.hasClass('is-active')) {
+                    this.switchTab($targetTab);
+                }
+            }
+        }
+    };
+
     // Initialize on document ready.
     $(document).ready(function() {
         EAOPublic.init();
         EAOProofViewer.init();
+        EAOTabs.init();
     });
 
 })(jQuery);

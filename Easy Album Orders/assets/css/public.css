@@ -148,6 +148,179 @@
 }
 
 /* ==========================================================================
+   Page Tabs Navigation
+   ========================================================================== */
+
+.eao-page-tabs {
+    display: flex;
+    gap: var(--eao-space-xs);
+    margin-bottom: var(--eao-space-xl);
+    border-bottom: 2px solid var(--eao-border-light);
+    padding-bottom: 0;
+}
+
+.eao-page-tabs__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--eao-space-sm);
+    padding: var(--eao-space-md) var(--eao-space-lg);
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--eao-text-light);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: color var(--eao-transition-fast), 
+                border-color var(--eao-transition-fast),
+                background-color var(--eao-transition-fast);
+    border-radius: var(--eao-radius-md) var(--eao-radius-md) 0 0;
+}
+
+.eao-page-tabs__tab:hover {
+    color: var(--eao-primary);
+    background: var(--eao-bg);
+}
+
+.eao-page-tabs__tab.is-active {
+    color: var(--eao-primary);
+    border-bottom-color: var(--eao-accent);
+    background: var(--eao-white);
+}
+
+.eao-page-tabs__tab .eao-icon {
+    flex-shrink: 0;
+    transition: color var(--eao-transition-fast);
+}
+
+.eao-page-tabs__tab:hover .eao-icon,
+.eao-page-tabs__tab.is-active .eao-icon {
+    color: var(--eao-accent);
+}
+
+.eao-page-tabs__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--eao-white);
+    background: var(--eao-success);
+    border-radius: var(--eao-radius-full);
+    margin-left: var(--eao-space-xs);
+}
+
+.eao-page-tabs__tab:not(.is-active) .eao-page-tabs__badge {
+    background: var(--eao-text-muted);
+}
+
+/* Tab Panels */
+.eao-tab-panel {
+    display: none;
+}
+
+.eao-tab-panel.is-active {
+    display: block;
+    animation: eaoFadeIn 0.2s ease;
+}
+
+@keyframes eaoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Tabs */
+@media (max-width: 600px) {
+    .eao-page-tabs {
+        gap: 0;
+    }
+
+    .eao-page-tabs__tab {
+        flex: 1;
+        justify-content: center;
+        padding: var(--eao-space-sm) var(--eao-space-md);
+        font-size: 0.85rem;
+    }
+
+    .eao-page-tabs__tab span:not(.eao-page-tabs__badge) {
+        display: none;
+    }
+
+    .eao-page-tabs__tab .eao-icon {
+        margin: 0;
+    }
+
+    .eao-page-tabs__badge {
+        margin-left: var(--eao-space-xs);
+    }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+    .eao-page-tabs__tab {
+        padding: var(--eao-space-sm) var(--eao-space-md);
+        font-size: 0.9rem;
+    }
+}
+
+/* ==========================================================================
+   Orders List (Tab Panel)
+   ========================================================================== */
+
+.eao-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--eao-space-xl);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Empty State for Orders Tab */
+.eao-orders-empty {
+    text-align: center;
+    padding: var(--eao-space-3xl) var(--eao-space-lg);
+    background: var(--eao-white);
+    border-radius: var(--eao-radius-xl);
+    box-shadow: var(--eao-shadow-md);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.eao-orders-empty__icon {
+    color: var(--eao-text-muted);
+    margin-bottom: var(--eao-space-lg);
+    opacity: 0.4;
+}
+
+.eao-orders-empty__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--eao-primary);
+    margin: 0 0 var(--eao-space-sm) 0;
+}
+
+.eao-orders-empty__text {
+    font-size: 1rem;
+    color: var(--eao-text-light);
+    margin: 0 0 var(--eao-space-xl) 0;
+    line-height: 1.6;
+}
+
+.eao-orders-empty__btn {
+    display: inline-flex;
+}
+
+/* ==========================================================================
    Layout - Two Column Grid
    ========================================================================== */
 
