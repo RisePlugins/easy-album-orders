@@ -2,7 +2,8 @@
 /**
  * Template for Client Album Order History view.
  *
- * Displays all completed orders for a client album in full detail.
+ * Displays all completed orders for a client album in full detail
+ * with a visual, card-based layout featuring design images.
  *
  * @package Easy_Album_Orders
  * @since   1.0.0
@@ -19,6 +20,10 @@ get_header();
 $album_id    = get_the_ID();
 $album_title = get_the_title();
 $client_name = get_post_meta( $album_id, '_eao_client_name', true );
+
+// Get designs for cover images.
+$designs = get_post_meta( $album_id, '_eao_designs', true );
+$designs = is_array( $designs ) ? $designs : array();
 
 // Get general settings for currency.
 $general_settings = get_option( 'eao_general_settings', array() );
@@ -51,9 +56,9 @@ $completed_orders = get_posts( array(
             <?php EAO_Icons::render( 'arrow-left', array( 'size' => 18 ) ); ?>
             <?php esc_html_e( 'Back to Order Form', 'easy-album-orders' ); ?>
         </a>
-        <h1 class="eao-order-history-page__title"><?php esc_html_e( 'Order History', 'easy-album-orders' ); ?></h1>
+        <h1 class="eao-order-history-page__title"><?php esc_html_e( 'Your Album Orders', 'easy-album-orders' ); ?></h1>
         <p class="eao-order-history-page__subtitle">
-            <?php echo esc_html( sprintf( __( '%d order(s) for %s', 'easy-album-orders' ), count( $completed_orders ), $album_title ) ); ?>
+            <?php echo esc_html( sprintf( _n( '%d album ordered for %s', '%d albums ordered for %s', count( $completed_orders ), 'easy-album-orders' ), count( $completed_orders ), $album_title ) ); ?>
         </p>
     </header>
 
@@ -76,6 +81,7 @@ $completed_orders = get_posts( array(
                     // Get order meta data.
                     $order_status       = EAO_Album_Order::get_order_status( $order->ID );
                     $album_name         = get_post_meta( $order->ID, '_eao_album_name', true );
+                    $design_index       = get_post_meta( $order->ID, '_eao_design_index', true );
                     $design_name        = get_post_meta( $order->ID, '_eao_design_name', true );
                     $material_name      = get_post_meta( $order->ID, '_eao_material_name', true );
                     $material_color     = get_post_meta( $order->ID, '_eao_material_color', true );
@@ -109,162 +115,165 @@ $completed_orders = get_posts( array(
                     
                     // Order number.
                     $order_number = EAO_Helpers::generate_order_number( $order->ID );
+                    
+                    // Get design cover image.
+                    $cover_url = '';
+                    if ( isset( $designs[ $design_index ] ) && ! empty( $designs[ $design_index ]['cover_id'] ) ) {
+                        $cover_url = wp_get_attachment_image_url( $designs[ $design_index ]['cover_id'], 'medium' );
+                    }
+                    
+                    // Is shipped?
+                    $is_shipped = ( $order_status === EAO_Album_Order::STATUS_SHIPPED );
                 ?>
-                    <article class="eao-order-card">
-                        <!-- Order Header -->
-                        <header class="eao-order-card__header">
-                            <div class="eao-order-card__title-row">
-                                <h2 class="eao-order-card__title"><?php echo esc_html( $album_name ); ?></h2>
-                                <span class="eao-status-badge eao-status-badge--<?php echo esc_attr( $order_status ); ?> eao-status-badge--large">
-                                    <?php echo esc_html( $status_label ); ?>
-                                </span>
-                            </div>
-                            <div class="eao-order-card__meta">
-                                <span class="eao-order-card__number">
-                                    <?php EAO_Icons::render( 'hash', array( 'size' => 14 ) ); ?>
-                                    <?php echo esc_html( $order_number ); ?>
-                                </span>
-                                <span class="eao-order-card__date">
-                                    <?php EAO_Icons::render( 'calendar', array( 'size' => 14 ) ); ?>
-                                    <?php 
-                                    if ( $order_status === EAO_Album_Order::STATUS_SHIPPED && $shipped_date ) {
-                                        echo esc_html( sprintf( __( 'Shipped %s', 'easy-album-orders' ), date_i18n( get_option( 'date_format' ), strtotime( $shipped_date ) ) ) );
-                                    } elseif ( $order_date ) {
-                                        echo esc_html( sprintf( __( 'Ordered %s', 'easy-album-orders' ), date_i18n( get_option( 'date_format' ), strtotime( $order_date ) ) ) );
-                                    }
-                                    ?>
-                                </span>
-                            </div>
-                        </header>
-
-                        <!-- Order Details -->
-                        <div class="eao-order-card__body">
-                            <!-- Album Details Section -->
-                            <div class="eao-order-card__section">
-                                <h3 class="eao-order-card__section-title">
-                                    <?php EAO_Icons::render( 'book', array( 'size' => 16 ) ); ?>
-                                    <?php esc_html_e( 'Album Details', 'easy-album-orders' ); ?>
-                                </h3>
-                                <dl class="eao-order-card__dl">
-                                    <?php if ( $design_name ) : ?>
-                                        <div class="eao-order-card__dl-item">
-                                            <dt><?php esc_html_e( 'Design', 'easy-album-orders' ); ?></dt>
-                                            <dd><?php echo esc_html( $design_name ); ?></dd>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if ( $material_name ) : ?>
-                                        <div class="eao-order-card__dl-item">
-                                            <dt><?php esc_html_e( 'Material', 'easy-album-orders' ); ?></dt>
-                                            <dd>
-                                                <?php echo esc_html( $material_name ); ?>
-                                                <?php if ( $material_color ) : ?>
-                                                    <span class="eao-order-card__color">(<?php echo esc_html( $material_color ); ?>)</span>
-                                                <?php endif; ?>
-                                            </dd>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if ( $size_name ) : ?>
-                                        <div class="eao-order-card__dl-item">
-                                            <dt><?php esc_html_e( 'Size', 'easy-album-orders' ); ?></dt>
-                                            <dd><?php echo esc_html( $size_name ); ?></dd>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if ( $engraving_method ) : ?>
-                                        <div class="eao-order-card__dl-item">
-                                            <dt><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></dt>
-                                            <dd>
-                                                <?php echo esc_html( $engraving_method ); ?>
-                                                <?php if ( $engraving_text ) : ?>
-                                                    <span class="eao-order-card__engraving-text">"<?php echo esc_html( $engraving_text ); ?>"</span>
-                                                <?php endif; ?>
-                                                <?php if ( $engraving_font ) : ?>
-                                                    <span class="eao-order-card__color">(<?php echo esc_html( $engraving_font ); ?>)</span>
-                                                <?php endif; ?>
-                                            </dd>
-                                        </div>
-                                    <?php endif; ?>
-                                </dl>
-                            </div>
-
-                            <?php if ( $shipping_name || $shipping_address1 ) : ?>
-                                <!-- Shipping Section -->
-                                <div class="eao-order-card__section">
-                                    <h3 class="eao-order-card__section-title">
-                                        <?php EAO_Icons::render( 'truck', array( 'size' => 16 ) ); ?>
-                                        <?php esc_html_e( 'Shipping To', 'easy-album-orders' ); ?>
-                                    </h3>
-                                    <address class="eao-order-card__address">
-                                        <?php if ( $shipping_name ) : ?>
-                                            <strong><?php echo esc_html( $shipping_name ); ?></strong><br>
-                                        <?php endif; ?>
-                                        <?php if ( $shipping_address1 ) : ?>
-                                            <?php echo esc_html( $shipping_address1 ); ?><br>
-                                        <?php endif; ?>
-                                        <?php if ( $shipping_address2 ) : ?>
-                                            <?php echo esc_html( $shipping_address2 ); ?><br>
-                                        <?php endif; ?>
-                                        <?php if ( $shipping_city || $shipping_state || $shipping_zip ) : ?>
-                                            <?php 
-                                            $city_state_zip = array_filter( array( $shipping_city, $shipping_state, $shipping_zip ) );
-                                            echo esc_html( implode( ', ', array_slice( $city_state_zip, 0, 2 ) ) );
-                                            if ( $shipping_zip ) {
-                                                echo ' ' . esc_html( $shipping_zip );
-                                            }
-                                            ?>
-                                        <?php endif; ?>
-                                    </address>
+                    <article class="eao-order-card-v2<?php echo $is_shipped ? ' eao-order-card-v2--shipped' : ''; ?>">
+                        <!-- Card Image -->
+                        <div class="eao-order-card-v2__image">
+                            <?php if ( $cover_url ) : ?>
+                                <img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $design_name ); ?>">
+                            <?php else : ?>
+                                <div class="eao-order-card-v2__image-placeholder">
+                                    <?php EAO_Icons::render( 'book', array( 'size' => 48 ) ); ?>
                                 </div>
                             <?php endif; ?>
-
-                            <!-- Order Total -->
-                            <div class="eao-order-card__pricing">
-                                <h3 class="eao-order-card__section-title">
-                                    <?php EAO_Icons::render( 'receipt', array( 'size' => 16 ) ); ?>
-                                    <?php esc_html_e( 'Order Total', 'easy-album-orders' ); ?>
-                                </h3>
-                                <div class="eao-order-card__price-lines">
-                                    <div class="eao-order-card__price-line">
-                                        <span><?php esc_html_e( 'Base Price', 'easy-album-orders' ); ?></span>
-                                        <span><?php echo esc_html( eao_format_price( $base_price ) ); ?></span>
-                                    </div>
-                                    <?php if ( $material_upcharge > 0 ) : ?>
-                                        <div class="eao-order-card__price-line">
-                                            <span><?php esc_html_e( 'Material', 'easy-album-orders' ); ?></span>
-                                            <span>+ <?php echo esc_html( eao_format_price( $material_upcharge ) ); ?></span>
+                            
+                            <!-- Status Badge Overlay -->
+                            <div class="eao-order-card-v2__status-badge eao-order-card-v2__status-badge--<?php echo esc_attr( $order_status ); ?>">
+                                <?php if ( $is_shipped ) : ?>
+                                    <?php EAO_Icons::render( 'circle-check', array( 'size' => 14, 'variant' => 'filled' ) ); ?>
+                                <?php else : ?>
+                                    <?php EAO_Icons::render( 'truck', array( 'size' => 14 ) ); ?>
+                                <?php endif; ?>
+                                <?php echo esc_html( $status_label ); ?>
+                            </div>
+                        </div>
+                        
+                        <!-- Card Content -->
+                        <div class="eao-order-card-v2__content">
+                            <!-- Header with Album Name and Order Info -->
+                            <header class="eao-order-card-v2__header">
+                                <div class="eao-order-card-v2__title-group">
+                                    <h2 class="eao-order-card-v2__title"><?php echo esc_html( $album_name ); ?></h2>
+                                    <span class="eao-order-card-v2__order-number"><?php echo esc_html( $order_number ); ?></span>
+                                </div>
+                                
+                                <!-- Timeline -->
+                                <div class="eao-order-card-v2__timeline">
+                                    <?php if ( $order_date ) : ?>
+                                        <div class="eao-order-card-v2__timeline-item eao-order-card-v2__timeline-item--complete">
+                                            <?php EAO_Icons::render( 'circle-check', array( 'size' => 16, 'variant' => 'filled' ) ); ?>
+                                            <span class="eao-order-card-v2__timeline-label"><?php esc_html_e( 'Ordered', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-order-card-v2__timeline-date"><?php echo esc_html( date_i18n( 'M j, Y', strtotime( $order_date ) ) ); ?></span>
                                         </div>
                                     <?php endif; ?>
-                                    <?php if ( $size_upcharge > 0 ) : ?>
-                                        <div class="eao-order-card__price-line">
-                                            <span><?php esc_html_e( 'Size', 'easy-album-orders' ); ?></span>
-                                            <span>+ <?php echo esc_html( eao_format_price( $size_upcharge ) ); ?></span>
+                                    
+                                    <?php if ( $is_shipped && $shipped_date ) : ?>
+                                        <div class="eao-order-card-v2__timeline-item eao-order-card-v2__timeline-item--complete eao-order-card-v2__timeline-item--shipped">
+                                            <?php EAO_Icons::render( 'circle-check', array( 'size' => 16, 'variant' => 'filled' ) ); ?>
+                                            <span class="eao-order-card-v2__timeline-label"><?php esc_html_e( 'Shipped', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-order-card-v2__timeline-date"><?php echo esc_html( date_i18n( 'M j, Y', strtotime( $shipped_date ) ) ); ?></span>
+                                        </div>
+                                    <?php elseif ( ! $is_shipped ) : ?>
+                                        <div class="eao-order-card-v2__timeline-item eao-order-card-v2__timeline-item--pending">
+                                            <?php EAO_Icons::render( 'truck', array( 'size' => 16 ) ); ?>
+                                            <span class="eao-order-card-v2__timeline-label"><?php esc_html_e( 'Shipping Soon', 'easy-album-orders' ); ?></span>
                                         </div>
                                     <?php endif; ?>
-                                    <?php if ( $engraving_upcharge > 0 ) : ?>
-                                        <div class="eao-order-card__price-line">
-                                            <span><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></span>
-                                            <span>+ <?php echo esc_html( eao_format_price( $engraving_upcharge ) ); ?></span>
+                                </div>
+                            </header>
+                            
+                            <!-- Order Details Grid -->
+                            <div class="eao-order-card-v2__details">
+                                <!-- Album Specifications -->
+                                <div class="eao-order-card-v2__specs">
+                                    <?php if ( $design_name ) : ?>
+                                        <div class="eao-order-card-v2__spec">
+                                            <span class="eao-order-card-v2__spec-label"><?php esc_html_e( 'Design', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-order-card-v2__spec-value"><?php echo esc_html( $design_name ); ?></span>
                                         </div>
                                     <?php endif; ?>
-                                    <?php if ( $applied_credits > 0 ) : ?>
-                                        <div class="eao-order-card__price-line eao-order-card__price-line--credit">
-                                            <span>
+                                    
+                                    <?php if ( $material_name ) : ?>
+                                        <div class="eao-order-card-v2__spec">
+                                            <span class="eao-order-card-v2__spec-label"><?php esc_html_e( 'Material', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-order-card-v2__spec-value">
+                                                <?php echo esc_html( $material_name ); ?>
+                                                <?php if ( $material_color ) : ?>
+                                                    <span class="eao-order-card-v2__spec-sub">(<?php echo esc_html( $material_color ); ?>)</span>
+                                                <?php endif; ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ( $size_name ) : ?>
+                                        <div class="eao-order-card-v2__spec">
+                                            <span class="eao-order-card-v2__spec-label"><?php esc_html_e( 'Size', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-order-card-v2__spec-value"><?php echo esc_html( $size_name ); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ( $engraving_method && $engraving_text ) : ?>
+                                        <div class="eao-order-card-v2__spec">
+                                            <span class="eao-order-card-v2__spec-label"><?php esc_html_e( 'Engraving', 'easy-album-orders' ); ?></span>
+                                            <span class="eao-order-card-v2__spec-value">
+                                                "<?php echo esc_html( $engraving_text ); ?>"
+                                                <span class="eao-order-card-v2__spec-sub"><?php echo esc_html( $engraving_method ); ?></span>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <!-- Shipping Address -->
+                                <?php if ( $shipping_name || $shipping_address1 ) : ?>
+                                    <div class="eao-order-card-v2__shipping">
+                                        <div class="eao-order-card-v2__shipping-header">
+                                            <?php EAO_Icons::render( 'truck', array( 'size' => 16 ) ); ?>
+                                            <span><?php esc_html_e( 'Shipping To', 'easy-album-orders' ); ?></span>
+                                        </div>
+                                        <address class="eao-order-card-v2__address">
+                                            <?php if ( $shipping_name ) : ?>
+                                                <strong><?php echo esc_html( $shipping_name ); ?></strong>
+                                            <?php endif; ?>
+                                            <?php if ( $shipping_address1 ) : ?>
+                                                <br><?php echo esc_html( $shipping_address1 ); ?>
+                                            <?php endif; ?>
+                                            <?php if ( $shipping_address2 ) : ?>
+                                                <br><?php echo esc_html( $shipping_address2 ); ?>
+                                            <?php endif; ?>
+                                            <?php if ( $shipping_city || $shipping_state || $shipping_zip ) : ?>
+                                                <br>
                                                 <?php 
-                                                if ( 'free' === $credit_type ) {
-                                                    esc_html_e( 'Free Album Credit', 'easy-album-orders' );
-                                                } else {
-                                                    esc_html_e( 'Album Credit', 'easy-album-orders' );
+                                                $city_state = array_filter( array( $shipping_city, $shipping_state ) );
+                                                echo esc_html( implode( ', ', $city_state ) );
+                                                if ( $shipping_zip ) {
+                                                    echo ' ' . esc_html( $shipping_zip );
                                                 }
                                                 ?>
-                                            </span>
-                                            <span>- <?php echo esc_html( eao_format_price( $applied_credits ) ); ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    <div class="eao-order-card__price-line eao-order-card__price-line--total">
-                                        <span><?php esc_html_e( 'Total Paid', 'easy-album-orders' ); ?></span>
-                                        <span><?php echo esc_html( eao_format_price( $total ) ); ?></span>
+                                            <?php endif; ?>
+                                        </address>
                                     </div>
-                                </div>
+                                <?php endif; ?>
                             </div>
+                            
+                            <!-- Footer with Price -->
+                            <footer class="eao-order-card-v2__footer">
+                                <?php if ( $applied_credits > 0 ) : ?>
+                                    <div class="eao-order-card-v2__credit">
+                                        <?php EAO_Icons::render( 'award', array( 'size' => 16, 'variant' => 'filled' ) ); ?>
+                                        <?php 
+                                        if ( 'free' === $credit_type || 'free_album' === $credit_type ) {
+                                            esc_html_e( 'Free Album Credit Applied', 'easy-album-orders' );
+                                        } else {
+                                            echo esc_html( sprintf( __( '%s Credit Applied', 'easy-album-orders' ), eao_format_price( $applied_credits ) ) );
+                                        }
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <div class="eao-order-card-v2__total">
+                                    <span class="eao-order-card-v2__total-label"><?php esc_html_e( 'Total Paid', 'easy-album-orders' ); ?></span>
+                                    <span class="eao-order-card-v2__total-amount"><?php echo esc_html( eao_format_price( $total ) ); ?></span>
+                                </div>
+                            </footer>
                         </div>
                     </article>
                 <?php endforeach; ?>
@@ -274,4 +283,3 @@ $completed_orders = get_posts( array(
 </div>
 
 <?php get_footer(); ?>
-
