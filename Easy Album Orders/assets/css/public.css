@@ -3068,6 +3068,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--eao-text-muted);
+    backdrop-filter: blur(2px);
+}
+
+/* When no material color is set, use default gradient */
+.eao-order-card-v2__image:not([style]) .eao-order-card-v2__image-placeholder {
     background: linear-gradient(135deg, var(--eao-bg), var(--eao-bg-subtle));
     color: var(--eao-border);
 }

@@ -607,12 +607,37 @@ $completed_orders = get_posts( array(
                         $cover_url = wp_get_attachment_image_url( $designs[ $design_index ]['cover_id'], 'medium' );
                     }
                     
+                    // Get material color data for background.
+                    $material_id_order = get_post_meta( $order->ID, '_eao_material_id', true );
+                    $color_id_order    = get_post_meta( $order->ID, '_eao_material_color_id', true );
+                    $material_bg_style = '';
+                    
+                    // Find the material and color to get texture/hex.
+                    foreach ( $materials as $mat ) {
+                        if ( isset( $mat['id'] ) && $mat['id'] === $material_id_order && ! empty( $mat['colors'] ) ) {
+                            foreach ( $mat['colors'] as $color ) {
+                                if ( isset( $color['id'] ) && $color['id'] === $color_id_order ) {
+                                    // Prefer texture image, fall back to hex color.
+                                    if ( ! empty( $color['texture_image_id'] ) ) {
+                                        $texture_url = wp_get_attachment_url( $color['texture_image_id'] );
+                                        if ( $texture_url ) {
+                                            $material_bg_style = 'background-image: url(' . esc_url( $texture_url ) . '); background-size: cover; background-position: center;';
+                                        }
+                                    } elseif ( ! empty( $color['hex'] ) ) {
+                                        $material_bg_style = 'background-color: ' . esc_attr( $color['hex'] ) . ';';
+                                    }
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                    
                     // Is shipped?
                     $is_shipped = ( $order_status === EAO_Album_Order::STATUS_SHIPPED );
                 ?>
                     <article class="eao-order-card-v2<?php echo $is_shipped ? ' eao-order-card-v2--shipped' : ''; ?>">
                         <!-- Card Image -->
-                        <div class="eao-order-card-v2__image">
+                        <div class="eao-order-card-v2__image"<?php echo $material_bg_style ? ' style="' . esc_attr( $material_bg_style ) . '"' : ''; ?>>
                             <?php if ( $cover_url ) : ?>
                                 <img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $design_name ); ?>">
                             <?php else : ?>
