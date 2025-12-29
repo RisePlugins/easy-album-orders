@@ -26,8 +26,8 @@ Thumbs.db
 
 # Dependencies
 node_modules/
-# Note: vendor/ is NOT ignored - it's included for plugin distribution
-# so users don't need to run composer install
+vendor/
+# Note: vendor/ is ignored from git - include it in build/release packages
 
 # Build files
 *.log
