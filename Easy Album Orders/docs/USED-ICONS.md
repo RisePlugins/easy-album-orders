@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 43 (~172KB estimated)
+- **Icons currently used**: 45 (~180KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -24,6 +24,8 @@ Keep this list updated as you add new icons throughout development.
 | `link` | Album Order Link meta box header |
 | `shopping-cart` | Orders meta box header, empty orders state |
 | `award` | Credit summary header, credits section header |
+| `gift` | Free Albums credit type indicator |
+| `coin` | Credit Budget type indicator |
 | `copy` | Copy link button |
 | `external-link` | View Order Form button |
 | `circle-check` | Credit applied indicator |
@@ -146,10 +148,12 @@ chevron-left
 chevron-right
 circle-check
 clipboard-list
+coin
 copy
 credit-card
 external-link
 file-type-pdf
+gift
 grip-vertical
 hash
 layout-grid
@@ -174,7 +178,7 @@ writing
 x
 ```
 
-**Total: 43 icons**
+**Total: 45 icons**
 
 ---
 
