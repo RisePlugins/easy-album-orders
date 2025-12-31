@@ -5,7 +5,7 @@ This file tracks all Tabler Icons used in the Easy Album Orders plugin. Before f
 ## Current Stats
 
 - **Total icons in library**: ~5,984 SVGs (23MB)
-- **Icons currently used**: 45 (~180KB estimated)
+- **Icons currently used**: 48 (~192KB estimated)
 - **Potential savings**: ~22.8MB
 
 ---
@@ -23,17 +23,21 @@ Keep this list updated as you add new icons throughout development.
 | `books` | Album Designs meta box header |
 | `link` | Album Order Link meta box header |
 | `shopping-cart` | Orders meta box header, empty orders state |
-| `award` | Credit summary header, credits section header |
-| `gift` | Free Albums credit type indicator |
+| `award` | Credit summary header |
+| `gift` | Free Albums credit type indicator, credits footer header |
 | `coin` | Credit Budget type indicator |
 | `copy` | Copy link button |
 | `external-link` | View Order Form button |
 | `circle-check` | Credit applied indicator |
 | `arrow-right` | View All Orders link |
 | `plus` | Add Design button |
-| `book` | Design card header |
 | `trash` | Remove design button |
-| `file-type-pdf` | PDF preview |
+| `photo` | Cover image placeholder |
+| `refresh` | Change cover image button |
+| `upload` | Upload cover image button |
+| `file-plus` | Select PDF button |
+| `file-type-pdf` | PDF file indicator |
+| `x` | Remove image/PDF buttons |
 
 ### Album Order Edit Page (`class-eao-album-order-meta.php`)
 
@@ -152,6 +156,7 @@ coin
 copy
 credit-card
 external-link
+file-plus
 file-type-pdf
 gift
 grip-vertical
@@ -167,18 +172,20 @@ plus
 presentation
 receipt
 receipt-refund
+refresh
 ruler-2
 settings
 shopping-cart
 tag
 trash
 truck
+upload
 user
 writing
 x
 ```
 
-**Total: 45 icons**
+**Total: 48 icons**
 
 ---
 

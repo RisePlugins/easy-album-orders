@@ -932,8 +932,10 @@
                 const $button = $(this);
                 const $container = $button.closest('.eao-image-upload');
                 const $input = $container.find('.eao-image-id');
-                const $preview = $container.find('.eao-image-preview');
+                // Support both old (.eao-image-preview) and new (.eao-design-card__cover-preview) structures.
+                const $preview = $container.find('.eao-image-preview, .eao-design-card__cover-preview').first();
                 const $removeBtn = $container.find('.eao-remove-image');
+                const isDesignCard = $container.hasClass('eao-design-card__cover-upload');
 
                 // Create media frame if it doesn't exist.
                 mediaFrame = wp.media({
@@ -956,6 +958,11 @@
                     $input.val(attachment.id);
                     $preview.html('<img src="' + thumbUrl + '" alt="">');
                     $removeBtn.show();
+                    
+                    // Handle design card cover image UI updates.
+                    if (isDesignCard) {
+                        $container.addClass('has-image');
+                    }
                 });
 
                 mediaFrame.open();
@@ -966,8 +973,24 @@
                 e.preventDefault();
 
                 const $container = $(this).closest('.eao-image-upload');
+                const $preview = $container.find('.eao-image-preview, .eao-design-card__cover-preview').first();
+                const isDesignCard = $container.hasClass('eao-design-card__cover-upload');
+                
                 $container.find('.eao-image-id').val('');
-                $container.find('.eao-image-preview').empty();
+                
+                if (isDesignCard) {
+                    // Restore placeholder for design card.
+                    $preview.html(
+                        '<div class="eao-design-card__cover-placeholder">' +
+                        '<svg class="eao-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>' +
+                        '<span>' + (eaoAdmin.coverImageText || 'Cover Image') + '</span>' +
+                        '</div>'
+                    );
+                    $container.removeClass('has-image');
+                } else {
+                    $preview.empty();
+                }
+                
                 $(this).hide();
             });
         },
@@ -986,6 +1009,7 @@
                 const $input = $container.find('.eao-pdf-id');
                 const $preview = $container.find('.eao-pdf-preview');
                 const $removeBtn = $container.find('.eao-remove-pdf');
+                const isDesignCard = $container.hasClass('eao-design-card__pdf-upload');
 
                 // Create media frame for PDFs.
                 pdfFrame = wp.media({
@@ -1004,8 +1028,24 @@
                     const attachment = pdfFrame.state().get('selection').first().toJSON();
 
                     $input.val(attachment.id);
-                    $preview.html('<span class="dashicons dashicons-pdf"></span> <a href="' + attachment.url + '" target="_blank">' + attachment.filename + '</a>');
-                    $removeBtn.show();
+                    
+                    if (isDesignCard) {
+                        // Replace the select button with the file display.
+                        $container.html(
+                            '<input type="hidden" name="' + $input.attr('name') + '" value="' + attachment.id + '" class="eao-pdf-id">' +
+                            '<div class="eao-design-card__pdf-file">' +
+                            '<svg class="eao-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M17 18h2"/><path d="M20 15h-3v6"/><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"/></svg>' +
+                            '<a href="' + attachment.url + '" target="_blank" class="eao-design-card__pdf-name">' + attachment.filename + '</a>' +
+                            '<button type="button" class="eao-design-card__pdf-remove eao-remove-pdf" title="Remove PDF">' +
+                            '<svg class="eao-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>' +
+                            '</button>' +
+                            '</div>'
+                        );
+                        $container.addClass('has-pdf');
+                    } else {
+                        $preview.html('<span class="dashicons dashicons-pdf"></span> <a href="' + attachment.url + '" target="_blank">' + attachment.filename + '</a>');
+                        $removeBtn.show();
+                    }
                 });
 
                 pdfFrame.open();
@@ -1016,9 +1056,25 @@
                 e.preventDefault();
 
                 const $container = $(this).closest('.eao-pdf-upload');
+                const isDesignCard = $container.hasClass('eao-design-card__pdf-upload');
+                const inputName = $container.find('.eao-pdf-id').attr('name');
+                
                 $container.find('.eao-pdf-id').val('');
-                $container.find('.eao-pdf-preview').html('<span class="eao-no-pdf">No PDF selected</span>');
-                $(this).hide();
+                
+                if (isDesignCard) {
+                    // Replace file display with select button.
+                    $container.html(
+                        '<input type="hidden" name="' + inputName + '" value="" class="eao-pdf-id">' +
+                        '<button type="button" class="eao-design-card__pdf-select eao-upload-pdf">' +
+                        '<svg class="eao-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M12 11l0 6"/><path d="M9 14l3 -3l3 3"/></svg>' +
+                        '<span>' + (eaoAdmin.selectPdfText || 'Select PDF file') + '</span>' +
+                        '</button>'
+                    );
+                    $container.removeClass('has-pdf');
+                } else {
+                    $container.find('.eao-pdf-preview').html('<span class="eao-no-pdf">No PDF selected</span>');
+                    $(this).hide();
+                }
             });
         },
 
@@ -1043,6 +1099,17 @@
                         self.reindexDesignCards();
                     });
                 }
+            });
+
+            // Update header title when design name changes.
+            $(document).on('input', '.eao-design-name-input', function() {
+                const $card = $(this).closest('.eao-design-card');
+                const $title = $card.find('.eao-design-card__title-text');
+                const placeholder = $title.data('placeholder') || 'Untitled Design';
+                const value = $(this).val().trim();
+                
+                $title.text(value || placeholder);
+                $title.toggleClass('is-empty', !value);
             });
         },
 
@@ -1069,7 +1136,7 @@
         reindexDesignCards: function() {
             $('.eao-design-card').each(function(index) {
                 $(this).attr('data-index', index);
-                $(this).find('.eao-design-card__index').text(index + 1);
+                $(this).find('.eao-design-card__badge').text(index + 1);
                 $(this).find('[name^="eao_designs"]').each(function() {
                     const name = $(this).attr('name');
                     $(this).attr('name', name.replace(/eao_designs\[\d+\]/, 'eao_designs[' + index + ']'));
