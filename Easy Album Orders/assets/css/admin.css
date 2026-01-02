@@ -374,6 +374,20 @@
     box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.1);
 }
 
+/* Remove default styles from inputs inside input groups (border is on wrapper) */
+.eao-design-card__input-group input[type="number"],
+.eao-design-card__input-group input[type="text"] {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 8px 10px;
+}
+
+.eao-design-card__input-group input[type="number"]:focus,
+.eao-design-card__input-group input[type="text"]:focus {
+    box-shadow: none;
+}
+
 .eao-admin-wrap textarea {
     min-height: 80px;
     resize: vertical;
