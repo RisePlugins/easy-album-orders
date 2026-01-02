@@ -2163,8 +2163,8 @@ input[type=checkbox]:checked::before {
 
 /* Form Fields Column */
 .eao-design-card__fields {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
     gap: var(--eao-space-md);
 }
 
@@ -2172,6 +2172,11 @@ input[type=checkbox]:checked::before {
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+/* PDF field spans full width */
+.eao-design-card__field:last-child {
+    grid-column: 1 / -1;
 }
 
 .eao-design-card__label {
@@ -2422,6 +2427,14 @@ input[type=checkbox]:checked::before {
     
     .eao-design-card__cover {
         max-width: 200px;
+    }
+    
+    .eao-design-card__fields {
+        grid-template-columns: 1fr;
+    }
+    
+    .eao-design-card__field:last-child {
+        grid-column: auto;
     }
     
     .eao-design-card__credits {
