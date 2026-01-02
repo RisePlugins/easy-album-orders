@@ -2252,6 +2252,8 @@ input[type=checkbox]:checked::before {
 .eao-design-card__pdf-upload {
     display: flex;
     align-items: center;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .eao-design-card__pdf-select {
@@ -2282,7 +2284,8 @@ input[type=checkbox]:checked::before {
     background: var(--eao-gray-50);
     border: 1px solid var(--eao-gray-200);
     border-radius: var(--eao-radius-md);
-    width: 100%;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .eao-design-card__pdf-file .eao-icon {
