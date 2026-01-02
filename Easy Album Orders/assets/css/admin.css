@@ -2193,6 +2193,16 @@ input[type=checkbox]:checked::before {
 .eao-design-card__input-group {
     display: flex;
     align-items: stretch;
+    border: 1px solid var(--eao-gray-200);
+    border-radius: var(--eao-radius-md);
+    background: #fff;
+    overflow: hidden;
+    transition: border-color var(--eao-transition), box-shadow var(--eao-transition);
+}
+
+.eao-design-card__input-group:focus-within {
+    border-color: var(--eao-primary);
+    box-shadow: 0 0 0 2px rgba(56, 88, 233, 0.1);
 }
 
 .eao-design-card__input-prefix {
@@ -2201,27 +2211,22 @@ input[type=checkbox]:checked::before {
     justify-content: center;
     padding: 0 10px;
     background: var(--eao-gray-50);
-    border: 1px solid var(--eao-gray-200);
-    border-right: none;
-    border-radius: var(--eao-radius-md) 0 0 var(--eao-radius-md);
+    border: none;
+    border-right: 1px solid var(--eao-gray-200);
     font-size: var(--eao-font-sm);
     font-weight: 500;
     color: var(--eao-gray-500);
 }
 
 .eao-design-card__input--currency {
-    border-radius: 0 var(--eao-radius-md) var(--eao-radius-md) 0;
-    border-left: none;
+    border: none;
+    border-radius: 0;
     flex: 1;
+    box-shadow: none;
 }
 
-/* Focus state for currency input - add border to prefix too */
-.eao-design-card__input-group:focus-within .eao-design-card__input-prefix {
-    border-color: var(--eao-primary);
-}
-
-.eao-design-card__input-group:focus-within .eao-design-card__input--currency {
-    border-left: none;
+.eao-design-card__input--currency:focus {
+    box-shadow: none;
 }
 
 /* PDF Upload Field */
@@ -2371,7 +2376,7 @@ input[type=checkbox]:checked::before {
 }
 
 .eao-design-card__input-group--sm {
-    display: flex;
+    border-radius: var(--eao-radius-sm);
 }
 
 .eao-design-card__input-group--sm .eao-design-card__input-prefix {
@@ -2380,13 +2385,13 @@ input[type=checkbox]:checked::before {
 }
 
 .eao-design-card__input-group--sm .eao-design-card__credit-input {
-    border-radius: 0 var(--eao-radius-sm) var(--eao-radius-sm) 0;
-    border-left: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }
 
-/* Focus state for small input group */
-.eao-design-card__input-group--sm:focus-within .eao-design-card__input-prefix {
-    border-color: var(--eao-primary);
+.eao-design-card__input-group--sm .eao-design-card__credit-input:focus {
+    box-shadow: none;
 }
 
 .eao-design-card__credit-hint {
