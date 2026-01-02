@@ -250,6 +250,70 @@ class EAO_Helpers {
             error_log( 'Easy Album Orders: ' . $message . ' ' . wp_json_encode( $context ) );
         }
     }
+
+    /**
+     * Get PDF thumbnail URL.
+     *
+     * WordPress automatically generates thumbnails for PDFs when uploaded.
+     * This function retrieves the generated thumbnail URL for a PDF attachment.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $pdf_id The PDF attachment ID.
+     * @param string $size   Optional. Image size. Default 'medium'.
+     * @return string The thumbnail URL or empty string if not available.
+     */
+    public static function get_pdf_thumbnail_url( $pdf_id, $size = 'medium' ) {
+        if ( empty( $pdf_id ) ) {
+            return '';
+        }
+
+        // Check if this is actually a PDF.
+        $mime_type = get_post_mime_type( $pdf_id );
+        if ( 'application/pdf' !== $mime_type ) {
+            return '';
+        }
+
+        // WordPress stores PDF thumbnail in attachment metadata.
+        $metadata = wp_get_attachment_metadata( $pdf_id );
+
+        if ( ! empty( $metadata['sizes'][ $size ]['file'] ) ) {
+            // Get the upload directory info.
+            $upload_dir = wp_get_upload_dir();
+            $file_path  = get_attached_file( $pdf_id );
+            $file_dir   = dirname( $file_path );
+
+            // Construct the thumbnail URL.
+            $thumb_file = $metadata['sizes'][ $size ]['file'];
+            $thumb_path = trailingslashit( $file_dir ) . $thumb_file;
+
+            // Convert path to URL.
+            $thumb_url = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $thumb_path );
+
+            return $thumb_url;
+        }
+
+        // Fallback: Try using wp_get_attachment_image_url.
+        // This works if WordPress generated a preview image.
+        $thumb_url = wp_get_attachment_image_url( $pdf_id, $size );
+        if ( $thumb_url ) {
+            return $thumb_url;
+        }
+
+        return '';
+    }
+
+    /**
+     * Check if a PDF has a generated thumbnail.
+     *
+     * @since 1.0.0
+     *
+     * @param int $pdf_id The PDF attachment ID.
+     * @return bool True if thumbnail exists, false otherwise.
+     */
+    public static function pdf_has_thumbnail( $pdf_id ) {
+        return ! empty( self::get_pdf_thumbnail_url( $pdf_id ) );
+    }
 }
 
 /**

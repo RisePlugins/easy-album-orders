@@ -508,15 +508,22 @@ class EAO_Client_Album_Meta {
             'name'              => '',
             'pdf_id'            => '',
             'cover_id'          => '',
+            'use_custom_cover'  => '',
             'base_price'        => '',
             'free_album_credits'=> '',
             'dollar_credit'     => '',
         );
 
         $design = wp_parse_args( $design, $defaults );
-        $name_field = $is_template ? 'eao_designs[{{data.index}}]' : "eao_designs[{$index}]";
-        $has_cover  = ! empty( $design['cover_id'] );
-        $has_pdf    = ! empty( $design['pdf_id'] );
+        $name_field       = $is_template ? 'eao_designs[{{data.index}}]' : "eao_designs[{$index}]";
+        $has_custom_cover = ! empty( $design['use_custom_cover'] ) && ! empty( $design['cover_id'] );
+        $has_pdf          = ! empty( $design['pdf_id'] );
+
+        // Get PDF thumbnail if available.
+        $pdf_thumb_url = '';
+        if ( $has_pdf && ! $is_template ) {
+            $pdf_thumb_url = EAO_Helpers::get_pdf_thumbnail_url( $design['pdf_id'], 'medium' );
+        }
         ?>
         <div class="eao-design-card" data-index="<?php echo esc_attr( $index ); ?>">
             <!-- Card Header -->
@@ -537,27 +544,57 @@ class EAO_Client_Album_Meta {
             <div class="eao-design-card__content">
                 <!-- Cover Image (Left Column) -->
                 <div class="eao-design-card__cover">
-                    <div class="eao-design-card__cover-upload eao-image-upload <?php echo $has_cover ? 'has-image' : ''; ?>">
-                        <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[cover_id]" value="<?php echo esc_attr( $design['cover_id'] ); ?>" class="eao-image-id">
-                        <div class="eao-design-card__cover-preview">
-                            <?php if ( $has_cover ) : ?>
+                    <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[use_custom_cover]" value="<?php echo $has_custom_cover ? '1' : ''; ?>" class="eao-use-custom-cover">
+                    <input type="hidden" name="<?php echo esc_attr( $name_field ); ?>[cover_id]" value="<?php echo esc_attr( $design['cover_id'] ); ?>" class="eao-image-id eao-custom-cover-id">
+
+                    <!-- Cover Preview Area -->
+                    <div class="eao-design-card__cover-preview-area">
+                        <div class="eao-design-card__cover-preview" data-pdf-thumb="<?php echo esc_url( $pdf_thumb_url ); ?>">
+                            <?php if ( $has_custom_cover ) : ?>
                                 <?php echo wp_get_attachment_image( $design['cover_id'], 'medium' ); ?>
+                            <?php elseif ( $pdf_thumb_url ) : ?>
+                                <img src="<?php echo esc_url( $pdf_thumb_url ); ?>" alt="<?php esc_attr_e( 'PDF Preview', 'easy-album-orders' ); ?>">
                             <?php else : ?>
                                 <div class="eao-design-card__cover-placeholder">
-                                    <?php EAO_Icons::render( 'photo', array( 'size' => 32 ) ); ?>
-                                    <span><?php esc_html_e( 'Cover Image', 'easy-album-orders' ); ?></span>
+                                    <?php EAO_Icons::render( 'file-type-pdf', array( 'size' => 32 ) ); ?>
+                                    <span><?php esc_html_e( 'Upload PDF', 'easy-album-orders' ); ?></span>
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="eao-design-card__cover-actions">
-                            <button type="button" class="button eao-upload-image">
-                                <?php EAO_Icons::render( $has_cover ? 'refresh' : 'upload', array( 'size' => 14 ) ); ?>
-                                <?php echo $has_cover ? esc_html__( 'Change', 'easy-album-orders' ) : esc_html__( 'Upload', 'easy-album-orders' ); ?>
-                            </button>
-                            <button type="button" class="button eao-remove-image" <?php echo ! $has_cover ? 'style="display:none;"' : ''; ?>>
-                                <?php EAO_Icons::render( 'x', array( 'size' => 14 ) ); ?>
-                            </button>
+
+                        <!-- Cover Source Indicator -->
+                        <div class="eao-design-card__cover-source <?php echo $has_custom_cover ? 'eao-design-card__cover-source--custom' : 'eao-design-card__cover-source--pdf'; ?>">
+                            <?php if ( $has_custom_cover ) : ?>
+                                <span class="eao-design-card__cover-source-label">
+                                    <?php EAO_Icons::render( 'photo', array( 'size' => 12 ) ); ?>
+                                    <?php esc_html_e( 'Custom Image', 'easy-album-orders' ); ?>
+                                </span>
+                            <?php elseif ( $pdf_thumb_url ) : ?>
+                                <span class="eao-design-card__cover-source-label">
+                                    <?php EAO_Icons::render( 'file-type-pdf', array( 'size' => 12 ) ); ?>
+                                    <?php esc_html_e( 'PDF Preview', 'easy-album-orders' ); ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
+                    </div>
+
+                    <!-- Cover Actions -->
+                    <div class="eao-design-card__cover-actions">
+                        <?php if ( $has_custom_cover ) : ?>
+                            <button type="button" class="button eao-change-custom-cover" title="<?php esc_attr_e( 'Change custom cover image', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'refresh', array( 'size' => 14 ) ); ?>
+                                <?php esc_html_e( 'Change', 'easy-album-orders' ); ?>
+                            </button>
+                            <button type="button" class="button eao-use-pdf-cover" title="<?php esc_attr_e( 'Use PDF thumbnail instead', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'file-type-pdf', array( 'size' => 14 ) ); ?>
+                                <?php esc_html_e( 'Use PDF', 'easy-album-orders' ); ?>
+                            </button>
+                        <?php else : ?>
+                            <button type="button" class="button eao-upload-custom-cover" title="<?php esc_attr_e( 'Upload a custom cover image', 'easy-album-orders' ); ?>">
+                                <?php EAO_Icons::render( 'photo', array( 'size' => 14 ) ); ?>
+                                <?php esc_html_e( 'Custom Cover', 'easy-album-orders' ); ?>
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -705,6 +742,7 @@ class EAO_Client_Album_Meta {
                 'name'               => sanitize_text_field( $design['name'] ),
                 'pdf_id'             => absint( $design['pdf_id'] ),
                 'cover_id'           => absint( $design['cover_id'] ),
+                'use_custom_cover'   => ! empty( $design['use_custom_cover'] ) ? 1 : 0,
                 'base_price'         => floatval( $design['base_price'] ),
                 'free_album_credits' => ! empty( $design['free_album_credits'] ) ? absint( $design['free_album_credits'] ) : 0,
                 'dollar_credit'      => ! empty( $design['dollar_credit'] ) ? floatval( $design['dollar_credit'] ) : 0,

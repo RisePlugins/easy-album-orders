@@ -30,6 +30,7 @@
             this.bindColorModal();
             this.bindImageUpload();
             this.bindPdfUpload();
+            this.bindCustomCover();
             this.bindDesignRepeater();
             this.bindCopyLink();
             this.bindLegacyRepeaters();
@@ -999,6 +1000,7 @@
          * Bind PDF upload functionality.
          */
         bindPdfUpload: function() {
+            const self = this;
             let pdfFrame;
 
             $(document).on('click', '.eao-upload-pdf', function(e) {
@@ -1010,6 +1012,7 @@
                 const $preview = $container.find('.eao-pdf-preview');
                 const $removeBtn = $container.find('.eao-remove-pdf');
                 const isDesignCard = $container.hasClass('eao-design-card__pdf-upload');
+                const $designCard = $button.closest('.eao-design-card');
 
                 // Create media frame for PDFs.
                 pdfFrame = wp.media({
@@ -1042,6 +1045,11 @@
                             '</div>'
                         );
                         $container.addClass('has-pdf');
+
+                        // Update cover preview with PDF thumbnail if not using custom cover.
+                        if ($designCard.length) {
+                            self.updateCoverFromPdf($designCard, attachment);
+                        }
                     } else {
                         $preview.html('<span class="dashicons dashicons-pdf"></span> <a href="' + attachment.url + '" target="_blank">' + attachment.filename + '</a>');
                         $removeBtn.show();
@@ -1058,6 +1066,7 @@
                 const $container = $(this).closest('.eao-pdf-upload');
                 const isDesignCard = $container.hasClass('eao-design-card__pdf-upload');
                 const inputName = $container.find('.eao-pdf-id').attr('name');
+                const $designCard = $(this).closest('.eao-design-card');
                 
                 $container.find('.eao-pdf-id').val('');
                 
@@ -1071,10 +1080,202 @@
                         '</button>'
                     );
                     $container.removeClass('has-pdf');
+
+                    // Reset cover to placeholder if not using custom cover.
+                    if ($designCard.length) {
+                        self.resetCoverToPlaceholder($designCard);
+                    }
                 } else {
                     $container.find('.eao-pdf-preview').html('<span class="eao-no-pdf">No PDF selected</span>');
                     $(this).hide();
                 }
+            });
+        },
+
+        /**
+         * Update cover preview from PDF thumbnail.
+         *
+         * @param {jQuery} $designCard The design card element.
+         * @param {Object} attachment  The PDF attachment object.
+         */
+        updateCoverFromPdf: function($designCard, attachment) {
+            const $coverSection = $designCard.find('.eao-design-card__cover');
+            const $useCustomCover = $coverSection.find('.eao-use-custom-cover');
+            const $coverPreview = $coverSection.find('.eao-design-card__cover-preview');
+            const $coverSource = $coverSection.find('.eao-design-card__cover-source');
+
+            // Only update if not using custom cover.
+            if ($useCustomCover.val() === '1') {
+                return;
+            }
+
+            // Check if PDF has a thumbnail (icon property contains preview).
+            // WordPress generates PDF thumbnails and stores them in sizes.
+            const thumbUrl = attachment.sizes && attachment.sizes.medium
+                ? attachment.sizes.medium.url
+                : (attachment.sizes && attachment.sizes.thumbnail
+                    ? attachment.sizes.thumbnail.url
+                    : null);
+
+            if (thumbUrl) {
+                // Show PDF thumbnail.
+                $coverPreview.html('<img src="' + thumbUrl + '" alt="PDF Preview">');
+                $coverPreview.attr('data-pdf-thumb', thumbUrl);
+                $coverSource.html(
+                    '<span class="eao-design-card__cover-source-label">' +
+                    '<svg class="eao-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M17 18h2"/><path d="M20 15h-3v6"/><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"/></svg>' +
+                    (eaoAdmin.pdfPreviewText || 'PDF Preview') +
+                    '</span>'
+                );
+                $coverSource.removeClass('eao-design-card__cover-source--custom').addClass('eao-design-card__cover-source--pdf');
+            } else {
+                // No thumbnail available, show placeholder.
+                this.resetCoverToPlaceholder($designCard);
+            }
+        },
+
+        /**
+         * Reset cover to placeholder state.
+         *
+         * @param {jQuery} $designCard The design card element.
+         */
+        resetCoverToPlaceholder: function($designCard) {
+            const $coverSection = $designCard.find('.eao-design-card__cover');
+            const $useCustomCover = $coverSection.find('.eao-use-custom-cover');
+            const $coverPreview = $coverSection.find('.eao-design-card__cover-preview');
+            const $coverSource = $coverSection.find('.eao-design-card__cover-source');
+            const $coverActions = $coverSection.find('.eao-design-card__cover-actions');
+
+            // Only reset if not using custom cover.
+            if ($useCustomCover.val() === '1') {
+                return;
+            }
+
+            $coverPreview.html(
+                '<div class="eao-design-card__cover-placeholder">' +
+                '<svg class="eao-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M17 18h2"/><path d="M20 15h-3v6"/><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"/></svg>' +
+                '<span>' + (eaoAdmin.uploadPdfText || 'Upload PDF') + '</span>' +
+                '</div>'
+            );
+            $coverPreview.attr('data-pdf-thumb', '');
+            $coverSource.html('').removeClass('eao-design-card__cover-source--custom eao-design-card__cover-source--pdf');
+
+            // Reset actions to show custom cover button.
+            $coverActions.html(
+                '<button type="button" class="button eao-upload-custom-cover" title="' + (eaoAdmin.uploadCustomCoverTitle || 'Upload a custom cover image') + '">' +
+                '<svg class="eao-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>' +
+                (eaoAdmin.customCoverText || 'Custom Cover') +
+                '</button>'
+            );
+        },
+
+        /**
+         * Bind custom cover functionality.
+         */
+        bindCustomCover: function() {
+            const self = this;
+            let coverFrame;
+
+            // Upload custom cover.
+            $(document).on('click', '.eao-upload-custom-cover, .eao-change-custom-cover', function(e) {
+                e.preventDefault();
+
+                const $button = $(this);
+                const $designCard = $button.closest('.eao-design-card');
+                const $coverSection = $designCard.find('.eao-design-card__cover');
+                const $useCustomCover = $coverSection.find('.eao-use-custom-cover');
+                const $coverId = $coverSection.find('.eao-custom-cover-id');
+                const $coverPreview = $coverSection.find('.eao-design-card__cover-preview');
+                const $coverSource = $coverSection.find('.eao-design-card__cover-source');
+                const $coverActions = $coverSection.find('.eao-design-card__cover-actions');
+
+                coverFrame = wp.media({
+                    title: eaoAdmin.customCoverTitle || 'Select Custom Cover Image',
+                    button: {
+                        text: eaoAdmin.customCoverButton || 'Use this image'
+                    },
+                    multiple: false
+                });
+
+                coverFrame.on('select', function() {
+                    const attachment = coverFrame.state().get('selection').first().toJSON();
+                    const thumbUrl = attachment.sizes && attachment.sizes.medium
+                        ? attachment.sizes.medium.url
+                        : (attachment.sizes && attachment.sizes.thumbnail
+                            ? attachment.sizes.thumbnail.url
+                            : attachment.url);
+
+                    // Set custom cover values.
+                    $useCustomCover.val('1');
+                    $coverId.val(attachment.id);
+
+                    // Update preview.
+                    $coverPreview.html('<img src="' + thumbUrl + '" alt="">');
+
+                    // Update source indicator.
+                    $coverSource.html(
+                        '<span class="eao-design-card__cover-source-label">' +
+                        '<svg class="eao-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>' +
+                        (eaoAdmin.customImageText || 'Custom Image') +
+                        '</span>'
+                    );
+                    $coverSource.removeClass('eao-design-card__cover-source--pdf').addClass('eao-design-card__cover-source--custom');
+
+                    // Update actions.
+                    $coverActions.html(
+                        '<button type="button" class="button eao-change-custom-cover" title="' + (eaoAdmin.changeCustomCoverTitle || 'Change custom cover image') + '">' +
+                        '<svg class="eao-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>' +
+                        (eaoAdmin.changeText || 'Change') +
+                        '</button>' +
+                        '<button type="button" class="button eao-use-pdf-cover" title="' + (eaoAdmin.usePdfCoverTitle || 'Use PDF thumbnail instead') + '">' +
+                        '<svg class="eao-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M17 18h2"/><path d="M20 15h-3v6"/><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"/></svg>' +
+                        (eaoAdmin.usePdfText || 'Use PDF') +
+                        '</button>'
+                    );
+                });
+
+                coverFrame.open();
+            });
+
+            // Use PDF cover (revert from custom).
+            $(document).on('click', '.eao-use-pdf-cover', function(e) {
+                e.preventDefault();
+
+                const $button = $(this);
+                const $designCard = $button.closest('.eao-design-card');
+                const $coverSection = $designCard.find('.eao-design-card__cover');
+                const $useCustomCover = $coverSection.find('.eao-use-custom-cover');
+                const $coverId = $coverSection.find('.eao-custom-cover-id');
+                const $coverPreview = $coverSection.find('.eao-design-card__cover-preview');
+                const $coverSource = $coverSection.find('.eao-design-card__cover-source');
+                const $coverActions = $coverSection.find('.eao-design-card__cover-actions');
+                const pdfThumbUrl = $coverPreview.attr('data-pdf-thumb');
+
+                // Clear custom cover values.
+                $useCustomCover.val('');
+                $coverId.val('');
+
+                // Restore PDF thumbnail or placeholder.
+                if (pdfThumbUrl) {
+                    $coverPreview.html('<img src="' + pdfThumbUrl + '" alt="PDF Preview">');
+                    $coverSource.html(
+                        '<span class="eao-design-card__cover-source-label">' +
+                        '<svg class="eao-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M17 18h2"/><path d="M20 15h-3v6"/><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"/></svg>' +
+                        (eaoAdmin.pdfPreviewText || 'PDF Preview') +
+                        '</span>'
+                    );
+                    $coverSource.removeClass('eao-design-card__cover-source--custom').addClass('eao-design-card__cover-source--pdf');
+                } else {
+                    self.resetCoverToPlaceholder($designCard);
+                }
+
+                // Update actions.
+                $coverActions.html(
+                    '<button type="button" class="button eao-upload-custom-cover" title="' + (eaoAdmin.uploadCustomCoverTitle || 'Upload a custom cover image') + '">' +
+                    '<svg class="eao-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>' +
+                    (eaoAdmin.customCoverText || 'Custom Cover') +
+                    '</button>'
+                );
             });
         },
 

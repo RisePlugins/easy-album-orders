@@ -116,10 +116,15 @@ $completed_orders = get_posts( array(
                     // Order number.
                     $order_number = EAO_Helpers::generate_order_number( $order->ID );
                     
-                    // Get design cover image.
+                    // Get design cover image (custom cover takes priority, then PDF thumbnail).
                     $cover_url = '';
-                    if ( isset( $designs[ $design_index ] ) && ! empty( $designs[ $design_index ]['cover_id'] ) ) {
-                        $cover_url = wp_get_attachment_image_url( $designs[ $design_index ]['cover_id'], 'medium' );
+                    if ( isset( $designs[ $design_index ] ) ) {
+                        $design_data = $designs[ $design_index ];
+                        if ( ! empty( $design_data['use_custom_cover'] ) && ! empty( $design_data['cover_id'] ) ) {
+                            $cover_url = wp_get_attachment_image_url( $design_data['cover_id'], 'medium' );
+                        } elseif ( ! empty( $design_data['pdf_id'] ) ) {
+                            $cover_url = EAO_Helpers::get_pdf_thumbnail_url( $design_data['pdf_id'], 'medium' );
+                        }
                     }
                     
                     // Get material color data for background.

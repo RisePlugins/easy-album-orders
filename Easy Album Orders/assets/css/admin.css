@@ -2056,8 +2056,24 @@ input[type=checkbox]:checked::before {
 .eao-design-card__cover {
     display: flex;
     flex-direction: column;
+    gap: var(--eao-space-xs);
 }
 
+.eao-design-card__cover-preview-area {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--eao-gray-50);
+    border: 2px solid var(--eao-gray-200);
+    border-radius: var(--eao-radius-md);
+    overflow: hidden;
+    transition: border-color var(--eao-transition), background var(--eao-transition);
+}
+
+.eao-design-card__cover-preview-area:hover {
+    border-color: var(--eao-gray-300);
+}
+
+/* Legacy support for old cover-upload structure */
 .eao-design-card__cover-upload {
     position: relative;
     aspect-ratio: 1;
@@ -2089,6 +2105,7 @@ input[type=checkbox]:checked::before {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--eao-gray-900);
 }
 
 .eao-design-card__cover-preview img {
@@ -2106,6 +2123,9 @@ input[type=checkbox]:checked::before {
     color: var(--eao-gray-400);
     text-align: center;
     padding: var(--eao-space-sm);
+    background: var(--eao-gray-50);
+    width: 100%;
+    height: 100%;
 }
 
 .eao-design-card__cover-placeholder span {
@@ -2115,22 +2135,42 @@ input[type=checkbox]:checked::before {
     letter-spacing: 0.3px;
 }
 
-.eao-design-card__cover-actions {
+/* Cover Source Indicator */
+.eao-design-card__cover-source {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    gap: 4px;
-    padding: var(--eao-space-xs);
-    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity var(--eao-transition);
+    top: var(--eao-space-xs);
+    left: var(--eao-space-xs);
+    z-index: 2;
 }
 
-.eao-design-card__cover-upload:hover .eao-design-card__cover-actions,
-.eao-design-card__cover-upload.has-image .eao-design-card__cover-actions {
-    opacity: 1;
+.eao-design-card__cover-source-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-radius: var(--eao-radius-sm);
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--eao-gray-600);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.eao-design-card__cover-source--pdf .eao-design-card__cover-source-label {
+    color: #e74c3c;
+}
+
+.eao-design-card__cover-source--custom .eao-design-card__cover-source-label {
+    color: var(--eao-primary);
+}
+
+/* Cover Actions */
+.eao-design-card__cover-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: var(--eao-space-xs);
 }
 
 .eao-design-card__cover-actions .button {
@@ -2144,11 +2184,16 @@ input[type=checkbox]:checked::before {
     min-height: 0;
     height: auto;
     background: #fff;
-    border-color: transparent;
+    border-color: var(--eao-gray-200);
 }
 
 .eao-design-card__cover-actions .button:hover {
     background: var(--eao-gray-50);
+    border-color: var(--eao-gray-300);
+}
+
+.eao-design-card__cover-actions .eao-use-pdf-cover {
+    flex: 0 0 auto;
 }
 
 .eao-design-card__cover-actions .eao-remove-image {
