@@ -2211,7 +2211,17 @@ input[type=checkbox]:checked::before {
 
 .eao-design-card__input--currency {
     border-radius: 0 var(--eao-radius-md) var(--eao-radius-md) 0;
+    border-left: none;
     flex: 1;
+}
+
+/* Focus state for currency input - add border to prefix too */
+.eao-design-card__input-group:focus-within .eao-design-card__input-prefix {
+    border-color: var(--eao-primary);
+}
+
+.eao-design-card__input-group:focus-within .eao-design-card__input--currency {
+    border-left: none;
 }
 
 /* PDF Upload Field */
@@ -2371,6 +2381,12 @@ input[type=checkbox]:checked::before {
 
 .eao-design-card__input-group--sm .eao-design-card__credit-input {
     border-radius: 0 var(--eao-radius-sm) var(--eao-radius-sm) 0;
+    border-left: none;
+}
+
+/* Focus state for small input group */
+.eao-design-card__input-group--sm:focus-within .eao-design-card__input-prefix {
+    border-color: var(--eao-primary);
 }
 
 .eao-design-card__credit-hint {
