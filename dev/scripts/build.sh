@@ -3,9 +3,10 @@
 # Easy Album Orders - Production Build Script
 #
 # Creates a clean production-ready zip file for distribution.
-# Usage: ./dev/scripts/build.sh [version]
-#
-# If no version is provided, reads from the main plugin file.
+# Usage: 
+#   ./dev/scripts/build.sh              # Build only
+#   ./dev/scripts/build.sh 1.2.0        # Build version 1.2.0
+#   ./dev/scripts/build.sh 1.2.0 --release "Release notes here"  # Build + GitHub release
 #
 
 set -e
@@ -14,6 +15,7 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Get script directory and project root
@@ -25,6 +27,30 @@ BUILD_DIR="$PROJECT_ROOT/build"
 
 # Plugin name (folder name in zip)
 PLUGIN_SLUG="easy-album-orders"
+
+# Parse arguments
+VERSION=""
+RELEASE_NOTES=""
+DO_RELEASE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --release)
+            DO_RELEASE=true
+            if [[ -n "$2" && ! "$2" =~ ^-- ]]; then
+                RELEASE_NOTES="$2"
+                shift
+            fi
+            shift
+            ;;
+        *)
+            if [[ -z "$VERSION" ]]; then
+                VERSION="$1"
+            fi
+            shift
+            ;;
+    esac
+done
 
 # Function to get version from main plugin file
 get_plugin_version() {
@@ -44,10 +70,12 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Get version
-if [ -n "$1" ]; then
-    VERSION="$1"
-else
+print_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+# Get version if not provided
+if [ -z "$VERSION" ]; then
     VERSION=$(get_plugin_version)
 fi
 
@@ -123,9 +151,55 @@ echo ""
 echo "  📦 Output: $ZIP_PATH"
 echo "  📊 Size: $FILE_SIZE"
 echo ""
-print_status "To release this version:"
-echo "  1. Commit any pending changes"
-echo "  2. Create a git tag: git tag -a v${VERSION} -m 'Release ${VERSION}'"
-echo "  3. Push with tags: git push origin main --tags"
-echo "  4. Create a GitHub release and upload the zip"
-echo ""
+
+# Handle release if requested
+if [ "$DO_RELEASE" = true ]; then
+    print_status "Creating GitHub release..."
+    
+    # Check if gh is installed
+    if ! command -v gh &> /dev/null; then
+        print_error "GitHub CLI (gh) is not installed. Install with: brew install gh"
+        exit 1
+    fi
+    
+    # Check if authenticated
+    if ! gh auth status &> /dev/null; then
+        print_error "Not authenticated with GitHub. Run: gh auth login"
+        exit 1
+    fi
+    
+    # Default release notes if not provided
+    if [ -z "$RELEASE_NOTES" ]; then
+        RELEASE_NOTES="Release v${VERSION}"
+    fi
+    
+    # Check if tag already exists on remote
+    if git ls-remote --tags origin | grep -q "refs/tags/v${VERSION}"; then
+        print_info "Tag v${VERSION} already exists. Creating release from existing tag..."
+        gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --notes "$RELEASE_NOTES" \
+            "$ZIP_PATH" 2>/dev/null || \
+        gh release upload "v${VERSION}" "$ZIP_PATH" --clobber
+    else
+        print_info "Creating new tag and release..."
+        gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --notes "$RELEASE_NOTES" \
+            "$ZIP_PATH"
+    fi
+    
+    print_status "✅ GitHub release created!"
+    echo ""
+    echo "  🔗 https://github.com/RisePlugins/easy-album-orders/releases/tag/v${VERSION}"
+    echo ""
+else
+    print_info "To create a GitHub release, run:"
+    echo "  ./dev/scripts/build.sh ${VERSION} --release \"Your release notes\""
+    echo ""
+    print_info "Or manually:"
+    echo "  1. git tag -a v${VERSION} -m 'Release ${VERSION}'"
+    echo "  2. git push origin main --tags"
+    echo "  3. gh release create v${VERSION} --title 'v${VERSION}' --notes 'Release notes' '$ZIP_PATH'"
+    echo ""
+fi
