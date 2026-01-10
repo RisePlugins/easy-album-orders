@@ -556,7 +556,7 @@ $completed_orders = get_posts( array(
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <a href="<?php echo esc_url( add_query_arg( 'view', 'order-history', get_permalink() ) ); ?>" class="eao-order-history-sidebar__view-all">
+                    <a href="#orders" class="eao-order-history-sidebar__view-all" data-switch-tab="eao-tab-orders">
                         <?php esc_html_e( 'View All Order Details', 'easy-album-orders' ); ?>
                         <?php EAO_Icons::render( 'arrow-right', array( 'size' => 16 ) ); ?>
                     </a>
