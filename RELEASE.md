@@ -4,139 +4,83 @@ This guide explains how to release new versions of the Easy Album Orders plugin.
 
 ---
 
-## Quick Release (via Cursor)
+## 🚀 Quick Release (Fully Automated)
 
-When you're ready to push a new version to all users, just prompt:
+### Via Cursor
 
-> **"Release version X.X.X with message: [your release notes]"**
+Just tell Cursor:
+> **"Release version 1.2.0 with message: Added new feature"**
 
-Example:
-> "Release version 1.1.0 with message: Added PDF export for orders"
+### Via Terminal
 
-This will:
-1. Update version numbers in all relevant files
-2. Build the production zip
-3. Create a git tag
-4. Push to GitHub
-5. Create a GitHub release with the zip attached
+Run the release script:
+```bash
+./dev/scripts/release.sh 1.2.0 "Added new feature"
+```
+
+This single command will:
+1. ✅ Update version numbers in plugin file
+2. ✅ Commit changes
+3. ✅ Create git tag
+4. ✅ Push to GitHub
+5. ✅ Build production zip
+6. ✅ Create GitHub release with zip attached
+
+**Done!** Users will see the update in WordPress.
 
 ---
 
-## Manual Release Process
+## Build Only (No Release)
 
-### Step 1: Update Version Numbers
-
-Update the version in these files:
-
-1. **`easy-album-orders/easy-album-orders.php`** (two places):
-   ```php
-   * Version:           1.1.0
-   ```
-   ```php
-   define( 'EAO_VERSION', '1.1.0' );
-   ```
-
-2. **`CHANGELOG.md`** - Add release notes under the version heading
-
-### Step 2: Build Production Zip
-
-Run the build script:
+To just create a production zip without releasing:
 
 ```bash
 ./dev/scripts/build.sh
 ```
 
 Or specify a version:
-
 ```bash
-./dev/scripts/build.sh 1.1.0
+./dev/scripts/build.sh 1.2.0
 ```
 
-This creates: `dist/easy-album-orders-1.1.0.zip`
-
-### Step 3: Commit & Tag
-
-```bash
-# Commit version changes
-git add -A
-git commit -m "chore: Bump version to 1.1.0"
-
-# Create annotated tag
-git tag -a v1.1.0 -m "Release 1.1.0: [brief description]"
-
-# Push everything
-git push origin main --tags
-```
-
-### Step 4: Create GitHub Release
-
-1. Go to your GitHub repository
-2. Click "Releases" → "Create a new release"
-3. Select the tag you just created (e.g., `v1.1.0`)
-4. Title: `v1.1.0`
-5. Description: Copy from CHANGELOG.md
-6. **Attach the zip file** from `dist/easy-album-orders-1.1.0.zip`
-7. Click "Publish release"
+Output: `dist/easy-album-orders-1.2.0.zip`
 
 ---
 
-## GitHub Repository Setup (One-Time)
+## Build + Release (Alternative)
 
-### 1. Create the GitHub Repository
-
-If you haven't already:
 ```bash
-# Initialize and push
-cd "/path/to/Easy Album Orders Plugin"
-git remote add origin https://github.com/YOUR_USERNAME/easy-album-orders.git
-git push -u origin main
+./dev/scripts/build.sh 1.2.0 --release "Your release notes"
 ```
 
-### 2. Configure Auto-Updates
+---
 
-In `easy-album-orders/easy-album-orders.php`, set your GitHub repo:
+## Prerequisites
 
-```php
-define( 'EAO_GITHUB_REPO', 'YOUR_USERNAME/easy-album-orders' );
+### GitHub CLI (One-Time Setup)
+
+The release scripts use GitHub CLI. Install and authenticate:
+
+```bash
+# Install
+brew install gh
+
+# Authenticate (opens browser)
+gh auth login
 ```
-
-For example:
-```php
-define( 'EAO_GITHUB_REPO', 'ryanmoreno/easy-album-orders' );
-```
-
-### 3. For Private Repositories
-
-If your repo is private, you'll need to add an access token:
-
-1. Generate a token at: https://github.com/settings/tokens
-2. Grant `repo` scope
-3. Update `eao_init_updater()` in the main plugin file:
-   ```php
-   new EAO_GitHub_Updater(
-       __FILE__,
-       EAO_GITHUB_REPO,
-       'your-access-token-here'
-   );
-   ```
 
 ---
 
 ## How Auto-Updates Work
 
-Once configured:
+1. Plugin checks GitHub for new releases (every 6 hours)
+2. If a newer version exists, WordPress shows "Update available"
+3. User clicks "Update Now"
+4. WordPress downloads the zip from GitHub and installs it
 
-1. WordPress checks for plugin updates periodically
-2. The `EAO_GitHub_Updater` class queries your GitHub releases
-3. If a newer version exists, users see "Update available"
-4. Clicking "Update Now" downloads the zip from GitHub
-5. WordPress installs it like any other plugin update
-
-### Requirements for Users
-
-- The zip must be attached to the GitHub release
-- The zip must contain a folder named `easy-album-orders/`
-- Version in the zip must be higher than installed version
+### Requirements
+- GitHub release must have a `.zip` file attached
+- Version in zip must be higher than installed version
 
 ---
 
@@ -156,77 +100,97 @@ Examples:
 
 ---
 
+## Manual Release Process
+
+If you prefer manual control:
+
+### Step 1: Update Version Numbers
+
+In `easy-album-orders/easy-album-orders.php`:
+```php
+* Version:           1.2.0
+```
+```php
+define( 'EAO_VERSION', '1.2.0' );
+```
+
+### Step 2: Build
+
+```bash
+./dev/scripts/build.sh 1.2.0
+```
+
+### Step 3: Commit & Tag
+
+```bash
+git add -A
+git commit -m "chore: Release version 1.2.0"
+git tag -a v1.2.0 -m "Release 1.2.0"
+git push origin main --tags
+```
+
+### Step 4: Create GitHub Release
+
+```bash
+gh release create v1.2.0 \
+  --title "v1.2.0" \
+  --notes "Release notes here" \
+  ./dist/easy-album-orders-1.2.0.zip
+```
+
+---
+
 ## Checklist Before Release
 
 - [ ] All features tested in WordPress
 - [ ] No PHP errors or warnings
 - [ ] JavaScript console is clean
 - [ ] Mobile responsive verified
-- [ ] CHANGELOG.md updated
-- [ ] Version numbers updated
-- [ ] Build script runs without errors
-- [ ] Zip installs correctly on fresh WordPress
+- [ ] Version numbers correct
+
+---
+
+## File Structure
+
+```
+Easy Album Orders Plugin/
+├── easy-album-orders/              # Production plugin
+├── dev/
+│   ├── docs/                       # Documentation
+│   └── scripts/
+│       ├── build.sh                # Build production zip
+│       └── release.sh              # Full automated release
+├── dist/                           # Production zips (gitignored)
+├── CHANGELOG.md
+├── README.md
+└── RELEASE.md                      # This file
+```
 
 ---
 
 ## Troubleshooting
 
 ### Users Don't See Updates
+1. Wait up to 6 hours (WordPress caches)
+2. Clear transient: `eao_github_release` in `wp_options`
+3. Verify zip is attached to GitHub release
 
-1. Clear WordPress transients: delete `eao_github_release` from `wp_options`
-2. Check that `EAO_GITHUB_REPO` is set correctly
-3. Verify the GitHub release has a zip file attached
-4. Ensure version in zip is higher than installed
+### Release Script Fails
+1. Ensure `gh auth status` shows logged in
+2. Check you're in project root directory
+3. Verify version doesn't already exist as tag
 
-### Build Script Fails
-
-1. Make sure you're in the project root
-2. Check that `easy-album-orders/` folder exists
-3. Verify `chmod +x dev/scripts/build.sh`
-
-### Plugin Doesn't Update
-
-1. Check folder name in zip matches `easy-album-orders`
-2. Verify plugin file has correct version header
-3. Test manually downloading and uploading zip
+### "Tag already exists" Error
+The version has already been released. Use a higher version number.
 
 ---
 
-## File Structure Reference
+## Quick Reference
 
-```
-Easy Album Orders Plugin/           # Project root (git repo)
-├── easy-album-orders/              # Production plugin
-│   ├── assets/
-│   ├── includes/
-│   ├── vendor/
-│   ├── languages/
-│   ├── easy-album-orders.php
-│   └── LICENSE
-├── dev/                            # Development files
-│   ├── docs/
-│   │   ├── PLUGIN-OVERVIEW.md
-│   │   ├── DESIGN-SYSTEM.md
-│   │   ├── STRIPE-INTEGRATION.md
-│   │   └── USED-ICONS.md
-│   └── scripts/
-│       └── build.sh
-├── dist/                           # Production zips (gitignored)
-├── tabler-icons-full/              # Icon library (gitignored)
-├── .cursorrules
-├── .gitignore
-├── CHANGELOG.md
-├── README.md
-├── RELEASE.md                      # This file
-├── composer.json
-└── composer.lock
-```
-
----
-
-## Questions?
-
-If you need help with the release process, just ask Cursor:
-- "How do I release a new version?"
-- "Build and release version 1.2.0"
-- "What's the current version?"
+| Task | Command |
+|------|---------|
+| Full release | `./dev/scripts/release.sh 1.2.0 "Notes"` |
+| Build only | `./dev/scripts/build.sh` |
+| Build + release | `./dev/scripts/build.sh 1.2.0 --release "Notes"` |
+| Check gh auth | `gh auth status` |
+| View releases | `gh release list` |

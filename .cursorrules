@@ -27,22 +27,37 @@ Easy Album Orders Plugin/           # Project root (git repo)
 
 ## Release Commands
 
-### Quick Release
+### Quick Release (FULLY AUTOMATED)
 When user says something like "release version X.X.X" or "push update to users":
 
-1. Update version in `easy-album-orders/easy-album-orders.php`:
-   - Plugin header: `* Version: X.X.X`
-   - Constant: `define( 'EAO_VERSION', 'X.X.X' );`
-2. Update CHANGELOG.md with release notes
-3. Run: `./dev/scripts/build.sh X.X.X`
-4. Commit: `git add -A && git commit -m "chore: Release version X.X.X"`
-5. Tag: `git tag -a vX.X.X -m "Release X.X.X"`
-6. Push: `git push origin main --tags`
-7. Remind user to create GitHub release and attach zip from `dist/`
+**Run this single command:**
+```bash
+./dev/scripts/release.sh X.X.X "Release notes here"
+```
 
-### Build Only
+This automatically:
+1. Updates version numbers in plugin file
+2. Commits changes
+3. Creates git tag
+4. Pushes to GitHub
+5. Builds production zip
+6. Creates GitHub release with zip attached
+
+**Example:**
+```bash
+./dev/scripts/release.sh 1.2.0 "Added PDF export feature"
+```
+
+### Build Only (No Release)
 When user says "build plugin" or "create production zip":
-- Run: `./dev/scripts/build.sh`
+```bash
+./dev/scripts/build.sh
+```
+
+### Build + GitHub Release (Alternative)
+```bash
+./dev/scripts/build.sh 1.2.0 --release "Release notes here"
+```
 
 ---
 
