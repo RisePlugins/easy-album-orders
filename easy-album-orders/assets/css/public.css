@@ -211,13 +211,14 @@
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--eao-white);
-    background: var(--eao-success);
+    background: var(--eao-accent);
     border-radius: var(--eao-radius-full);
     margin-left: var(--eao-space-xs);
 }
 
 .eao-page-tabs__tab:not(.is-active) .eao-page-tabs__badge {
-    background: var(--eao-text-muted);
+    background: var(--eao-accent);
+    opacity: 0.5;
 }
 
 /* Tab Panels */
