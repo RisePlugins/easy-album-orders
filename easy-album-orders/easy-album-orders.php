@@ -12,7 +12,7 @@
  * Plugin Name:       Easy Album Orders
  * Plugin URI:        https://riseplugins.com/
  * Description:       Streamline custom album orders for professional photographers with client order forms, material options, and order management.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Ryan Moreno
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-define( 'EAO_VERSION', '1.0.0' );
+define( 'EAO_VERSION', '1.0.1' );
 
 /**
  * Plugin directory path.

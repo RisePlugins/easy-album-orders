@@ -114,7 +114,7 @@ sed -i '' "s/define( 'EAO_VERSION', '.*' );/define( 'EAO_VERSION', '$VERSION' );
 
 # Verify updates
 NEW_HEADER_VERSION=$(grep -m 1 "Version:" "$PLUGIN_FILE" | sed 's/.*Version:[[:space:]]*//' | tr -d '\r')
-NEW_CONST_VERSION=$(grep "EAO_VERSION" "$PLUGIN_FILE" | grep -oP "'\K[0-9]+\.[0-9]+\.[0-9]+")
+NEW_CONST_VERSION=$(grep "EAO_VERSION" "$PLUGIN_FILE" | sed "s/.*'\([0-9]*\.[0-9]*\.[0-9]*\)'.*/\1/")
 
 if [ "$NEW_HEADER_VERSION" != "$VERSION" ]; then
     print_error "Failed to update plugin header version!"
