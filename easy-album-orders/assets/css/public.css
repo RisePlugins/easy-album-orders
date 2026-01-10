@@ -21,6 +21,7 @@
     --eao-accent: #e67e22;
     --eao-accent-hover: #d35400;
     --eao-accent-light: rgba(230, 126, 34, 0.1);
+    --eao-accent-bg: #fffaf5;
     
     /* Functional Colors */
     --eao-success: #27ae60;
@@ -560,7 +561,7 @@
 .eao-selection-card.is-selected {
     border-color: var(--eao-accent);
     box-shadow: 0 0 0 3px var(--eao-accent-light);
-    background: linear-gradient(to bottom, #fffaf5, var(--eao-white));
+    background: linear-gradient(to bottom, var(--eao-accent-bg), var(--eao-white));
 }
 
 .eao-selection-card.is-disabled {
@@ -1106,7 +1107,7 @@
 .eao-address-card.is-selected {
     border-color: var(--eao-accent);
     box-shadow: 0 0 0 3px var(--eao-accent-light);
-    background: #fffaf5;
+    background: var(--eao-accent-bg);
 }
 
 /* New Address Card */

@@ -92,21 +92,26 @@ class EAO_Public {
             return;
         }
 
-        // Calculate hover color (10% darker).
+        // Calculate hover color (15% darker).
         $hover_color = $this->darken_color( $brand_color, 15 );
         
-        // Calculate light color (10% opacity).
+        // Calculate light color (10% opacity for box shadows).
         $light_color = $this->hex_to_rgba( $brand_color, 0.1 );
+
+        // Calculate background tint color (very light blend with white).
+        $bg_color = $this->lighten_color( $brand_color, 95 );
 
         $custom_css = sprintf(
             ':root {
                 --eao-accent: %1$s;
                 --eao-accent-hover: %2$s;
                 --eao-accent-light: %3$s;
+                --eao-accent-bg: %4$s;
             }',
             esc_attr( $brand_color ),
             esc_attr( $hover_color ),
-            esc_attr( $light_color )
+            esc_attr( $light_color ),
+            esc_attr( $bg_color )
         );
 
         wp_add_inline_style( $this->plugin_name . '-public', $custom_css );
@@ -138,6 +143,34 @@ class EAO_Public {
 
         // Convert back to hex.
         return sprintf( '#%02x%02x%02x', $r, $g, $b );
+    }
+
+    /**
+     * Lighten a hex color by blending towards white.
+     *
+     * @since  1.0.0
+     * @access private
+     *
+     * @param string $hex     Hex color code.
+     * @param int    $percent Percentage to lighten (0-100). 100 = white.
+     * @return string Lightened hex color.
+     */
+    private function lighten_color( $hex, $percent ) {
+        // Remove # if present.
+        $hex = ltrim( $hex, '#' );
+
+        // Convert to RGB.
+        $r = hexdec( substr( $hex, 0, 2 ) );
+        $g = hexdec( substr( $hex, 2, 2 ) );
+        $b = hexdec( substr( $hex, 4, 2 ) );
+
+        // Blend towards white (255).
+        $r = $r + ( ( 255 - $r ) * $percent / 100 );
+        $g = $g + ( ( 255 - $g ) * $percent / 100 );
+        $b = $b + ( ( 255 - $b ) * $percent / 100 );
+
+        // Clamp values and convert back to hex.
+        return sprintf( '#%02x%02x%02x', min( 255, $r ), min( 255, $g ), min( 255, $b ) );
     }
 
     /**
