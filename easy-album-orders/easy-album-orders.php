@@ -12,7 +12,7 @@
  * Plugin Name:       Easy Album Orders
  * Plugin URI:        https://riseplugins.com/
  * Description:       Streamline custom album orders for professional photographers with client order forms, material options, and order management.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Ryan Moreno
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-define( 'EAO_VERSION', '1.0.1' );
+define( 'EAO_VERSION', '1.0.2' );
 
 /**
  * Plugin directory path.
@@ -244,3 +244,120 @@ function eao_init_updater() {
     );
 }
 add_action( 'admin_init', 'eao_init_updater' );
+
+/**
+ * Add action links to the plugins page.
+ *
+ * @since 1.0.2
+ *
+ * @param array $links Existing plugin action links.
+ * @return array Modified plugin action links.
+ */
+function eao_plugin_action_links( $links ) {
+    $plugin_links = array(
+        '<a href="' . esc_url( admin_url( 'admin.php?page=eao-album-options' ) ) . '">' . esc_html__( 'Settings', 'easy-album-orders' ) . '</a>',
+        '<a href="' . esc_url( admin_url( 'edit.php?post_type=album_order' ) ) . '">' . esc_html__( 'View Orders', 'easy-album-orders' ) . '</a>',
+        '<a href="' . esc_url( admin_url( 'post-new.php?post_type=client_album' ) ) . '">' . esc_html__( 'Create Client Album', 'easy-album-orders' ) . '</a>',
+    );
+
+    return array_merge( $plugin_links, $links );
+}
+add_filter( 'plugin_action_links_' . EAO_PLUGIN_BASENAME, 'eao_plugin_action_links' );
+
+/**
+ * Add row meta links to the plugins page.
+ *
+ * @since 1.0.2
+ *
+ * @param array  $links Plugin row meta links.
+ * @param string $file  Plugin file path.
+ * @return array Modified row meta links.
+ */
+function eao_plugin_row_meta( $links, $file ) {
+    if ( EAO_PLUGIN_BASENAME !== $file ) {
+        return $links;
+    }
+
+    $check_updates_url = wp_nonce_url(
+        admin_url( 'plugins.php?eao_check_updates=1' ),
+        'eao_check_updates',
+        'eao_nonce'
+    );
+
+    $links[] = '<a href="' . esc_url( $check_updates_url ) . '">' . esc_html__( 'Check for updates', 'easy-album-orders' ) . '</a>';
+
+    return $links;
+}
+add_filter( 'plugin_row_meta', 'eao_plugin_row_meta', 10, 2 );
+
+/**
+ * Handle the check for updates action.
+ *
+ * @since 1.0.2
+ */
+function eao_handle_check_updates() {
+    if ( ! isset( $_GET['eao_check_updates'] ) || ! isset( $_GET['eao_nonce'] ) ) {
+        return;
+    }
+
+    if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['eao_nonce'] ) ), 'eao_check_updates' ) ) {
+        return;
+    }
+
+    if ( ! current_user_can( 'update_plugins' ) ) {
+        return;
+    }
+
+    // Clear the GitHub release cache.
+    delete_transient( 'eao_github_release' );
+
+    // Clear WordPress update cache.
+    delete_site_transient( 'update_plugins' );
+
+    // Force WordPress to check for updates.
+    wp_update_plugins();
+
+    // Redirect back to plugins page with a message.
+    wp_safe_redirect( admin_url( 'plugins.php?eao_updated=1' ) );
+    exit;
+}
+add_action( 'admin_init', 'eao_handle_check_updates' );
+
+/**
+ * Display admin notice after checking for updates.
+ *
+ * @since 1.0.2
+ */
+function eao_update_check_notice() {
+    if ( ! isset( $_GET['eao_updated'] ) ) {
+        return;
+    }
+
+    // Check if an update is available.
+    $update_plugins = get_site_transient( 'update_plugins' );
+    $has_update     = isset( $update_plugins->response[ EAO_PLUGIN_BASENAME ] );
+
+    if ( $has_update ) {
+        $new_version = $update_plugins->response[ EAO_PLUGIN_BASENAME ]->new_version;
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <p>
+                <?php
+                printf(
+                    /* translators: %s: New version number */
+                    esc_html__( 'Easy Album Orders: Update available! Version %s is ready to install.', 'easy-album-orders' ),
+                    esc_html( $new_version )
+                );
+                ?>
+            </p>
+        </div>
+        <?php
+    } else {
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <p><?php esc_html_e( 'Easy Album Orders: You are running the latest version.', 'easy-album-orders' ); ?></p>
+        </div>
+        <?php
+    }
+}
+add_action( 'admin_notices', 'eao_update_check_notice' );
