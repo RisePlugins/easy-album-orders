@@ -520,8 +520,8 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                         <div class="eao-field">
                             <label for="eao_accent_color"><?php esc_html_e( 'Accent Color', 'easy-album-orders' ); ?></label>
                             <div class="eao-color-picker-wrap">
-                                <input type="color" id="eao_accent_color" name="eao_email_settings[accent_color]" value="<?php echo esc_attr( isset( $email_settings['accent_color'] ) ? $email_settings['accent_color'] : '#e67e22' ); ?>">
-                                <span class="eao-color-hex"><?php echo esc_html( isset( $email_settings['accent_color'] ) ? $email_settings['accent_color'] : '#e67e22' ); ?></span>
+                                <input type="color" id="eao_accent_color" name="eao_email_settings[accent_color]" value="<?php echo esc_attr( isset( $email_settings['accent_color'] ) ? $email_settings['accent_color'] : '#1a1a1b' ); ?>">
+                                <span class="eao-color-hex"><?php echo esc_html( isset( $email_settings['accent_color'] ) ? $email_settings['accent_color'] : '#1a1a1b' ); ?></span>
                             </div>
                             <p class="description"><?php esc_html_e( 'Primary color used in email templates.', 'easy-album-orders' ); ?></p>
                         </div>

@@ -722,7 +722,7 @@ class EAO_Admin_Menus {
 
             // Branding.
             'logo_url'                      => isset( $settings['logo_url'] ) ? esc_url_raw( $settings['logo_url'] ) : '',
-            'accent_color'                  => isset( $settings['accent_color'] ) ? sanitize_hex_color( $settings['accent_color'] ) : '#e67e22',
+            'accent_color'                  => isset( $settings['accent_color'] ) ? sanitize_hex_color( $settings['accent_color'] ) : '#1a1a1b',
 
             // Order Confirmation.
             'enable_order_confirmation'     => isset( $settings['enable_order_confirmation'] ) ? true : false,

@@ -455,7 +455,7 @@ class EAO_Email {
      * @return string HTML email.
      */
     private function get_cart_reminder_template( $orders, $total, $customer_name, $album_url ) {
-        $accent_color = $this->get_setting( 'accent_color', '#e67e22' );
+        $accent_color = $this->get_setting( 'accent_color', '#1a1a1b' );
 
         ob_start();
         ?>
@@ -861,7 +861,7 @@ class EAO_Email {
      */
     private function get_email_template( $content, $title = '' ) {
         $logo_url    = $this->get_setting( 'logo_url', '' );
-        $accent_color = $this->get_setting( 'accent_color', '#e67e22' );
+        $accent_color = $this->get_setting( 'accent_color', '#1a1a1b' );
         $site_name   = get_bloginfo( 'name' );
 
         ob_start();
@@ -924,7 +924,7 @@ class EAO_Email {
      * @return string HTML email.
      */
     private function get_order_confirmation_template( $orders, $total, $customer_name, $album_title ) {
-        $accent_color = $this->get_setting( 'accent_color', '#e67e22' );
+        $accent_color = $this->get_setting( 'accent_color', '#1a1a1b' );
 
         ob_start();
         ?>
@@ -1035,7 +1035,7 @@ class EAO_Email {
      * @return string HTML email.
      */
     private function get_new_order_alert_template( $orders, $total, $customer_name, $customer_email, $customer_phone, $album_title, $admin_url ) {
-        $accent_color = $this->get_setting( 'accent_color', '#e67e22' );
+        $accent_color = $this->get_setting( 'accent_color', '#1a1a1b' );
 
         ob_start();
         ?>
@@ -1130,7 +1130,7 @@ class EAO_Email {
      * @return string HTML email.
      */
     private function get_shipped_notification_template( $order, $customer_name, $tracking_number, $tracking_carrier, $tracking_url ) {
-        $accent_color = $this->get_setting( 'accent_color', '#e67e22' );
+        $accent_color = $this->get_setting( 'accent_color', '#1a1a1b' );
 
         ob_start();
         ?>
