@@ -85,10 +85,10 @@ class EAO_Public {
      */
     private function add_brand_color_css() {
         $general_settings = get_option( 'eao_general_settings', array() );
-        $brand_color      = isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#e67e22';
+        $brand_color      = isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#1a1a1b';
 
         // Only output custom CSS if the color differs from default.
-        if ( '#e67e22' === $brand_color ) {
+        if ( '#1a1a1b' === $brand_color ) {
             return;
         }
 

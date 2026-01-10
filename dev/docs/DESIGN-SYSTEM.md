@@ -112,7 +112,7 @@ The frontend uses a minimal, theme-agnostic palette that adapts to any website.
     --eao-primary-light: #34495e;  /* Lighter slate */
     
     /* Single Accent - warm, inviting, not gender-specific */
-    --eao-accent: #e67e22;         /* Warm amber - CTAs */
+    --eao-accent: #1a1a1b;         /* Brand color - CTAs */
     --eao-accent-hover: #d35400;   /* Darker for hover */
     
     /* Functional Colors */

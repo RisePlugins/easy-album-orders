@@ -697,7 +697,7 @@ class EAO_Admin_Menus {
             'currency_position' => isset( $settings['currency_position'] ) && in_array( $settings['currency_position'], array( 'before', 'after' ), true )
                 ? $settings['currency_position']
                 : 'before',
-            'brand_color'       => isset( $settings['brand_color'] ) ? sanitize_hex_color( $settings['brand_color'] ) : '#e67e22',
+            'brand_color'       => isset( $settings['brand_color'] ) ? sanitize_hex_color( $settings['brand_color'] ) : '#1a1a1b',
         );
     }
 

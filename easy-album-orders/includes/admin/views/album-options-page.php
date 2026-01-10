@@ -1027,18 +1027,18 @@ html[data-eao-active-tab="general"] .eao-options-page:not(.eao-tabs-initialized)
                                     type="color" 
                                     id="eao_brand_color" 
                                     name="eao_general_settings[brand_color]" 
-                                    value="<?php echo esc_attr( isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#e67e22' ); ?>"
+                                    value="<?php echo esc_attr( isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#1a1a1b' ); ?>"
                                     class="eao-color-input"
                                 >
                                 <input 
                                     type="text" 
                                     id="eao_brand_color_hex" 
                                     class="eao-color-hex-input" 
-                                    value="<?php echo esc_attr( isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#e67e22' ); ?>"
+                                    value="<?php echo esc_attr( isset( $general_settings['brand_color'] ) ? $general_settings['brand_color'] : '#1a1a1b' ); ?>"
                                     pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                                    placeholder="#e67e22"
+                                    placeholder="#1a1a1b"
                                 >
-                                <button type="button" class="button eao-color-reset" data-default="#e67e22">
+                                <button type="button" class="button eao-color-reset" data-default="#1a1a1b">
                                     <?php esc_html_e( 'Reset', 'easy-album-orders' ); ?>
                                 </button>
                             </div>

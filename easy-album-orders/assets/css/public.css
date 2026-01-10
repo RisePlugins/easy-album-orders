@@ -17,11 +17,11 @@
     --eao-primary: #2c3e50;
     --eao-primary-light: #34495e;
     
-    /* Single Accent - Warm amber for CTAs */
-    --eao-accent: #e67e22;
-    --eao-accent-hover: #d35400;
-    --eao-accent-light: rgba(230, 126, 34, 0.1);
-    --eao-accent-bg: #fffaf5;
+    /* Single Accent - Brand color for CTAs */
+    --eao-accent: #1a1a1b;
+    --eao-accent-hover: #000000;
+    --eao-accent-light: rgba(26, 26, 27, 0.1);
+    --eao-accent-bg: #f4f4f4;
     
     /* Functional Colors */
     --eao-success: #27ae60;
