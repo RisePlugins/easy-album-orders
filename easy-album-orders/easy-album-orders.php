@@ -10,13 +10,13 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Easy Album Orders
- * Plugin URI:        https://example.com/easy-album-orders
+ * Plugin URI:        https://riseplugins.com/
  * Description:       Streamline custom album orders for professional photographers with client order forms, material options, and order management.
  * Version:           1.0.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Ryan Moreno
- * Author URI:        https://example.com
+ * Author URI:        https://riseplugins.com/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       easy-album-orders
@@ -78,7 +78,7 @@ define( 'EAO_MIN_WP_VERSION', '5.8' );
  *
  * @since 1.0.0
  */
-define( 'EAO_GITHUB_REPO', '' ); // e.g., 'ryanmoreno/easy-album-orders'
+define( 'EAO_GITHUB_REPO', 'RisePlugins/easy-album-orders' );
 
 /**
  * Check PHP version and display error if not met.
@@ -224,3 +224,23 @@ function eao_run() {
 }
 add_action( 'plugins_loaded', 'eao_run' );
 
+/**
+ * Initialize the GitHub updater for automatic updates.
+ *
+ * @since 1.0.0
+ */
+function eao_init_updater() {
+    // Only initialize if a GitHub repo is configured.
+    if ( empty( EAO_GITHUB_REPO ) ) {
+        return;
+    }
+
+    require_once EAO_PLUGIN_DIR . 'includes/core/class-eao-github-updater.php';
+
+    new EAO_GitHub_Updater(
+        __FILE__,
+        EAO_GITHUB_REPO,
+        '' // Optional: Add access token for private repos.
+    );
+}
+add_action( 'admin_init', 'eao_init_updater' );
