@@ -1,5 +1,51 @@
 # Easy Album Orders - Cursor Rules
 
+## Project Structure
+
+```
+Easy Album Orders Plugin/           # Project root (git repo)
+├── easy-album-orders/              # Production plugin folder
+│   ├── assets/                     # CSS, JS, icons
+│   ├── includes/                   # PHP classes
+│   ├── vendor/                     # Composer dependencies
+│   ├── languages/                  # Translations
+│   ├── easy-album-orders.php       # Main plugin file
+│   └── LICENSE
+├── dev/                            # Development files (not in production)
+│   ├── docs/                       # Documentation
+│   └── scripts/                    # Build scripts
+├── dist/                           # Production zips (gitignored)
+├── tabler-icons-full/              # Icon library (gitignored)
+├── CHANGELOG.md
+├── README.md
+├── RELEASE.md
+├── composer.json
+└── composer.lock
+```
+
+---
+
+## Release Commands
+
+### Quick Release
+When user says something like "release version X.X.X" or "push update to users":
+
+1. Update version in `easy-album-orders/easy-album-orders.php`:
+   - Plugin header: `* Version: X.X.X`
+   - Constant: `define( 'EAO_VERSION', 'X.X.X' );`
+2. Update CHANGELOG.md with release notes
+3. Run: `./dev/scripts/build.sh X.X.X`
+4. Commit: `git add -A && git commit -m "chore: Release version X.X.X"`
+5. Tag: `git tag -a vX.X.X -m "Release X.X.X"`
+6. Push: `git push origin main --tags`
+7. Remind user to create GitHub release and attach zip from `dist/`
+
+### Build Only
+When user says "build plugin" or "create production zip":
+- Run: `./dev/scripts/build.sh`
+
+---
+
 ## Git Workflow
 
 ### Commit Requirements
@@ -37,11 +83,12 @@ refactor: Reorganize admin meta box classes
 ## WordPress Plugin Development Standards
 
 ### File Organization
-- Follow the folder structure defined in PLUGIN-OVERVIEW.md
-- Place admin files in `/includes/admin/`
-- Place public/front-end files in `/includes/public/`
-- Place core utilities in `/includes/core/`
-- Place post type definitions in `/includes/post-types/`
+- Plugin files go in `easy-album-orders/` (lowercase with hyphens)
+- Follow the folder structure defined in dev/docs/PLUGIN-OVERVIEW.md
+- Place admin files in `easy-album-orders/includes/admin/`
+- Place public/front-end files in `easy-album-orders/includes/public/`
+- Place core utilities in `easy-album-orders/includes/core/`
+- Place post type definitions in `easy-album-orders/includes/post-types/`
 - Place templates in appropriate `/views/` or `/templates/` folders
 
 ### Naming Conventions
@@ -193,14 +240,14 @@ Respect the status progression:
 - Use `EAO_Icons::render( 'icon-name' )` to output icons
 - Use `EAO_Icons::get( 'icon-name' )` to get icon as string
 - Default icon size is 16px
-- **ALWAYS update `docs/USED-ICONS.md` when adding a new icon**
+- **ALWAYS update `dev/docs/USED-ICONS.md` when adding a new icon**
 - Browse available icons at: https://tabler.io/icons
-- See `docs/DESIGN-SYSTEM.md` for full iconography guidelines
+- See `dev/docs/DESIGN-SYSTEM.md` for full iconography guidelines
 
 #### Folder Structure
 ```
 Easy Album Orders Plugin/
-├── Easy Album Orders/                    ← The actual WordPress plugin
+├── easy-album-orders/                    ← The actual WordPress plugin
 │   └── assets/icons/tabler/              ← ONLY contains icons in use (~30 icons)
 │       ├── outline/
 │       └── filled/
@@ -223,13 +270,13 @@ Easy Album Orders Plugin/
 1. **Copy the SVG file** from `tabler-icons-full/tabler/` to the plugin's icon folder:
    ```bash
    # Copy outline version (required)
-   cp tabler-icons-full/tabler/outline/icon-name.svg "Easy Album Orders/assets/icons/tabler/outline/"
+   cp tabler-icons-full/tabler/outline/icon-name.svg "easy-album-orders/assets/icons/tabler/outline/"
    
    # Copy filled version (optional, if needed)
-   cp tabler-icons-full/tabler/filled/icon-name.svg "Easy Album Orders/assets/icons/tabler/filled/"
+   cp tabler-icons-full/tabler/filled/icon-name.svg "easy-album-orders/assets/icons/tabler/filled/"
    ```
 2. Use the icon in code with `EAO_Icons::render()` or `EAO_Icons::get()`
-3. Open `docs/USED-ICONS.md`
+3. Open `dev/docs/USED-ICONS.md`
 4. Add the icon name to the appropriate file section
 5. Add the icon name to the "Complete Icon List" (alphabetical order)
 6. Update the icon count
@@ -267,7 +314,7 @@ EAO_Icons::render( 'icon-name', array( 'variant' => 'filled' ) );
 - Returning after extended time away
 
 ### Manual Development (if needed)
-- Review PLUGIN-OVERVIEW.md for architecture guidance
+- Review dev/docs/PLUGIN-OVERVIEW.md for architecture guidance
 - Follow coding standards
 - Test changes in WordPress environment
 - Add/update comments and documentation
@@ -400,9 +447,9 @@ When implementing a feature, ask:
 - WordPress Coding Standards: https://developer.wordpress.org/coding-standards/
 - WordPress Plugin Handbook: https://developer.wordpress.org/plugins/
 - Security Best Practices: https://developer.wordpress.org/apis/security/
-- Project Architecture: See PLUGIN-OVERVIEW.md
+- Project Architecture: See dev/docs/PLUGIN-OVERVIEW.md
+- Release Process: See RELEASE.md
 
 ---
 
 **Remember: Commit early, commit often, commit with clear messages!**
-
