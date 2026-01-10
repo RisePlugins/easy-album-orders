@@ -86,18 +86,6 @@ Keep this list updated as you add new icons throughout development.
 | `truck` | Shipping section in View Album Orders tab |
 | `receipt` | Order Total section in View Album Orders tab |
 
-### Order History Page (`single-client-album-order-history.php`)
-
-| Icon | Usage |
-|------|-------|
-| `arrow-left` | Back to Order Form link |
-| `clipboard-list` | Empty state icon |
-| `hash` | Order number display |
-| `calendar` | Order date display |
-| `book` | Album Details section header |
-| `truck` | Shipping section header |
-| `receipt` | Order Total section header |
-
 ### Front-End Cart Item (`cart-item.php`)
 
 | Icon | Usage |

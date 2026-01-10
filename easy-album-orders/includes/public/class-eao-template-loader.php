@@ -41,15 +41,7 @@ class EAO_Template_Loader {
         global $post;
 
         if ( 'client_album' === $post->post_type ) {
-            // Check for order history view parameter.
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view parameter.
-            $view = isset( $_GET['view'] ) ? sanitize_text_field( wp_unslash( $_GET['view'] ) ) : '';
-
-            if ( 'order-history' === $view ) {
-                $plugin_template = EAO_PLUGIN_DIR . 'includes/public/templates/single-client-album-order-history.php';
-            } else {
-                $plugin_template = EAO_PLUGIN_DIR . 'includes/public/templates/single-client-album.php';
-            }
+            $plugin_template = EAO_PLUGIN_DIR . 'includes/public/templates/single-client-album.php';
 
             if ( file_exists( $plugin_template ) ) {
                 return $plugin_template;
